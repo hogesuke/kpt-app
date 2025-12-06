@@ -3,7 +3,9 @@ import * as React from 'react';
 
 import { cn } from '@/lib/utils';
 
-export const boardColumnVariants = cva(['w-128 flex-initial', 'rounded-md', 'focus-visible:ring-1 focus-visible:ring-ring'], {
+import { KPTCard } from './KPTCard';
+
+export const boardColumnVariants = cva(['w-128 p-4', 'flex-initial', 'rounded-md', 'focus-visible:ring-1 focus-visible:ring-ring'], {
   variants: {
     type: {
       keep: 'bg-yellow-100',
@@ -16,14 +18,17 @@ export const boardColumnVariants = cva(['w-128 flex-initial', 'rounded-md', 'foc
   },
 });
 
-export interface BoardColumnProps extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof boardColumnVariants> {
+export interface BoardColumnProps extends React.HTMLAttributes<HTMLElement>, VariantProps<typeof boardColumnVariants> {
   title: string;
 }
 
 export function BoardColumn({ className, type, ...props }: BoardColumnProps) {
   return (
-    <div className={cn(boardColumnVariants({ type, className }))} {...props}>
-      <h2 className="p-4 text-lg font-semibold">{props.title}</h2>
-    </div>
+    <section className={cn(boardColumnVariants({ type, className }))} {...props}>
+      <h2 className="p-2 text-lg font-semibold">{props.title}</h2>
+      <ul>
+        <KPTCard text="Sample card content" />
+      </ul>
+    </section>
   );
 }
