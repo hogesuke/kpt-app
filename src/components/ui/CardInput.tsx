@@ -3,7 +3,7 @@ import * as React from 'react';
 
 import { cn } from '@/lib/utils';
 
-import { Input } from './Input';
+import { Input } from './shadcn/input';
 
 export interface CardInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   onSubmitText: (value: string) => void | Promise<void>;

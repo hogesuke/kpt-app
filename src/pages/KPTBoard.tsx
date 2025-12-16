@@ -4,7 +4,7 @@ import { ReactElement, useMemo, useState } from 'react';
 import { BoardColumn } from '@/components/ui/BoardColumn';
 import { CardInput } from '@/components/ui/CardInput';
 import { KPTCard } from '@/components/ui/KPTCard';
-import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@/components/ui/Select';
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@/components/ui/shadcn/select';
 import { useKPTCardDnD } from '@/hooks/useKPTCardDnD';
 import { useRealtimeUpdates } from '@/hooks/useRealtimeUpdates';
 import { createKptItem } from '@/lib/kpt-api';

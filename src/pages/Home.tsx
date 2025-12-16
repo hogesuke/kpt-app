@@ -1,6 +1,6 @@
 import { ReactElement } from 'react';
 
-import { Button } from '@/components/ui/Button';
+import { Button } from '@/components/ui/shadcn/button';
 
 export function Home(): ReactElement {
   return (
