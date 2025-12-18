@@ -24,3 +24,21 @@ export async function createKptItem(input: { column: KptColumnType; text: string
 
   return data as KptItem;
 }
+
+/**
+ * KPTのアイテム一覧を取得する。
+ */
+export async function fetchKptItems(): Promise<KptItem[]> {
+  const { data, error } = await supabase.functions.invoke('get-kpt-items');
+
+  if (error) {
+    // TODO: エラーハンドリングを改善する
+    throw error;
+  }
+
+  if (!data) {
+    return [];
+  }
+
+  return data as KptItem[];
+}

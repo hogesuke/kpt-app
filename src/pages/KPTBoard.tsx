@@ -1,5 +1,5 @@
 import { DndContext, DragOverlay } from '@dnd-kit/core';
-import { ReactElement, useMemo, useState } from 'react';
+import { ReactElement, useEffect, useMemo, useState } from 'react';
 
 import { BoardColumn } from '@/components/ui/BoardColumn';
 import { CardInput } from '@/components/ui/CardInput';
@@ -7,21 +7,14 @@ import { KPTCard } from '@/components/ui/KPTCard';
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@/components/ui/shadcn/select';
 import { useKPTCardDnD } from '@/hooks/useKPTCardDnD';
 import { useRealtimeUpdates } from '@/hooks/useRealtimeUpdates';
-import { createKptItem } from '@/lib/kpt-api';
+import { createKptItem, fetchKptItems } from '@/lib/kpt-api';
 
 import type { KptColumnType, KptItem } from '@/types/kpt';
 
 const columns: KptColumnType[] = ['keep', 'problem', 'try'];
 
-// TODO: あとでダミーデータを消す
-const initialItems: KptItem[] = [
-  { id: '1', column: 'keep', text: 'Sample keep card' },
-  { id: '2', column: 'problem', text: 'Sample problem card' },
-  { id: '3', column: 'try', text: 'Sample try card' },
-];
-
 export function KPTBoard(): ReactElement {
-  const [items, setItems] = useState<KptItem[]>(initialItems);
+  const [items, setItems] = useState<KptItem[]>([]);
   const [isAdding, setIsAdding] = useState(false);
   const [newItemColumn, setNewItemColumn] = useState<KptColumnType>('keep');
 
@@ -47,6 +40,19 @@ export function KPTBoard(): ReactElement {
       ),
     [items]
   );
+
+  useEffect(() => {
+    const loadItems = async () => {
+      try {
+        const loaded = await fetchKptItems();
+        setItems(loaded);
+      } catch (e) {
+        // TODO: エラーハンドリングを改善する
+        console.error('Itemの取得に失敗しました。', e);
+      }
+    };
+    void loadItems();
+  }, []);
 
   const activeItem = useMemo(() => items.find((item) => item.id === activeId) ?? null, [items, activeId]);
 
