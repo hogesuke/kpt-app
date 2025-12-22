@@ -58,7 +58,6 @@ export function useRealtimeUpdates({ boardId, onItemsChange }: UseRealtimeUpdate
           event: 'DELETE',
           schema: 'public',
           table: 'items',
-          filter: `board_id=eq.${boardId}`,
         },
         (payload: RealtimePostgresDeletePayload<ItemRow>) => {
           const { id } = payload.old;
