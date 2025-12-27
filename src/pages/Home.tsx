@@ -13,14 +13,15 @@ import {
   DialogTrigger,
 } from '@/components/ui/shadcn/dialog';
 import { Input } from '@/components/ui/shadcn/input';
-import { useAuth } from '@/contexts/AuthContext';
 import { createBoard, fetchBoards } from '@/lib/kpt-api';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 import type { KptBoard } from '@/types/kpt';
 
 export function Home(): ReactElement {
   const navigate = useNavigate();
-  const { user, signOut } = useAuth();
+  const user = useAuthStore((state) => state.user);
+  const signOut = useAuthStore((state) => state.signOut);
   const [boards, setBoards] = useState<KptBoard[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
