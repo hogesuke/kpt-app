@@ -4,6 +4,7 @@
   "description": "KPTを簡単シンプルにするアプリケーション",
   "main": "index.js",
   "type": "module",
+  "packageManager": "pnpm@10.11.1",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
