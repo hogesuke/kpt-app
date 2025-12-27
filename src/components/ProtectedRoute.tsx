@@ -1,14 +1,15 @@
 import { ReactElement } from 'react';
 import { Navigate } from 'react-router-dom';
 
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 interface ProtectedRouteProps {
   children: ReactElement;
 }
 
 export function ProtectedRoute({ children }: ProtectedRouteProps): ReactElement {
-  const { user, loading } = useAuth();
+  const user = useAuthStore((state) => state.user);
+  const loading = useAuthStore((state) => state.loading);
 
   if (loading) {
     return (

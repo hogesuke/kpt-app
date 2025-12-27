@@ -3,11 +3,11 @@ import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { ReactElement, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase-client';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 export function Login(): ReactElement {
-  const { user } = useAuth();
+  const user = useAuthStore((state) => state.user);
   const navigate = useNavigate();
 
   useEffect(() => {
