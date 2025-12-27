@@ -139,11 +139,9 @@ export function KPTBoard(): ReactElement {
       onDragCancel={handleDragCancel}
     >
       <section className="mx-auto grid h-screen w-full max-w-[1920px] grid-rows-[auto_1fr_auto] gap-y-4 p-8">
-        <header className="flex items-baseline justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-semibold">{board ? board.name : isLoading ? 'ボードを読み込み中...' : 'KPT Board'}</h1>
-            <p className="text-muted-foreground mt-1 text-xs">Board ID: {boardId}</p>
-          </div>
+        <header>
+          <h1 className="text-2xl font-semibold">{board ? board.name : isLoading ? 'ボードを読み込み中...' : 'KPT Board'}</h1>
+          <p className="text-muted-foreground mt-1 text-xs">Board ID: {boardId}</p>
         </header>
 
         <div className="flex flex-col items-stretch gap-x-4 gap-y-4 lg:flex-row">

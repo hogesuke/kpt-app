@@ -13,6 +13,25 @@ function mapRowToItem(row: ItemRow): KptItem {
 }
 
 /**
+ * ボード一覧を取得する。
+ */
+export async function fetchBoards(): Promise<KptBoard[]> {
+  const { data, error } = await supabase.from('boards').select('id, name, owner_id, created_at').order('created_at', { ascending: false });
+
+  if (error) {
+    // TODO: エラーハンドリングを改善する
+    throw error;
+  }
+
+  if (!data) return [];
+
+  return data.map((row) => ({
+    id: row.id,
+    name: row.name,
+  }));
+}
+
+/**
  * ボードを取得する。
  */
 export async function fetchBoard(boardId: string): Promise<KptBoard | null> {
