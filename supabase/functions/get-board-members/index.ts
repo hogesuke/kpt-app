@@ -25,7 +25,7 @@ Deno.serve(async (req) => {
     return generateErrorResponse("boardIdは必須です", 400);
   }
 
-  // boardが存在するか確認
+  // ボードの存在確認
   const { data: board, error: boardError } = await client
     .from("boards")
     .select("id")
@@ -40,7 +40,7 @@ Deno.serve(async (req) => {
     return generateErrorResponse("ボードが見つかりません", 404);
   }
 
-  // ユーザーがboard_membersに含まれているかチェック
+  // ユーザーがメンバーか確認
   const { data: member } = await client
     .from("board_members")
     .select("id")
@@ -48,41 +48,40 @@ Deno.serve(async (req) => {
     .eq("user_id", user.id)
     .maybeSingle();
 
-  // メンバーでない場合は空配列を返す
   if (!member) {
-    return generateJsonResponse([]);
+    return generateErrorResponse("このボードへのアクセス権限がありません", 403);
   }
 
-  const { data, error } = await client
-    .from("items")
-    .select(`
-      id,
-      board_id,
-      column_name,
-      text,
-      created_at,
-      author_id,
-      profiles!items_author_id_profiles_fkey (
-        nickname
-      )
-    `)
+  // メンバー一覧を取得
+  const { data: membersData, error: membersError } = await client
+    .from("board_members")
+    .select("id, user_id, role, created_at")
     .eq("board_id", boardId)
     .order("created_at", { ascending: true });
 
-  if (error) {
-    return generateErrorResponse(error.message, 500);
+  if (membersError) {
+    return generateErrorResponse(membersError.message, 500);
   }
 
-  // ニックネーム情報をフラットな構造に変換
-  const items = (data ?? []).map((item: any) => ({
+  // プロフィール情報を取得
+  const userIds = (membersData ?? []).map((m: any) => m.user_id);
+  const { data: profilesData } = await client
+    .from("profiles")
+    .select("id, nickname")
+    .in("id", userIds);
+
+  // プロフィール情報をマップに変換
+  const profilesMap = new Map(
+    (profilesData ?? []).map((p: any) => [p.id, p.nickname])
+  );
+
+  const members = (membersData ?? []).map((item: any) => ({
     id: item.id,
-    board_id: item.board_id,
-    column_name: item.column_name,
-    text: item.text,
-    created_at: item.created_at,
-    author_id: item.author_id,
-    author_nickname: item.profiles?.nickname ?? null,
+    userId: item.user_id,
+    role: item.role,
+    createdAt: item.created_at,
+    nickname: profilesMap.get(item.user_id) ?? null,
   }));
 
-  return generateJsonResponse(items);
+  return generateJsonResponse(members);
 });

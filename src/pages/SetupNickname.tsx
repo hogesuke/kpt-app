@@ -35,7 +35,6 @@ export function SetupNickname(): ReactElement {
       setProfileStore(updatedProfile);
       navigate('/', { replace: true });
     } catch (err) {
-      console.error('Failed to update profile:', err);
       setError('ニックネームの設定に失敗しました。もう一度お試しください。');
     } finally {
       setIsSubmitting(false);

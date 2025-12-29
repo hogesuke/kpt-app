@@ -26,19 +26,18 @@ Deno.serve(async (req) => {
     return generateErrorResponse("name は必須です", 400);
   }
 
-  const { data, error } = await client
-    .from("boards")
-    .insert({ name: trimmedName, owner_id: user.id })
-    .select("id, name")
-    .maybeSingle();
+  const { data, error } = await client.rpc("create_board_with_owner", {
+    p_name: trimmedName,
+    p_user_id: user.id,
+  });
 
-  if (error || !data) {
-    console.error("[create-board] insert failed", error);
-    return generateErrorResponse(error?.message ?? "unknown error", 500);
+  if (error) {
+    return generateErrorResponse("ボードの作成に失敗しました", 500);
   }
 
-  return generateJsonResponse({
-    id: data.id,
-    name: data.name,
-  });
+  if (!data) {
+    return generateErrorResponse("ボードの作成に失敗しました", 500);
+  }
+
+  return generateJsonResponse(data);
 });

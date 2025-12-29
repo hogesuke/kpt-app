@@ -3,6 +3,7 @@ export type KptColumnType = 'keep' | 'problem' | 'try';
 export interface KptBoard {
   id: string;
   name: string;
+  isMember?: boolean;
 }
 
 export interface KptItem {

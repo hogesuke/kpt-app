@@ -25,20 +25,31 @@ Deno.serve(async (req) => {
     return generateErrorResponse("boardIdは必須です", 400);
   }
 
-  const { data, error } = await client
+  // boardが存在するか確認
+  const { data: board, error: boardError } = await client
     .from("boards")
     .select("id, name")
     .eq("id", boardId)
-    .eq("owner_id", user.id)
     .maybeSingle();
 
-  if (error) {
-    return generateErrorResponse(error.message, 500);
+  if (boardError) {
+    return generateErrorResponse(boardError.message, 500);
   }
 
-  if (!data) {
+  if (!board) {
     return generateErrorResponse("ボードが見つかりません", 404);
   }
 
-  return generateJsonResponse(data);
+  // ユーザーがboard_membersに含まれているかチェック
+  const { data: member } = await client
+    .from("board_members")
+    .select("id")
+    .eq("board_id", boardId)
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  return generateJsonResponse({
+    ...board,
+    isMember: !!member,
+  });
 });

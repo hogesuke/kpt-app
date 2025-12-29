@@ -44,7 +44,6 @@ Deno.serve(async (req) => {
       .maybeSingle();
 
     if (error || !data) {
-      console.error("[update-profile] update failed", error);
       return generateErrorResponse(error?.message ?? "unknown error", 500);
     }
 
@@ -58,7 +57,6 @@ Deno.serve(async (req) => {
       .maybeSingle();
 
     if (error || !data) {
-      console.error("[update-profile] insert failed", error);
       return generateErrorResponse(error?.message ?? "unknown error", 500);
     }
 

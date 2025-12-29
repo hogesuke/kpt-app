@@ -80,7 +80,6 @@ export const useAuthStore = create<AuthState>()(
             }
           });
         } catch (error) {
-          console.error('Failed to initialize auth:', error);
           set({ loading: false, initialized: true });
         }
       },
@@ -90,19 +89,13 @@ export const useAuthStore = create<AuthState>()(
           const profile = await fetchProfile();
           set({ profile });
         } catch (error) {
-          console.error('Failed to load profile:', error);
           set({ profile: null });
         }
       },
 
       signOut: async () => {
-        try {
-          await supabase.auth.signOut();
-          set({ user: null, session: null, profile: null });
-        } catch (error) {
-          console.error('Failed to sign out:', error);
-          throw error;
-        }
+        await supabase.auth.signOut();
+        set({ user: null, session: null, profile: null });
       },
 
       setUser: (user) => set({ user }),

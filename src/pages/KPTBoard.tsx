@@ -2,6 +2,7 @@ import { DndContext, DragOverlay } from '@dnd-kit/core';
 import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
+import { BoardMembersDialog } from '@/components/BoardMembersDialog';
 import { BoardColumn } from '@/components/ui/BoardColumn';
 import { CardInput } from '@/components/ui/CardInput';
 import { KPTCard } from '@/components/ui/KPTCard';
@@ -114,8 +115,13 @@ export function KPTBoard(): ReactElement {
     >
       <section className="mx-auto grid h-screen w-full max-w-480 grid-rows-[auto_1fr_auto] gap-y-4 p-8">
         <header>
-          <h1 className="text-2xl font-semibold">{board ? board.name : isLoading ? 'ボードを読み込み中...' : 'KPT Board'}</h1>
-          <p className="text-muted-foreground mt-1 text-xs">Board ID: {boardId}</p>
+          <div className="flex items-start justify-between">
+            <div>
+              <h1 className="text-2xl font-semibold">{board ? board.name : isLoading ? 'ボードを読み込み中...' : 'KPT Board'}</h1>
+              <p className="text-muted-foreground mt-1 text-xs">Board ID: {boardId}</p>
+            </div>
+            <BoardMembersDialog boardId={boardId} />
+          </div>
         </header>
 
         <div className="flex flex-col items-stretch gap-x-4 gap-y-4 lg:flex-row">
