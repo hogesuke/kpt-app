@@ -1,4 +1,10 @@
 dist
 node_modules
 coverage
-supabase
+package.json
+pnpm-lock.yaml
+supabase/*
+!supabase/functions
+
+# 自動生成されるファイル
+src/types/supabase.ts
