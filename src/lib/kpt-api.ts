@@ -212,3 +212,50 @@ export async function updateProfile(nickname: string): Promise<UserProfile> {
     updatedAt: row.updated_at,
   };
 }
+
+export interface BoardMember {
+  id: string;
+  userId: string;
+  role: string;
+  createdAt: string;
+  nickname: string | null;
+}
+
+/**
+ * ボードのメンバー一覧を取得する。
+ */
+export async function fetchBoardMembers(boardId: string): Promise<BoardMember[]> {
+  const { data, error } = await supabase.functions.invoke(`get-board-members?boardId=${encodeURIComponent(boardId)}`, {
+    method: 'GET',
+  });
+
+  if (error) {
+    // TODO: エラーハンドリングを改善する
+    throw error;
+  }
+
+  if (!data) return [];
+
+  return data as BoardMember[];
+}
+
+/**
+ * ボードに参加する。
+ */
+export async function joinBoard(boardId: string): Promise<{ success: boolean; alreadyMember: boolean }> {
+  const { data, error } = await supabase.functions.invoke('join-board', {
+    method: 'POST',
+    body: { boardId },
+  });
+
+  if (error) {
+    // TODO: エラーハンドリングを改善する
+    throw error;
+  }
+
+  if (!data) {
+    throw new Error('Edge Function "join-board" からデータが返されませんでした。');
+  }
+
+  return data as { success: boolean; alreadyMember: boolean };
+}

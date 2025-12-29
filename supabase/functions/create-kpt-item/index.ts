@@ -29,21 +29,31 @@ Deno.serve(async (req) => {
     return generateErrorResponse("boardId, column, text は必須です", 400);
   }
 
-  // boardの所有者チェック
+  // boardが存在するか確認
   const { data: board, error: boardError } = await client
     .from("boards")
     .select("id")
     .eq("id", boardId)
-    .eq("owner_id", user.id)
     .maybeSingle();
 
   if (boardError) {
-    console.error("[create-kpt-item] board check failed", boardError);
     return generateErrorResponse(boardError.message, 500);
   }
 
   if (!board) {
     return generateErrorResponse("ボードが見つかりません", 404);
+  }
+
+  // ユーザーがboard_membersに含まれているかチェック
+  const { data: member } = await client
+    .from("board_members")
+    .select("id")
+    .eq("board_id", boardId)
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (!member) {
+    return generateErrorResponse("このボードへのアクセス権限がありません", 403);
   }
 
   const { data, error } = await client
@@ -67,7 +77,6 @@ Deno.serve(async (req) => {
     .maybeSingle();
 
   if (error || !data) {
-    console.error("[create-kpt-item] insert failed", error);
     return generateErrorResponse(error?.message ?? "unknown error", 500);
   }
 

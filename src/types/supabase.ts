@@ -114,6 +114,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "items_author_id_profiles_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "items_board_id_fkey"
             columns: ["board_id"]
             isOneToOne: false
@@ -148,7 +155,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      create_board_with_owner: {
+        Args: { p_name: string; p_user_id: string }
+        Returns: Json
+      }
     }
     Enums: {
       [_ in never]: never

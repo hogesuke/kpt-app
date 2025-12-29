@@ -10,7 +10,7 @@ import {
 } from "../_shared/helpers.ts";
 
 Deno.serve(async (req) => {
-  const methodError = requireMethod(req, "DELETE");
+  const methodError = requireMethod(req, "POST");
   if (methodError) return methodError;
 
   const result = await createAuthenticatedClient(req);
@@ -19,13 +19,13 @@ Deno.serve(async (req) => {
   const { user } = result;
   const client = createServiceClient();
 
-  const { id, boardId } = await parseRequestBody<{ id?: string; boardId?: string }>(req);
+  const { boardId } = await parseRequestBody<{ boardId?: string }>(req);
 
-  if (!id || !boardId) {
-    return generateErrorResponse("id, boardId は必須です", 400);
+  if (!boardId) {
+    return generateErrorResponse("boardIdは必須です", 400);
   }
 
-  // boardが存在するか確認
+  // ボードが存在するか確認
   const { data: board, error: boardError } = await client
     .from("boards")
     .select("id")
@@ -40,23 +40,26 @@ Deno.serve(async (req) => {
     return generateErrorResponse("ボードが見つかりません", 404);
   }
 
-  // ユーザーがboard_membersに含まれているかチェック
-  const { data: member } = await client
+  // すでにメンバーかチェック
+  const { data: existingMember } = await client
     .from("board_members")
     .select("id")
     .eq("board_id", boardId)
     .eq("user_id", user.id)
     .maybeSingle();
 
-  if (!member) {
-        return generateErrorResponse("このボードへのアクセス権限がありません", 403);
+  if (existingMember) {
+    return generateJsonResponse({ success: true, alreadyMember: true });
   }
 
-  const { error } = await client.from("items").delete().eq("id", id).eq("board_id", boardId);
+  // メンバーとして追加
+  const { error: insertError } = await client
+    .from("board_members")
+    .insert({ board_id: boardId, user_id: user.id, role: "member" });
 
-  if (error) {
-    return generateErrorResponse(error.message, 500);
+  if (insertError) {
+    return generateErrorResponse(insertError.message, 500);
   }
 
-  return generateJsonResponse({ success: true });
+  return generateJsonResponse({ success: true, alreadyMember: false });
 });

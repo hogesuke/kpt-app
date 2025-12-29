@@ -23,6 +23,7 @@ interface BoardState {
   realtimeChannel: RealtimeChannel | null;
 
   loadBoard: (boardId: string) => Promise<void>;
+  joinBoard: (boardId: string) => Promise<void>;
   addItem: (boardId: string, column: KptColumnType, text: string) => Promise<void>;
   updateItem: (item: KptItem) => Promise<void>;
   deleteItem: (id: string, boardId: string) => Promise<void>;
@@ -55,12 +56,28 @@ export const useBoardStore = create<BoardState>()(
       loadBoard: async (boardId: string) => {
         set({ isLoading: true });
         try {
-          const [board, items] = await Promise.all([api.fetchBoard(boardId), api.fetchKptItems(boardId)]);
-          set({ currentBoard: board, items, isLoading: false });
+          // まずボード情報を取得してメンバーシップを確認
+          const board = await api.fetchBoard(boardId);
+
+          // メンバーでない場合のみジョインを実行
+          if (board && !board.isMember) {
+            await get().joinBoard(boardId);
+
+            const updatedBoard = await api.fetchBoard(boardId);
+            const items = await api.fetchKptItems(boardId);
+            set({ currentBoard: updatedBoard, items, isLoading: false });
+          } else {
+            const items = await api.fetchKptItems(boardId);
+            set({ currentBoard: board, items, isLoading: false });
+          }
         } catch (error) {
           set({ isLoading: false });
           throw error;
         }
+      },
+
+      joinBoard: async (boardId: string) => {
+        await api.joinBoard(boardId);
       },
 
       addItem: async (boardId: string, column: KptColumnType, text: string) => {
