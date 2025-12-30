@@ -21,7 +21,7 @@ interface BoardState {
   isLoading: boolean;
   isAdding: boolean;
   realtimeChannel: RealtimeChannel | null;
-  memberNicknameMap: Record<string, string>; // userId -> nickname のマップ
+  memberNicknameMap: Record<string, string>; // userId -> nickname へ変換するマップ
 
   loadBoard: (boardId: string) => Promise<void>;
   joinBoard: (boardId: string) => Promise<void>;
@@ -30,7 +30,8 @@ interface BoardState {
   deleteItem: (id: string, boardId: string) => Promise<void>;
   subscribeToRealtime: (boardId: string) => void;
   unsubscribeFromRealtime: () => void;
-  handleRealtimeInsert: (item: KptItem) => void;
+  fetchAndCacheNickname: (boardId: string, userId: string) => Promise<string | null>;
+  handleRealtimeInsert: (item: KptItem) => Promise<void>;
   handleRealtimeUpdate: (item: KptItem) => void;
   handleRealtimeDelete: (id: string) => void;
   reset: () => void;
@@ -258,22 +259,48 @@ export const useBoardStore = create<BoardState>()(
         }
       },
 
-      handleRealtimeInsert: (item: KptItem) => {
-        set((state) => {
-          // 重複チェック（既にあるアイテム、または一時IDのアイテムは追加しない）
-          const existingItem = state.items.find(
-            (i: KptItem) => i.id === item.id || (i.id.startsWith('temp-') && i.text === item.text && i.column === item.column)
-          );
+      fetchAndCacheNickname: async (boardId: string, userId: string): Promise<string | null> => {
+        try {
+          const members = await api.fetchBoardMembers(boardId);
+          const member = members.find((m) => m.userId === userId);
 
-          if (!existingItem) {
-            const nickname = item.authorId ? (state.memberNicknameMap[item.authorId] ?? null) : null;
-            const newItem = {
+          if (member) {
+            const nickname = member.nickname ?? '';
+            // キャッシュを更新
+            set((state) => {
+              state.memberNicknameMap[userId] = nickname;
+            });
+            return nickname || null;
+          }
+        } catch {
+          // NOOP
+        }
+        return null;
+      },
+
+      handleRealtimeInsert: async (item: KptItem) => {
+        const state = get();
+
+        // 重複チェック（既にあるアイテム、または一時IDのアイテムは追加しない）
+        const existingItem = state.items.find(
+          (i: KptItem) => i.id === item.id || (i.id.startsWith('temp-') && i.text === item.text && i.column === item.column)
+        );
+
+        if (!existingItem) {
+          let nickname = item.authorId ? state.memberNicknameMap[item.authorId] : null;
+
+          // キャッシュにない場合はAPIリクエストで取得する
+          if (item.authorId && !nickname) {
+            nickname = await get().fetchAndCacheNickname(item.boardId, item.authorId);
+          }
+
+          set((state) => {
+            state.items.push({
               ...item,
               authorNickname: nickname,
-            };
-            state.items.push(newItem);
-          }
-        });
+            });
+          });
+        }
       },
 
       handleRealtimeUpdate: (item: KptItem) => {
