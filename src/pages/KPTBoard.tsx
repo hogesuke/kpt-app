@@ -128,8 +128,8 @@ export function KPTBoard(): ReactElement {
       onDragEnd={handleDragEnd}
       onDragCancel={handleDragCancel}
     >
-      <section className="mx-auto grid h-screen w-full max-w-480 grid-rows-[auto_1fr_auto] gap-y-4 p-8">
-        <header>
+      <section className="mx-auto flex h-screen w-full max-w-480 flex-col p-8">
+        <header className="flex-none">
           <div className="flex items-start justify-between">
             <div>
               <h1 className="text-2xl font-semibold">{board ? board.name : isLoading ? 'ボードを読み込み中...' : 'KPT Board'}</h1>
@@ -139,13 +139,13 @@ export function KPTBoard(): ReactElement {
           </div>
         </header>
 
-        <div className="flex flex-col items-stretch gap-x-4 gap-y-4 lg:flex-row">
+        <div className="flex flex-1 flex-col items-stretch gap-x-4 gap-y-4 overflow-y-auto py-4 lg:flex-row">
           <BoardColumn title="Keep" type="keep" column="keep" items={itemsByColumn.keep} selectedItemId={selectedItem?.id} onDeleteItem={handleDeleteItem} onCardClick={handleCardClick} />
           <BoardColumn title="Problem" type="problem" column="problem" items={itemsByColumn.problem} selectedItemId={selectedItem?.id} onDeleteItem={handleDeleteItem} onCardClick={handleCardClick} />
           <BoardColumn title="Try" type="try" column="try" items={itemsByColumn.try} selectedItemId={selectedItem?.id} onDeleteItem={handleDeleteItem} onCardClick={handleCardClick} />
         </div>
 
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+        <div className="flex flex-none flex-col gap-2 pt-4 sm:flex-row sm:items-center">
           <Select value={newItemColumn} onValueChange={(value) => setNewItemColumn(value as KptColumnType)}>
             <SelectTrigger className="w-32">
               <SelectValue placeholder="カラムを選択" />
