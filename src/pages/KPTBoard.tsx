@@ -1,16 +1,22 @@
 import { DndContext, DragOverlay } from '@dnd-kit/core';
+import { Settings, Trash2 } from 'lucide-react';
 import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
+import { BoardDeleteDialog } from '@/components/BoardDeleteDialog';
 import { BoardMembersDialog } from '@/components/BoardMembersDialog';
 import { BoardColumn } from '@/components/ui/BoardColumn';
 import { CardInput } from '@/components/ui/CardInput';
 import { ItemDetailPanel } from '@/components/ui/ItemDetailPanel';
 import { KPTCard } from '@/components/ui/KPTCard';
+import { Button } from '@/components/ui/shadcn/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/shadcn/dropdown-menu';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/shadcn/select';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { useKPTCardDnD } from '@/hooks/useKPTCardDnD';
 import { selectActiveItem, selectItemsByColumn } from '@/lib/item-selectors';
+import { deleteBoard } from '@/lib/kpt-api';
+import { useAuthStore } from '@/stores/useAuthStore';
 import { useBoardStore } from '@/stores/useBoardStore';
 
 import type { KptColumnType, KptItem } from '@/types/kpt';
@@ -18,8 +24,10 @@ import type { KptColumnType, KptItem } from '@/types/kpt';
 const columns: KptColumnType[] = ['keep', 'problem', 'try'];
 
 export function KPTBoard(): ReactElement {
+  const navigate = useNavigate();
   const { boardId } = useParams<{ boardId: string }>();
   const { handleError } = useErrorHandler();
+  const user = useAuthStore((state) => state.user);
 
   const board = useBoardStore((state) => state.currentBoard);
   const items = useBoardStore((state) => state.items);
@@ -35,6 +43,8 @@ export function KPTBoard(): ReactElement {
   const reset = useBoardStore((state) => state.reset);
 
   const [newItemColumn, setNewItemColumn] = useState<KptColumnType>('keep');
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   useEffect(() => {
     if (!boardId) return;
@@ -111,6 +121,18 @@ export function KPTBoard(): ReactElement {
     setSelectedItem(null);
   }, [setSelectedItem]);
 
+  const handleDeleteBoard = async () => {
+    if (!boardId) return;
+    try {
+      setIsDeleting(true);
+      await deleteBoard(boardId);
+      navigate('/', { replace: true });
+    } catch (error) {
+      handleError('ボードの削除に失敗しました。');
+      setIsDeleting(false);
+    }
+  };
+
   if (!boardId) {
     return (
       <section className="mx-auto flex h-screen max-w-240 items-center justify-center px-4">
@@ -135,14 +157,64 @@ export function KPTBoard(): ReactElement {
               <h1 className="text-2xl font-semibold">{board ? board.name : isLoading ? 'ボードを読み込み中...' : 'KPT Board'}</h1>
               <p className="text-muted-foreground mt-1 text-xs">Board ID: {boardId}</p>
             </div>
-            <BoardMembersDialog boardId={boardId} />
+            <div className="flex items-center gap-2">
+              {user?.id && (!board || user.id === board.ownerId) && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="hover:bg-muted"
+                      aria-label="ボードセッティング"
+                      disabled={isLoading || !board}
+                    >
+                      <Settings className="text-muted-foreground h-4 w-4" />
+                      セッティング
+                    </Button>
+                  </DropdownMenuTrigger>
+                  {!isLoading && board && (
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => setDeleteDialogOpen(true)}>
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        削除
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  )}
+                </DropdownMenu>
+              )}
+              <BoardMembersDialog boardId={boardId} disabled={isLoading} />
+            </div>
           </div>
         </header>
 
         <div className="flex flex-1 flex-col items-stretch gap-x-4 gap-y-4 overflow-y-auto py-4 lg:flex-row">
-          <BoardColumn title="Keep" type="keep" column="keep" items={itemsByColumn.keep} selectedItemId={selectedItem?.id} onDeleteItem={handleDeleteItem} onCardClick={handleCardClick} />
-          <BoardColumn title="Problem" type="problem" column="problem" items={itemsByColumn.problem} selectedItemId={selectedItem?.id} onDeleteItem={handleDeleteItem} onCardClick={handleCardClick} />
-          <BoardColumn title="Try" type="try" column="try" items={itemsByColumn.try} selectedItemId={selectedItem?.id} onDeleteItem={handleDeleteItem} onCardClick={handleCardClick} />
+          <BoardColumn
+            title="Keep"
+            type="keep"
+            column="keep"
+            items={itemsByColumn.keep}
+            selectedItemId={selectedItem?.id}
+            onDeleteItem={handleDeleteItem}
+            onCardClick={handleCardClick}
+          />
+          <BoardColumn
+            title="Problem"
+            type="problem"
+            column="problem"
+            items={itemsByColumn.problem}
+            selectedItemId={selectedItem?.id}
+            onDeleteItem={handleDeleteItem}
+            onCardClick={handleCardClick}
+          />
+          <BoardColumn
+            title="Try"
+            type="try"
+            column="try"
+            items={itemsByColumn.try}
+            selectedItemId={selectedItem?.id}
+            onDeleteItem={handleDeleteItem}
+            onCardClick={handleCardClick}
+          />
         </div>
 
         <div className="flex flex-none flex-col gap-2 pt-4 sm:flex-row sm:items-center">
@@ -168,6 +240,17 @@ export function KPTBoard(): ReactElement {
 
       {/* カード詳細パネル */}
       <ItemDetailPanel item={selectedItem} onClose={handleClosePanel} />
+
+      {/* ボード削除確認ダイアログ */}
+      {board && (
+        <BoardDeleteDialog
+          boardName={board.name}
+          isDeleting={isDeleting}
+          onDelete={handleDeleteBoard}
+          open={deleteDialogOpen}
+          onOpenChange={setDeleteDialogOpen}
+        />
+      )}
     </DndContext>
   );
 }
