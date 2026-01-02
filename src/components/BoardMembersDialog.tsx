@@ -16,9 +16,10 @@ interface BoardMember {
 
 interface BoardMembersDialogProps {
   boardId: string;
+  disabled?: boolean;
 }
 
-export function BoardMembersDialog({ boardId }: BoardMembersDialogProps): ReactElement {
+export function BoardMembersDialog({ boardId, disabled = false }: BoardMembersDialogProps): ReactElement {
   const [open, setOpen] = useState(false);
   const [members, setMembers] = useState<BoardMember[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -58,8 +59,8 @@ export function BoardMembersDialog({ boardId }: BoardMembersDialogProps): ReactE
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
-          <Users className="mr-2 h-4 w-4" />
+        <Button variant="ghost" size="sm" disabled={disabled}>
+          <Users className="h-4 w-4" />
           メンバー管理
         </Button>
       </DialogTrigger>

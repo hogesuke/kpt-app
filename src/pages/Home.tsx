@@ -1,7 +1,8 @@
-import { LogOut, Plus } from 'lucide-react';
+import { LogOut, MoreHorizontal, Plus, Trash2 } from 'lucide-react';
 import { ReactElement, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { BoardDeleteDialog } from '@/components/BoardDeleteDialog';
 import { Button } from '@/components/ui/shadcn/button';
 import {
   Dialog,
@@ -12,14 +13,16 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/shadcn/dialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/shadcn/dropdown-menu';
 import { Input } from '@/components/ui/shadcn/input';
-import { createBoard, fetchBoards } from '@/lib/kpt-api';
+import { createBoard, deleteBoard, fetchBoards } from '@/lib/kpt-api';
 import { useAuthStore } from '@/stores/useAuthStore';
 
 import type { KptBoard } from '@/types/kpt';
 
 export function Home(): ReactElement {
   const navigate = useNavigate();
+  const user = useAuthStore((state) => state.user);
   const profile = useAuthStore((state) => state.profile);
   const signOut = useAuthStore((state) => state.signOut);
   const [boards, setBoards] = useState<KptBoard[]>([]);
@@ -27,6 +30,8 @@ export function Home(): ReactElement {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [boardName, setBoardName] = useState('');
   const [isCreating, setIsCreating] = useState(false);
+  const [deletingBoardId, setDeletingBoardId] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState<{ [key: string]: boolean }>({});
 
   const handleOpenChange = (open: boolean) => {
     setIsDialogOpen(open);
@@ -79,6 +84,18 @@ export function Home(): ReactElement {
       navigate('/login', { replace: true });
     } catch (error) {
       window.alert('ログアウトに失敗しました。');
+    }
+  };
+
+  const handleDeleteBoard = async (boardId: string) => {
+    try {
+      setDeletingBoardId(boardId);
+      await deleteBoard(boardId);
+      setBoards((prev) => prev.filter((board) => board.id !== boardId));
+    } catch (error) {
+      window.alert('ボードの削除に失敗しました。');
+    } finally {
+      setDeletingBoardId(null);
     }
   };
 
@@ -153,16 +170,48 @@ export function Home(): ReactElement {
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {boards.map((board) => (
-            <button
-              key={board.id}
-              type="button"
-              onClick={() => navigate(`/board/${board.id}`)}
-              className="rounded-lg border bg-white p-6 text-left shadow-sm transition-shadow hover:shadow-md"
-            >
-              <h3 className="font-semibold">{board.name}</h3>
-            </button>
-          ))}
+          {boards.map((board) => {
+            const isOwner = user?.id === board.ownerId;
+            return (
+              <div key={board.id} className="relative">
+                <button
+                  type="button"
+                  onClick={() => navigate(`/board/${board.id}`)}
+                  className="w-full rounded-lg border bg-white p-6 text-left shadow-sm transition-shadow hover:shadow-md"
+                >
+                  <h3 className="font-semibold">{board.name}</h3>
+                </button>
+                {isOwner && (
+                  <div className="absolute top-2 right-2">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="hover:bg-muted h-8 w-8" aria-label="ボード操作メニュー">
+                          <MoreHorizontal className="text-muted-foreground h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          className="text-destructive focus:text-destructive"
+                          onClick={() => setDeleteDialogOpen((prev) => ({ ...prev, [board.id]: true }))}
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          削除
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                )}
+
+                <BoardDeleteDialog
+                  boardName={board.name}
+                  isDeleting={deletingBoardId === board.id}
+                  onDelete={() => handleDeleteBoard(board.id)}
+                  open={deleteDialogOpen[board.id] || false}
+                  onOpenChange={(open) => setDeleteDialogOpen((prev) => ({ ...prev, [board.id]: open }))}
+                />
+              </div>
+            );
+          })}
         </div>
       )}
     </section>

@@ -34,6 +34,7 @@ export async function fetchBoards(): Promise<KptBoard[]> {
   return (data as BoardRow[]).map((row) => ({
     id: row.id,
     name: row.name,
+    ownerId: row.owner_id ?? undefined,
   }));
 }
 
@@ -56,6 +57,7 @@ export async function fetchBoard(boardId: string): Promise<KptBoard | null> {
   return {
     id: row.id,
     name: row.name,
+    ownerId: row.owner_id ?? undefined,
   };
 }
 
@@ -260,4 +262,21 @@ export async function joinBoard(boardId: string): Promise<{ success: boolean; al
   }
 
   return data as { success: boolean; alreadyMember: boolean };
+}
+
+/**
+ * ボードを削除する。
+ */
+export async function deleteBoard(boardId: string): Promise<void> {
+  const { data, error } = await supabase.functions.invoke('delete-board', {
+    method: 'DELETE',
+    body: { boardId },
+  });
+
+  if (error) {
+    // TODO: エラーハンドリングを改善する
+    throw error;
+  }
+
+  void data;
 }
