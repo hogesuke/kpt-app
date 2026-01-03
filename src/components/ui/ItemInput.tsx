@@ -1,4 +1,3 @@
-// src/components/ui/CardInput.tsx
 import { SendHorizonal } from 'lucide-react';
 import * as React from 'react';
 
@@ -6,11 +5,11 @@ import { cn } from '@/lib/utils';
 
 import { Input } from './shadcn/input';
 
-export interface CardInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+export interface ItemInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   onSubmitText: (value: string) => void | Promise<void>;
 }
 
-export function CardInput({ onSubmitText, className, disabled, ...props }: CardInputProps) {
+export function ItemInput({ onSubmitText, className, disabled, ...props }: ItemInputProps) {
   const [value, setValue] = React.useState('');
   const inputRef = React.useRef<HTMLInputElement>(null);
 

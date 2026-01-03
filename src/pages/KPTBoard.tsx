@@ -6,8 +6,8 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { BoardDeleteDialog } from '@/components/BoardDeleteDialog';
 import { BoardMembersDialog } from '@/components/BoardMembersDialog';
 import { HeaderActions } from '@/components/HeaderActions';
+import { ItemAddForm } from '@/components/ItemAddForm';
 import { BoardColumn } from '@/components/ui/BoardColumn';
-import { CardInput } from '@/components/ui/CardInput';
 import { ItemDetailPanel } from '@/components/ui/ItemDetailPanel';
 import { KPTCard } from '@/components/ui/KPTCard';
 import { Button } from '@/components/ui/shadcn/button';
@@ -213,29 +213,14 @@ export function KPTBoard(): ReactElement {
           />
         </div>
 
-        <div className="flex flex-none flex-col gap-3 pt-4">
-          <div className="flex gap-2">
-            {columns.map((col) => (
-              <button
-                key={col}
-                type="button"
-                onClick={() => setNewItemColumn(col)}
-                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs transition-colors ${
-                  newItemColumn === col
-                    ? 'bg-gray-700 text-white'
-                    : 'border border-gray-300 text-gray-500 hover:border-gray-400 hover:text-gray-600'
-                }`}
-              >
-                <span
-                  className={`h-2 w-2 rounded-full ${
-                    newItemColumn === col ? 'bg-white' : 'border border-current'
-                  }`}
-                />
-                {col.charAt(0).toUpperCase() + col.slice(1)}
-              </button>
-            ))}
-          </div>
-          <CardInput onSubmitText={handleAddCard} disabled={isAdding || isLoading} placeholder="アイテムを追加..." />
+        <div className="flex-none pt-4">
+          <ItemAddForm
+            columns={columns}
+            selectedColumn={newItemColumn}
+            onColumnChange={setNewItemColumn}
+            onSubmit={handleAddCard}
+            disabled={isAdding || isLoading}
+          />
         </div>
       </section>
 
