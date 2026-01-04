@@ -1,4 +1,4 @@
-import { createBrowserRouter, createRoutesFromElements, Route } from 'react-router-dom';
+import { createBrowserRouter, createRoutesFromElements, Navigate, Route } from 'react-router-dom';
 
 import { Layout } from './components/Layout';
 import { ProtectedRoute } from './components/ProtectedRoute';
@@ -37,7 +37,7 @@ export const router = createBrowserRouter(
         }
       />
       <Route path="/not-found" element={<NotFound />} />
-      <Route path="*" element={<NotFound />} />
+      <Route path="*" element={<Navigate to="/not-found" replace />} />
     </Route>
   )
 );
