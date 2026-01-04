@@ -33,11 +33,11 @@ export function ProtectedRoute({ children, requireProfile = true }: ProtectedRou
   }
 
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/login" state={{ from: location.pathname }} replace />;
   }
 
   if (requireProfile && !profile && location.pathname !== '/setup-nickname') {
-    return <Navigate to="/setup-nickname" replace />;
+    return <Navigate to="/setup-nickname" state={{ from: location.pathname }} replace />;
   }
 
   return children;

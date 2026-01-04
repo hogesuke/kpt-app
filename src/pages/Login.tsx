@@ -1,22 +1,29 @@
 import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { ReactElement, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import { supabase } from '@/lib/supabase-client';
 import { useAuthStore } from '@/stores/useAuthStore';
+
+interface LocationState {
+  from?: string;
+}
 
 export function Login(): ReactElement {
   const user = useAuthStore((state) => state.user);
   const initialized = useAuthStore((state) => state.initialized);
   const navigate = useNavigate();
+  const location = useLocation();
+  const state = location.state as LocationState | null;
+  const returnTo = state?.from || '/';
 
   useEffect(() => {
     // 初期化が完了し、ユーザーがログインしている場合のみリダイレクト
     if (initialized && user) {
-      navigate('/', { replace: true });
+      navigate(returnTo, { replace: true });
     }
-  }, [initialized, user, navigate]);
+  }, [initialized, user, navigate, returnTo]);
 
   return (
     <div className="flex h-full items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">

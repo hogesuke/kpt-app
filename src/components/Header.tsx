@@ -1,6 +1,6 @@
 import { LogOut, Pencil, User } from 'lucide-react';
 import { ReactElement } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import { HEADER_ACTIONS_PORTAL_ID } from '@/components/HeaderActions';
 import { Button } from '@/components/ui/shadcn/button';
@@ -16,6 +16,7 @@ import { useAuthStore } from '@/stores/useAuthStore';
 
 export function Header(): ReactElement {
   const navigate = useNavigate();
+  const location = useLocation();
   const user = useAuthStore((state) => state.user);
   const profile = useAuthStore((state) => state.profile);
   const signOut = useAuthStore((state) => state.signOut);
@@ -64,7 +65,7 @@ export function Header(): ReactElement {
                     <DropdownMenuSeparator />
                   </>
                 )}
-                <DropdownMenuItem onClick={() => navigate('/setup-nickname')}>
+                <DropdownMenuItem onClick={() => navigate('/setup-nickname', { state: { from: location.pathname } })}>
                   <Pencil className="mr-2 h-4 w-4" />
                   ニックネーム変更
                 </DropdownMenuItem>

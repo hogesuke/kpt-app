@@ -1,8 +1,12 @@
 import { ReactElement, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import { updateProfile } from '@/lib/kpt-api';
 import { useAuthStore } from '@/stores/useAuthStore';
+
+interface LocationState {
+  from?: string;
+}
 
 export function SetupNickname(): ReactElement {
   const profile = useAuthStore((state) => state.profile);
@@ -10,6 +14,9 @@ export function SetupNickname(): ReactElement {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const location = useLocation();
+  const state = location.state as LocationState | null;
+  const returnTo = state?.from || '/';
   const setProfileStore = useAuthStore((state) => state.setProfile);
 
   // プロフィールが存在する場合、既存のニックネームを初期値として設定する
@@ -33,7 +40,7 @@ export function SetupNickname(): ReactElement {
     try {
       const updatedProfile = await updateProfile(nickname.trim());
       setProfileStore(updatedProfile);
-      navigate('/', { replace: true });
+      navigate(returnTo, { replace: true });
     } catch (err) {
       setError('ニックネームの設定に失敗しました。もう一度お試しください。');
     } finally {
@@ -87,7 +94,7 @@ export function SetupNickname(): ReactElement {
               {isEditing && (
                 <button
                   type="button"
-                  onClick={() => navigate('/', { replace: true })}
+                  onClick={() => navigate(returnTo, { replace: true })}
                   disabled={isSubmitting}
                   className="flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                 >
