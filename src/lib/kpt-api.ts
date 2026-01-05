@@ -4,15 +4,15 @@ import type { BoardRow, ItemRow, ProfileRow } from '@/types/db';
 import type { KptBoard, KptColumnType, KptItem, UserProfile } from '@/types/kpt';
 
 /**
- * API Errorクラス
+ * APIエラークラス
  */
-export class ApiError extends Error {
+export class APIError extends Error {
   constructor(
     message: string,
     public status?: number
   ) {
     super(message);
-    this.name = 'ApiError';
+    this.name = 'APIError';
   }
 }
 
@@ -76,7 +76,7 @@ export async function fetchBoard(boardId: string): Promise<KptBoard | null> {
   if (error) {
     const status = extractStatusCode(error);
     const message = error instanceof Error ? error.message : 'ボードの取得に失敗しました';
-    throw new ApiError(message, status);
+    throw new APIError(message, status);
   }
 
   if (!data) return null;
