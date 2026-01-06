@@ -1,6 +1,6 @@
 import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
-import { ReactElement, useEffect } from 'react';
+import { ReactElement, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import { supabase } from '@/lib/supabase-client';
@@ -10,6 +10,8 @@ interface LocationState {
   from?: string;
 }
 
+type AuthView = 'sign_in' | 'sign_up' | 'forgotten_password';
+
 export function Login(): ReactElement {
   const user = useAuthStore((state) => state.user);
   const initialized = useAuthStore((state) => state.initialized);
@@ -17,6 +19,8 @@ export function Login(): ReactElement {
   const location = useLocation();
   const state = location.state as LocationState | null;
   const returnTo = state?.from || '/';
+  const [authView, setAuthView] = useState<AuthView>('sign_in');
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // 初期化が完了し、ユーザーがログインしている場合のみリダイレクト
@@ -25,13 +29,49 @@ export function Login(): ReactElement {
     }
   }, [initialized, user, navigate, returnTo]);
 
+  // Supabase Auth UIのビュー変更を検知
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const detectView = () => {
+      if (container.querySelector('#auth-sign-up')) {
+        setAuthView('sign_up');
+      } else if (container.querySelector('#auth-forgot-password')) {
+        setAuthView('forgotten_password');
+      } else {
+        setAuthView('sign_in');
+      }
+    };
+
+    // 初期検知
+    detectView();
+
+    // DOM変更を監視
+    const observer = new MutationObserver(detectView);
+    observer.observe(container, { childList: true, subtree: true });
+
+    return () => observer.disconnect();
+  }, []);
+
+  const getHeadingText = () => {
+    switch (authView) {
+      case 'sign_up':
+        return 'アカウント作成';
+      case 'forgotten_password':
+        return 'パスワードをリセット';
+      default:
+        return 'KPT Appにログイン';
+    }
+  };
+
   return (
     <div className="flex h-full items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
       <div className="w-full max-w-md space-y-8">
         <div>
-          <p className="text-muted-foreground text-center text-sm">ログインまたはアカウントを作成</p>
+          <h2 className="text-center text-2xl font-bold">{getHeadingText()}</h2>
         </div>
-        <div className="rounded-lg bg-white px-8 py-8 shadow">
+        <div ref={containerRef} className="rounded-lg bg-white px-8 py-8 shadow">
           <Auth
             supabaseClient={supabase}
             appearance={{
@@ -64,8 +104,8 @@ export function Login(): ReactElement {
                   password_input_placeholder: 'パスワードを入力',
                   button_label: 'アカウントを作成',
                   loading_button_label: '作成中...',
-                  social_provider_text: '{{provider}}でサインアップ',
-                  link_text: 'アカウントをお持ちでないですか？サインアップ',
+                  social_provider_text: '{{provider}}で新規登録',
+                  link_text: '新規登録',
                   confirmation_text: '確認メールを確認してください',
                 },
                 forgotten_password: {
