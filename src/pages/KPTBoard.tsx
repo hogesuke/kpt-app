@@ -6,6 +6,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { BoardDeleteDialog } from '@/components/BoardDeleteDialog';
 import { BoardMembersDialog } from '@/components/BoardMembersDialog';
 import { BoardRenameDialog } from '@/components/BoardRenameDialog';
+import { FilterBar } from '@/components/FilterBar';
 import { HeaderActions } from '@/components/HeaderActions';
 import { ItemAddForm } from '@/components/ItemAddForm';
 import { KPTColumnSkeleton } from '@/components/KPTColumnSkeleton';
@@ -41,12 +42,16 @@ export function KPTBoard(): ReactElement {
   const isAdding = useBoardStore((state) => state.isAdding);
   const loadError = useBoardStore((state) => state.loadError);
   const isNotFound = useBoardStore((state) => state.isNotFound);
+  const filter = useBoardStore((state) => state.filter);
   const loadBoard = useBoardStore((state) => state.loadBoard);
   const addItem = useBoardStore((state) => state.addItem);
   const deleteItem = useBoardStore((state) => state.deleteItem);
   const updateItem = useBoardStore((state) => state.updateItem);
   const subscribeToRealtime = useBoardStore((state) => state.subscribeToRealtime);
   const setSelectedItem = useBoardStore((state) => state.setSelectedItem);
+  const setFilterTag = useBoardStore((state) => state.setFilterTag);
+  const setFilterMemberId = useBoardStore((state) => state.setFilterMemberId);
+  const memberNicknameMap = useBoardStore((state) => state.memberNicknameMap);
   const reset = useBoardStore((state) => state.reset);
 
   const [newItemColumn, setNewItemColumn] = useState<KptColumnType>('keep');
@@ -109,7 +114,21 @@ export function KPTBoard(): ReactElement {
       onItemDrop: handleItemDrop,
     });
 
-  const itemsByColumn = useMemo(() => selectItemsByColumn(displayItems, columns), [displayItems]);
+  const filteredItems = useMemo(() => {
+    let result = displayItems;
+
+    if (filter.tag) {
+      result = result.filter((item) => item.text.includes(filter.tag!));
+    }
+
+    if (filter.memberId) {
+      result = result.filter((item) => item.authorId === filter.memberId);
+    }
+
+    return result;
+  }, [displayItems, filter.tag, filter.memberId]);
+
+  const itemsByColumn = useMemo(() => selectItemsByColumn(filteredItems, columns), [filteredItems]);
   const activeItem = useMemo(() => selectActiveItem(displayItems, activeId), [displayItems, activeId]);
 
   const handleAddCard = async (text: string) => {
@@ -140,6 +159,20 @@ export function KPTBoard(): ReactElement {
   const handleClosePanel = useCallback(() => {
     setSelectedItem(null);
   }, [setSelectedItem]);
+
+  const handleTagClick = useCallback(
+    (tag: string) => {
+      setFilterTag(tag);
+    },
+    [setFilterTag]
+  );
+
+  const handleMemberClick = useCallback(
+    (memberId: string) => {
+      setFilterMemberId(memberId);
+    },
+    [setFilterMemberId]
+  );
 
   const handleRenameBoard = async (newName: string) => {
     if (!boardId) return;
@@ -221,6 +254,16 @@ export function KPTBoard(): ReactElement {
           </div>
         )}
 
+        {/* フィルターバー */}
+        <div className="flex-none pt-4">
+          <FilterBar
+            filterTag={filter.tag}
+            filterMemberName={filter.memberId ? memberNicknameMap[filter.memberId] || '不明なメンバー' : null}
+            onRemoveTag={() => setFilterTag(null)}
+            onRemoveMember={() => setFilterMemberId(null)}
+          />
+        </div>
+
         <div className="flex min-h-0 flex-1 flex-col items-stretch gap-x-4 gap-y-4 overflow-y-auto py-4 lg:flex-row">
           {isLoading ? (
             <>
@@ -236,6 +279,8 @@ export function KPTBoard(): ReactElement {
                 selectedItemId={selectedItem?.id}
                 onDeleteItem={handleDeleteItem}
                 onCardClick={handleCardClick}
+                onTagClick={handleTagClick}
+                onMemberClick={handleMemberClick}
               />
               <BoardColumn
                 column="problem"
@@ -243,6 +288,8 @@ export function KPTBoard(): ReactElement {
                 selectedItemId={selectedItem?.id}
                 onDeleteItem={handleDeleteItem}
                 onCardClick={handleCardClick}
+                onTagClick={handleTagClick}
+                onMemberClick={handleMemberClick}
               />
               <BoardColumn
                 column="try"
@@ -250,6 +297,8 @@ export function KPTBoard(): ReactElement {
                 selectedItemId={selectedItem?.id}
                 onDeleteItem={handleDeleteItem}
                 onCardClick={handleCardClick}
+                onTagClick={handleTagClick}
+                onMemberClick={handleMemberClick}
               />
             </>
           )}

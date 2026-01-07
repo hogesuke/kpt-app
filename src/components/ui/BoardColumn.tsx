@@ -18,6 +18,8 @@ export interface BoardColumnProps extends React.HTMLAttributes<HTMLElement> {
   selectedItemId?: string | null;
   onDeleteItem?: (id: string) => void;
   onCardClick?: (item: KptItem) => void;
+  onTagClick?: (tag: string) => void;
+  onMemberClick?: (memberId: string, memberName: string) => void;
 }
 
 export function BoardColumn({
@@ -27,6 +29,8 @@ export function BoardColumn({
   selectedItemId,
   onDeleteItem,
   onCardClick,
+  onTagClick,
+  onMemberClick,
   ...props
 }: BoardColumnProps) {
   const { setNodeRef } = useDroppable({ id: column });
@@ -85,6 +89,8 @@ export function BoardColumn({
               isSelected={selectedItemId === item.id}
               onDelete={onDeleteItem}
               onCardClick={onCardClick}
+              onTagClick={onTagClick}
+              onMemberClick={onMemberClick}
             />
           ))}
         </ul>

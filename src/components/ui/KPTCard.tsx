@@ -7,7 +7,87 @@ import { cn } from '@/lib/utils';
 
 import type { KptItem } from '@/types/kpt';
 
-const cardStyles = 'rounded-md border border-gray-200 bg-white shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring';
+const cardStyles =
+  'rounded-md border border-gray-200 bg-white shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring';
+
+// ハッシュタグを検出する正規表現（日本語、英数字、アンダースコアを許容している）
+const HASHTAG_PATTERN = '#[\\w\\u3040-\\u309F\\u30A0-\\u30FF\\u4E00-\\u9FFF]+';
+
+interface TextPart {
+  text: string;
+  isHashtag: boolean;
+}
+
+/**
+ * テキストをパースしてハッシュタグとそれ以外に分割する
+ */
+function parseTextWithHashtags(text: string): TextPart[] {
+  const regex = new RegExp(HASHTAG_PATTERN, 'g');
+  const parts: TextPart[] = [];
+  let lastIndex = 0;
+  let match;
+
+  while ((match = regex.exec(text)) !== null) {
+    const matchStart = match.index;
+    const matchText = match[0];
+
+    // テキストの先頭、または半角・全角スペースの後にある場合のみハッシュタグとして判別する
+    const isAtStart = matchStart === 0;
+    const isPrecededBySpace = matchStart > 0 && /[\s\u3000]/.test(text[matchStart - 1]);
+
+    if (isAtStart || isPrecededBySpace) {
+      // ハッシュタグの前のテキストを追加
+      if (matchStart > lastIndex) {
+        parts.push({ text: text.slice(lastIndex, matchStart), isHashtag: false });
+      }
+      // ハッシュタグを追加
+      parts.push({ text: matchText, isHashtag: true });
+      lastIndex = matchStart + matchText.length;
+    }
+  }
+
+  // 残りのテキストを追加
+  if (lastIndex < text.length) {
+    parts.push({ text: text.slice(lastIndex), isHashtag: false });
+  }
+
+  return parts.length > 0 ? parts : [{ text, isHashtag: false }];
+}
+
+interface TextWithHashtagsProps {
+  text: string;
+  onTagClick?: (tag: string) => void;
+}
+
+/**
+ * テキスト内のハッシュタグをハイライト表示するコンポーネント
+ */
+export function TextWithHashtags({ text, onTagClick }: TextWithHashtagsProps) {
+  const parts = parseTextWithHashtags(text);
+
+  return (
+    <>
+      {parts.map((part, index) => {
+        if (part.isHashtag) {
+          return (
+            <button
+              key={index}
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onTagClick?.(part.text);
+              }}
+              className="text-primary/90 hover:text-primary text-[0.96em] hover:underline"
+            >
+              {part.text}
+            </button>
+          );
+        }
+        return <span key={index}>{part.text}</span>;
+      })}
+    </>
+  );
+}
 
 export interface KPTCardProps {
   item: KptItem;
@@ -15,9 +95,11 @@ export interface KPTCardProps {
   className?: string;
   onDelete?: (id: string) => void | Promise<void>;
   onClick?: (item: KptItem) => void;
+  onTagClick?: (tag: string) => void;
+  onMemberClick?: (memberId: string, memberName: string) => void;
 }
 
-export function KPTCard({ item, isSelected = false, className, onDelete, onClick }: KPTCardProps) {
+export function KPTCard({ item, isSelected = false, className, onDelete, onClick, onTagClick, onMemberClick }: KPTCardProps) {
   const handleDeleteClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
     void onDelete?.(item.id);
@@ -39,15 +121,37 @@ export function KPTCard({ item, isSelected = false, className, onDelete, onClick
       <div
         role="button"
         tabIndex={onClick ? 0 : undefined}
-        className={cn('p-4', onClick && 'cursor-pointer hover:shadow-md transition-shadow focus:outline-none focus-visible:ring-2 focus-visible:ring-ring')}
+        className={cn(
+          'p-4',
+          onClick && 'focus-visible:ring-ring cursor-pointer transition-shadow hover:shadow-md focus:outline-none focus-visible:ring-2'
+        )}
         onClick={onClick ? handleCardClick : undefined}
         onKeyDown={onClick ? handleKeyDown : undefined}
         aria-expanded={onClick ? isSelected : undefined}
         aria-controls={onClick && isSelected ? `detail-panel-${item.id}` : undefined}
         aria-label={onClick ? `${item.text}の詳細を${isSelected ? '閉じる' : '開く'}` : undefined}
       >
-        <p className="text-md pr-8 wrap-break-word">{item.text}</p>
-        {item.authorNickname && <p className="text-muted-foreground mt-2 text-xs">{item.authorNickname}</p>}
+        <p className="text-md pr-8 wrap-break-word">
+          <TextWithHashtags text={item.text} onTagClick={onTagClick} />
+        </p>
+        {item.authorNickname && (
+          <p className="mt-2 text-xs">
+            {onMemberClick && item.authorId ? (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onMemberClick(item.authorId!, item.authorNickname!);
+                }}
+                className="text-muted-foreground hover:text-foreground hover:underline"
+              >
+                {item.authorNickname}
+              </button>
+            ) : (
+              <span className="text-muted-foreground">{item.authorNickname}</span>
+            )}
+          </p>
+        )}
       </div>
       {onDelete && (
         <button
@@ -68,9 +172,20 @@ export interface SortableKPTCardProps extends React.LiHTMLAttributes<HTMLLIEleme
   isSelected?: boolean;
   onDelete?: (id: string) => void | Promise<void>;
   onCardClick?: (item: KptItem) => void;
+  onTagClick?: (tag: string) => void;
+  onMemberClick?: (memberId: string, memberName: string) => void;
 }
 
-export function SortableKPTCard({ item, isSelected, onDelete, onCardClick, className, ...props }: SortableKPTCardProps) {
+export function SortableKPTCard({
+  item,
+  isSelected,
+  onDelete,
+  onCardClick,
+  onTagClick,
+  onMemberClick,
+  className,
+  ...props
+}: SortableKPTCardProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id });
 
   const style: React.CSSProperties = {
@@ -91,7 +206,14 @@ export function SortableKPTCard({ item, isSelected, onDelete, onCardClick, class
       {...listeners}
       {...props}
     >
-      <KPTCard item={item} isSelected={isSelected} onDelete={onDelete} onClick={onCardClick} />
+      <KPTCard
+        item={item}
+        isSelected={isSelected}
+        onDelete={onDelete}
+        onClick={onCardClick}
+        onTagClick={onTagClick}
+        onMemberClick={onMemberClick}
+      />
     </li>
   );
 }
