@@ -16,6 +16,11 @@ import type {
   RealtimePostgresUpdatePayload,
 } from '@supabase/supabase-js';
 
+interface FilterState {
+  tag: string | null;
+  memberId: string | null;
+}
+
 interface BoardState {
   currentBoard: KptBoard | null;
   items: KptItem[];
@@ -26,6 +31,7 @@ interface BoardState {
   isNotFound: boolean;
   realtimeChannel: RealtimeChannel | null;
   memberNicknameMap: Record<string, string>; // userId -> nickname へ変換するマップ
+  filter: FilterState;
 
   loadBoard: (boardId: string) => Promise<void>;
   joinBoard: (boardId: string) => Promise<void>;
@@ -39,6 +45,8 @@ interface BoardState {
   handleRealtimeUpdate: (item: KptItem) => void;
   handleRealtimeDelete: (id: string) => void;
   setSelectedItem: (item: KptItem | null) => void;
+  setFilterTag: (tag: string | null) => void;
+  setFilterMemberId: (memberId: string | null) => void;
   reset: () => void;
 }
 
@@ -61,6 +69,11 @@ const sortItemsByPosition = (items: KptItem[]): KptItem[] => {
   return [...items].sort((a, b) => a.position - b.position);
 };
 
+const initialFilterState: FilterState = {
+  tag: null,
+  memberId: null,
+};
+
 export const useBoardStore = create<BoardState>()(
   devtools(
     immer((set, get) => ({
@@ -73,6 +86,7 @@ export const useBoardStore = create<BoardState>()(
       isNotFound: false,
       realtimeChannel: null,
       memberNicknameMap: {},
+      filter: initialFilterState,
 
       loadBoard: async (boardId: string) => {
         set({ isLoading: true, loadError: null, isNotFound: false });
@@ -382,6 +396,18 @@ export const useBoardStore = create<BoardState>()(
         set({ selectedItem: item });
       },
 
+      setFilterTag: (tag: string | null) => {
+        set((state) => {
+          state.filter.tag = tag;
+        });
+      },
+
+      setFilterMemberId: (memberId: string | null) => {
+        set((state) => {
+          state.filter.memberId = memberId;
+        });
+      },
+
       reset: () => {
         const { unsubscribeFromRealtime } = get();
         unsubscribeFromRealtime();
@@ -395,6 +421,7 @@ export const useBoardStore = create<BoardState>()(
           isNotFound: false,
           realtimeChannel: null,
           memberNicknameMap: {},
+          filter: initialFilterState,
         });
       },
     })),

@@ -1,9 +1,11 @@
 import { CalendarDays, Clock, Edit2, User, X } from 'lucide-react';
-import { ReactElement, useEffect, useRef, useState } from 'react';
+import { ReactElement, useCallback, useEffect, useRef, useState } from 'react';
 
 import { columnDotColors, columnLabels } from '@/lib/column-styles';
 import { cn } from '@/lib/utils';
 import { useBoardStore } from '@/stores/useBoardStore';
+
+import { TextWithHashtags } from './KPTCard';
 
 import type { KptItem } from '@/types/kpt';
 
@@ -27,6 +29,7 @@ function formatDate(dateString?: string): string {
 
 export function ItemDetailPanel({ item, onClose }: ItemDetailPanelProps): ReactElement | null {
   const updateItem = useBoardStore((state) => state.updateItem);
+  const setFilterTag = useBoardStore((state) => state.setFilterTag);
   const [isEditing, setIsEditing] = useState(false);
   const [editingText, setEditingText] = useState('');
   const [isSaving, setIsSaving] = useState(false);
@@ -58,6 +61,14 @@ export function ItemDetailPanel({ item, onClose }: ItemDetailPanelProps): ReactE
     setIsEditing(false);
     setEditingText('');
   };
+
+  const handleTagClick = useCallback(
+    (tag: string) => {
+      setFilterTag(tag);
+      onClose();
+    },
+    [setFilterTag, onClose]
+  );
 
   const handleSaveEdit = async () => {
     if (!item) return;
@@ -207,7 +218,9 @@ export function ItemDetailPanel({ item, onClose }: ItemDetailPanelProps): ReactE
               </div>
             ) : (
               <div className="prose prose-sm max-w-none">
-                <p className="text-base leading-relaxed wrap-break-word whitespace-pre-wrap">{item.text}</p>
+                <p className="text-base leading-relaxed wrap-break-word whitespace-pre-wrap">
+                  <TextWithHashtags text={item.text} onTagClick={handleTagClick} />
+                </p>
               </div>
             )}
           </section>
