@@ -1,10 +1,13 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2 } from 'lucide-react';
-import { ReactElement, useState } from 'react';
+import { ReactElement, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
 
 import { CharacterCounter } from '@/components/ui/CharacterCounter';
 import { Button } from '@/components/ui/shadcn/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/shadcn/dialog';
 import { Input } from '@/components/ui/shadcn/input';
+import { boardNameSchema, BoardNameFormData } from '@/lib/schemas';
 import { BOARD_NAME_MAX_LENGTH } from '@shared/constants';
 
 interface BoardRenameDialogProps {
@@ -34,30 +37,39 @@ interface BoardRenameDialogProps {
  * ボード名変更ダイアログ
  */
 export function BoardRenameDialog({ boardName, isUpdating, onRename, open, onOpenChange }: BoardRenameDialogProps): ReactElement {
-  const [newName, setNewName] = useState(boardName);
+  const {
+    register,
+    handleSubmit,
+    watch,
+    reset,
+    formState: { isValid },
+  } = useForm<BoardNameFormData>({
+    resolver: zodResolver(boardNameSchema),
+    defaultValues: { name: boardName },
+    mode: 'onChange',
+  });
+
+  const name = watch('name');
+
+  // ダイアログが開くときに現在のボード名をセットする
+  useEffect(() => {
+    if (open) {
+      reset({ name: boardName });
+    }
+  }, [open, boardName, reset]);
 
   const handleOpenChange = (newOpen: boolean) => {
     if (!isUpdating) {
-      // ダイアログが開くときに現在のボード名をセットする
-      if (newOpen) {
-        setNewName(boardName);
-      }
       onOpenChange(newOpen);
     }
   };
 
-  const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (event) => {
-    event.preventDefault();
-
-    const trimmedName = newName.trim();
-    if (!trimmedName || isUpdating) return;
-
-    await onRename(trimmedName);
+  const onSubmit = async (data: BoardNameFormData) => {
+    await onRename(data.name);
   };
 
-  const isUnchanged = newName.trim() === boardName;
-  const isOverLimit = newName.length > BOARD_NAME_MAX_LENGTH;
-  const canSubmit = newName.trim().length > 0 && !isUnchanged && !isOverLimit && !isUpdating;
+  const isUnchanged = name.trim() === boardName;
+  const canSubmit = isValid && !isUnchanged && !isUpdating;
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -67,22 +79,21 @@ export function BoardRenameDialog({ boardName, isUpdating, onRename, open, onOpe
           <DialogDescription>新しいボード名を入力してください。</DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-1">
             <div className="flex items-center justify-between">
               <label htmlFor="newBoardName" className="block text-sm font-medium">
                 ボード名
                 <span className="text-red-500"> *</span>
               </label>
-              <CharacterCounter current={newName.length} max={BOARD_NAME_MAX_LENGTH} />
+              <CharacterCounter current={name.length} max={BOARD_NAME_MAX_LENGTH} />
             </div>
             <Input
               id="newBoardName"
               // NOTE: 本来はautoFocusの使用は極力避けるべきだが、モーダルを開いた際の利便性を重視し例外として許容する
               // eslint-disable-next-line jsx-a11y/no-autofocus
               autoFocus
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
+              {...register('name')}
               disabled={isUpdating}
             />
           </div>

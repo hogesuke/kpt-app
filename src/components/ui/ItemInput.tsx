@@ -1,48 +1,66 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { SendHorizonal } from 'lucide-react';
 import * as React from 'react';
+import { useForm } from 'react-hook-form';
 
+import { itemTextSchema, ItemTextFormData } from '@/lib/schemas';
 import { cn } from '@/lib/utils';
 import { ITEM_TEXT_MAX_LENGTH } from '@shared/constants';
 
 import { CharacterCounter } from './CharacterCounter';
 import { Input } from './shadcn/input';
 
-export interface ItemInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+export interface ItemInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onSubmit'> {
   onSubmitText: (value: string) => void | Promise<void>;
 }
 
 export function ItemInput({ onSubmitText, className, disabled, ...props }: ItemInputProps) {
-  const [value, setValue] = React.useState('');
   const inputRef = React.useRef<HTMLInputElement>(null);
 
-  const handleSubmit = () => {
-    const trimmed = value.trim();
-    if (!trimmed) return;
+  const {
+    register,
+    handleSubmit,
+    watch,
+    reset,
+    formState: { isValid },
+  } = useForm<ItemTextFormData>({
+    resolver: zodResolver(itemTextSchema),
+    defaultValues: { text: '' },
+    mode: 'onChange',
+  });
 
-    void Promise.resolve(onSubmitText(trimmed)).then(() => {
+  const text = watch('text');
+
+  const onSubmit = (data: ItemTextFormData) => {
+    void Promise.resolve(onSubmitText(data.text)).then(() => {
       inputRef.current?.focus();
     });
-    setValue('');
+    reset();
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     // 日本語入力中のEnterキーの入力は無視する
     if (event.key === 'Enter' && !event.nativeEvent.isComposing) {
       event.preventDefault();
-      handleSubmit();
+      if (isValid) {
+        handleSubmit(onSubmit)();
+      }
     }
   };
 
-  const isOverLimit = value.length > ITEM_TEXT_MAX_LENGTH;
-  const canSubmit = value.trim().length > 0 && !isOverLimit && !disabled;
+  const { ref: formRef, ...registerProps } = register('text');
+
+  const canSubmit = isValid && !disabled;
 
   return (
     <div className="relative">
-      <CharacterCounter current={value.length} max={ITEM_TEXT_MAX_LENGTH} className="absolute -top-7 right-0" />
+      <CharacterCounter current={text.length} max={ITEM_TEXT_MAX_LENGTH} className="absolute -top-7 right-0" />
       <Input
-        ref={inputRef}
-        value={value}
-        onChange={(event) => setValue(event.target.value)}
+        ref={(e) => {
+          formRef(e);
+          (inputRef as React.MutableRefObject<HTMLInputElement | null>).current = e;
+        }}
+        {...registerProps}
         onKeyDown={handleKeyDown}
         disabled={disabled}
         className={cn('text-md px-4 py-5 pr-12', className)}
@@ -50,7 +68,7 @@ export function ItemInput({ onSubmitText, className, disabled, ...props }: ItemI
       />
       <button
         type="button"
-        onClick={handleSubmit}
+        onClick={handleSubmit(onSubmit)}
         onMouseDown={(e) => e.preventDefault()}
         disabled={!canSubmit}
         className="bg-primary text-primary-foreground hover:bg-primary/90 disabled:bg-primary/50 absolute top-1/2 right-2 -translate-y-1/2 rounded-md p-1.5 transition-colors disabled:cursor-not-allowed"

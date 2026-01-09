@@ -1,5 +1,7 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2, Plus } from 'lucide-react';
 import { ReactElement, useState } from 'react';
+import { useForm } from 'react-hook-form';
 
 import { CharacterCounter } from '@/components/ui/CharacterCounter';
 import { Button } from '@/components/ui/shadcn/button';
@@ -15,6 +17,7 @@ import {
 import { Input } from '@/components/ui/shadcn/input';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { createBoard } from '@/lib/kpt-api';
+import { boardNameSchema, BoardNameFormData } from '@/lib/schemas';
 import { BOARD_NAME_MAX_LENGTH } from '@shared/constants';
 
 import type { KptBoard } from '@/types/kpt';
@@ -30,33 +33,35 @@ interface BoardCreateDialogProps {
 export function BoardCreateDialog({ onBoardCreated, trigger }: BoardCreateDialogProps): ReactElement {
   const { handleError } = useErrorHandler();
   const [isOpen, setIsOpen] = useState(false);
-  const [boardName, setBoardName] = useState('');
-  const [isCreating, setIsCreating] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    reset,
+    formState: { isSubmitting },
+  } = useForm<BoardNameFormData>({
+    resolver: zodResolver(boardNameSchema),
+    defaultValues: { name: '' },
+  });
+
+  const name = watch('name');
 
   const handleOpenChange = (open: boolean) => {
     setIsOpen(open);
     if (!open) {
-      setBoardName('');
-      setIsCreating(false);
+      reset();
     }
   };
 
-  const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (event) => {
-    event.preventDefault();
-
-    const name = boardName.trim();
-    if (!name || isCreating) return;
-
+  const onSubmit = async (data: BoardNameFormData) => {
     try {
-      setIsCreating(true);
-      const board = await createBoard(name);
+      const board = await createBoard(data.name);
       setIsOpen(false);
-      setBoardName('');
+      reset();
       onBoardCreated(board);
     } catch (error) {
       handleError(error, 'ボードの作成に失敗しました');
-    } finally {
-      setIsCreating(false);
     }
   };
 
@@ -77,32 +82,31 @@ export function BoardCreateDialog({ onBoardCreated, trigger }: BoardCreateDialog
           <DialogDescription>ボードの名前を入力してください。</DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-1">
             <div className="flex items-center justify-between">
               <label htmlFor="boardName" className="block text-sm font-medium">
                 ボード名
                 <span className="text-red-500"> *</span>
               </label>
-              <CharacterCounter current={boardName.length} max={BOARD_NAME_MAX_LENGTH} />
+              <CharacterCounter current={name.length} max={BOARD_NAME_MAX_LENGTH} />
             </div>
             <Input
               id="boardName"
               // NOTE: 本来はautoFocusの使用は極力避けるべきだが、モーダルを開いた際の利便性を重視し例外として許容する
               // eslint-disable-next-line jsx-a11y/no-autofocus
               autoFocus
-              value={boardName}
-              onChange={(e) => setBoardName(e.target.value)}
+              {...register('name')}
               placeholder="e.g. 2025/01 チーム振り返り"
             />
           </div>
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => handleOpenChange(false)} disabled={isCreating}>
+            <Button type="button" variant="outline" onClick={() => handleOpenChange(false)} disabled={isSubmitting}>
               キャンセル
             </Button>
-            <Button type="submit" disabled={!boardName.trim() || boardName.length > BOARD_NAME_MAX_LENGTH || isCreating}>
-              {isCreating && <Loader2 className="h-4 w-4 animate-spin" />}
+            <Button type="submit" disabled={!name.trim() || name.length > BOARD_NAME_MAX_LENGTH || isSubmitting}>
+              {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
               作成
             </Button>
           </DialogFooter>
