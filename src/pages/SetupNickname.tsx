@@ -1,8 +1,11 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { ReactElement, useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import { CharacterCounter } from '@/components/ui/CharacterCounter';
 import { updateProfile } from '@/lib/kpt-api';
+import { nicknameSchema, NicknameFormData } from '@/lib/schemas';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { NICKNAME_MAX_LENGTH } from '@shared/constants';
 
@@ -12,52 +15,46 @@ interface LocationState {
 
 export function SetupNickname(): ReactElement {
   const profile = useAuthStore((state) => state.profile);
-  const [nickname, setNickname] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
   const state = location.state as LocationState | null;
   const returnTo = state?.from || '/';
   const setProfileStore = useAuthStore((state) => state.setProfile);
 
+  const {
+    register,
+    handleSubmit,
+    watch,
+    reset,
+    setError,
+    formState: { errors, isSubmitting },
+  } = useForm<NicknameFormData>({
+    resolver: zodResolver(nicknameSchema),
+    defaultValues: { nickname: '' },
+  });
+
+  const nickname = watch('nickname');
+
   // プロフィールが存在する場合、既存のニックネームを初期値として設定する
+  const [isInitialized, setIsInitialized] = useState(false);
   useEffect(() => {
-    if (profile?.nickname) {
-      setNickname(profile.nickname);
+    if (profile?.nickname && !isInitialized) {
+      reset({ nickname: profile.nickname });
+      setIsInitialized(true);
     }
-  }, [profile]);
+  }, [profile, reset, isInitialized]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!nickname.trim()) {
-      setError('ニックネームを入力してください');
-      return;
-    }
-
-    if (nickname.length > NICKNAME_MAX_LENGTH) {
-      setError(`ニックネームは${NICKNAME_MAX_LENGTH}文字以内で入力してください`);
-      return;
-    }
-
-    setIsSubmitting(true);
-    setError(null);
-
+  const onSubmit = async (data: NicknameFormData) => {
     try {
-      const updatedProfile = await updateProfile(nickname.trim());
+      const updatedProfile = await updateProfile(data.nickname);
       setProfileStore(updatedProfile);
       navigate(returnTo, { replace: true });
     } catch {
-      setError('ニックネームの設定に失敗しました。もう一度お試しください。');
-    } finally {
-      setIsSubmitting(false);
+      setError('root', { message: 'ニックネームの設定に失敗しました。もう一度お試しください。' });
     }
   };
 
   const isEditing = !!profile?.nickname;
-  const isOverLimit = nickname.length > NICKNAME_MAX_LENGTH;
-  const canSubmit = nickname.trim().length > 0 && !isOverLimit && !isSubmitting;
 
   return (
     <div className="flex h-full items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
@@ -71,7 +68,7 @@ export function SetupNickname(): ReactElement {
           </p>
         </div>
         <div className="rounded-lg bg-white px-8 py-8 shadow">
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div>
               <div className="flex items-center justify-between">
                 <label htmlFor="nickname" className="block text-sm font-medium text-gray-700">
@@ -82,22 +79,20 @@ export function SetupNickname(): ReactElement {
               <div className="mt-1">
                 <input
                   id="nickname"
-                  name="nickname"
                   type="text"
                   autoComplete="nickname"
-                  required
-                  value={nickname}
-                  onChange={(e) => setNickname(e.target.value)}
+                  {...register('nickname')}
                   className="focus:border-primary focus:ring-primary block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:outline-none sm:text-sm"
                   placeholder="e.g. Taro"
                   disabled={isSubmitting}
                 />
               </div>
+              {errors.nickname && <p className="mt-1 text-sm text-red-700">{errors.nickname.message}</p>}
             </div>
 
-            {error && (
+            {errors.root && (
               <div className="rounded-md bg-red-50 p-4">
-                <p className="text-sm text-red-700">{error}</p>
+                <p className="text-sm text-red-700">{errors.root.message}</p>
               </div>
             )}
 
@@ -114,7 +109,7 @@ export function SetupNickname(): ReactElement {
               )}
               <button
                 type="submit"
-                disabled={!canSubmit}
+                disabled={isSubmitting}
                 className="bg-primary text-primary-foreground hover:bg-primary/90 focus:ring-primary flex w-full justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium shadow-sm focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {isEditing ? '更新' : '設定'}
