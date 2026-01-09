@@ -1,6 +1,6 @@
 import { LogOut, Pencil, User } from 'lucide-react';
 import { ReactElement } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router';
 
 import { HEADER_ACTIONS_PORTAL_ID } from '@/components/HeaderActions';
 import { Button } from '@/components/ui/shadcn/button';

@@ -1,5 +1,5 @@
 import { ReactElement } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 export function ErrorFallback(): ReactElement {
   return (
     <div className="flex h-full flex-col items-center justify-center px-4">
