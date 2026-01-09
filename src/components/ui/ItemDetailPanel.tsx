@@ -1,15 +1,29 @@
-import { CalendarDays, Clock, Edit2, User, X } from 'lucide-react';
+import { format } from 'date-fns';
+import { ja } from 'date-fns/locale';
+import { CalendarIcon, Edit2, X } from 'lucide-react';
 import { ReactElement, useCallback, useEffect, useRef, useState } from 'react';
 
 import { columnDotColors, columnLabels } from '@/lib/column-styles';
+import { fetchBoardMembers } from '@/lib/kpt-api';
 import { cn } from '@/lib/utils';
 import { useBoardStore } from '@/stores/useBoardStore';
 import { ITEM_TEXT_MAX_LENGTH } from '@shared/constants';
 
 import { CharacterCounter } from './CharacterCounter';
 import { TextWithHashtags } from './KPTCard';
+import { Button } from './shadcn/button';
+import { Calendar } from './shadcn/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from './shadcn/popover';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './shadcn/select';
 
-import type { KptItem } from '@/types/kpt';
+import type { BoardMember, KptItem, TryStatus } from '@/types/kpt';
+
+const PROBLEM_STATUS_OPTIONS: { value: TryStatus; label: string }[] = [
+  { value: 'wont_fix', label: '対応不要' },
+  { value: 'pending', label: '未対応' },
+  { value: 'in_progress', label: '対応中' },
+  { value: 'done', label: '完了' },
+];
 
 export interface ItemDetailPanelProps {
   item: KptItem | null;
@@ -36,6 +50,15 @@ export function ItemDetailPanel({ item, onClose }: ItemDetailPanelProps): ReactE
   const [editingText, setEditingText] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [members, setMembers] = useState<BoardMember[]>([]);
+  const [dueDateOpen, setDueDateOpen] = useState(false);
+
+  // Tryアイテムの場合、メンバーリストを取得
+  useEffect(() => {
+    if (item?.column === 'try' && item.boardId) {
+      fetchBoardMembers(item.boardId).then(setMembers).catch(console.error);
+    }
+  }, [item?.boardId, item?.column]);
 
   // Detail表示が別itemに変更されたら編集モードを解除
   useEffect(() => {
@@ -71,6 +94,31 @@ export function ItemDetailPanel({ item, onClose }: ItemDetailPanelProps): ReactE
     },
     [setFilterTag, onClose]
   );
+
+  const handleStatusChange = async (status: TryStatus) => {
+    if (!item) return;
+
+    // 対応不要の場合は担当者と期日をクリア
+    if (status === 'wont_fix') {
+      await updateItem({ ...item, status, assigneeId: null, dueDate: null });
+    } else {
+      await updateItem({ ...item, status });
+    }
+  };
+
+  const handleAssigneeChange = async (assigneeId: string) => {
+    if (!item) return;
+    const newAssigneeId = assigneeId === 'unassigned' ? null : assigneeId;
+    const newAssigneeNickname = newAssigneeId ? (members.find((m) => m.userId === newAssigneeId)?.nickname ?? null) : null;
+    await updateItem({ ...item, assigneeId: newAssigneeId, assigneeNickname: newAssigneeNickname });
+  };
+
+  const handleDueDateChange = async (date: Date | undefined) => {
+    if (!item) return;
+    const dueDate = date ? format(date, 'yyyy-MM-dd') : null;
+    await updateItem({ ...item, dueDate });
+    setDueDateOpen(false);
+  };
 
   const handleSaveEdit = async () => {
     if (!item) return;
@@ -127,14 +175,14 @@ export function ItemDetailPanel({ item, onClose }: ItemDetailPanelProps): ReactE
         aria-modal="true"
         className={cn(
           'fixed top-0 right-0 z-40 h-screen w-full border-l bg-white shadow-2xl',
-          'sm:w-96',
+          'sm:w-[28rem]',
           'flex flex-col',
           'animate-in slide-in-from-right duration-300'
         )}
       >
         {/* ヘッダー */}
         <div className="flex items-center justify-between px-6 py-4">
-          <span className="inline-flex items-center gap-2 text-sm font-semibold">
+          <span className="inline-flex items-center gap-2 text-lg font-semibold">
             <span className={`h-2 w-2 rounded-full ${columnDotColors[item.column]}`} aria-hidden="true" />
             {columnLabels[item.column]}
           </span>
@@ -150,7 +198,7 @@ export function ItemDetailPanel({ item, onClose }: ItemDetailPanelProps): ReactE
 
         {/* コンテンツ */}
         <div className="flex-1 overflow-y-auto">
-          {/* カード内容セクション */}
+          {/* カード内容 */}
           <section className="px-6 py-4">
             <div className="mb-3 flex items-center justify-between gap-3">
               <h3 className="text-muted-foreground text-sm font-medium">内容</h3>
@@ -231,23 +279,97 @@ export function ItemDetailPanel({ item, onClose }: ItemDetailPanelProps): ReactE
             )}
           </section>
 
-          {/* メタ情報セクション */}
+          {/* Try専用フィールド */}
+          {item.column === 'try' && (
+            <section className="border-border/50 space-y-4 border-t px-6 py-6">
+              <h3 className="text-muted-foreground text-sm font-medium">対応状況</h3>
+
+              {/* ステータス */}
+              <div className="flex items-center gap-3">
+                <span className="text-muted-foreground w-16 shrink-0 text-xs">ステータス</span>
+                <Select value={item.status ?? 'pending'} onValueChange={(v) => handleStatusChange(v as TryStatus)}>
+                  <SelectTrigger className="h-8 flex-1">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {PROBLEM_STATUS_OPTIONS.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* 担当者 */}
+              <div className="flex items-center gap-3">
+                <span className="text-muted-foreground w-16 shrink-0 text-xs">担当者</span>
+                <Select value={item.assigneeId ?? 'unassigned'} onValueChange={handleAssigneeChange} disabled={item.status === 'wont_fix'}>
+                  <SelectTrigger className="h-8 flex-1">
+                    <SelectValue placeholder="未設定" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="unassigned">
+                      <span className="text-muted-foreground">未設定</span>
+                    </SelectItem>
+                    {members.map((member) => (
+                      <SelectItem key={member.userId} value={member.userId}>
+                        {member.nickname ?? '匿名ユーザー'}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* 期日 */}
+              <div className="flex items-center gap-3">
+                <span className="text-muted-foreground w-16 shrink-0 text-xs">期日</span>
+                <Popover open={dueDateOpen} onOpenChange={setDueDateOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn('h-8 flex-1 justify-start text-left font-normal', !item.dueDate && 'text-muted-foreground')}
+                      disabled={item.status === 'wont_fix'}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {item.dueDate ? format(new Date(item.dueDate), 'yyyy/MM/dd') : '未設定'}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={item.dueDate ? new Date(item.dueDate) : undefined}
+                      onSelect={handleDueDateChange}
+                      locale={ja}
+                      initialFocus
+                    />
+                    {item.dueDate && (
+                      <div className="border-t p-2">
+                        <Button variant="ghost" size="sm" className="w-full" onClick={() => handleDueDateChange(undefined)}>
+                          期日をクリア
+                        </Button>
+                      </div>
+                    )}
+                  </PopoverContent>
+                </Popover>
+              </div>
+            </section>
+          )}
+
+          {/* メタ情報 */}
           <section className="border-border/50 border-t px-6 py-6">
-            <dl className="grid grid-cols-[1rem_5rem_1fr] items-center gap-x-3 gap-y-3">
+            <dl className="grid grid-cols-[5rem_1fr] items-center gap-x-3 gap-y-3">
               {/* 作成者情報 */}
-              <User className="text-muted-foreground h-4 w-4" aria-hidden="true" />
               <dt className="text-muted-foreground text-xs font-medium">作成者</dt>
               <dd className="text-sm">{item.authorNickname || '匿名ユーザー'}</dd>
 
               {/* 作成日時 */}
-              <CalendarDays className="text-muted-foreground h-4 w-4" aria-hidden="true" />
               <dt className="text-muted-foreground text-xs font-medium">作成日時</dt>
               <dd className="text-sm">{formatDate(item.createdAt)}</dd>
 
               {/* 更新日時 */}
               {item.updatedAt && item.updatedAt !== item.createdAt && (
                 <>
-                  <Clock className="text-muted-foreground h-4 w-4" aria-hidden="true" />
                   <dt className="text-muted-foreground text-xs font-medium">更新日時</dt>
                   <dd className="text-sm">{formatDate(item.updatedAt)}</dd>
                 </>

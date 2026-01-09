@@ -90,38 +90,54 @@ export type Database = {
       items: {
         Row: {
           allowed_user_ids: string[] | null
+          assignee_id: string | null
           author_id: string | null
           board_id: string
           column_name: string
           created_at: string
+          due_date: string | null
           id: string
           position: number
+          status: string | null
           text: string
           updated_at: string
         }
         Insert: {
           allowed_user_ids?: string[] | null
+          assignee_id?: string | null
           author_id?: string | null
           board_id: string
           column_name: string
           created_at?: string
+          due_date?: string | null
           id?: string
           position?: number
+          status?: string | null
           text: string
           updated_at?: string
         }
         Update: {
           allowed_user_ids?: string[] | null
+          assignee_id?: string | null
           author_id?: string | null
           board_id?: string
           column_name?: string
           created_at?: string
+          due_date?: string | null
           id?: string
           position?: number
+          status?: string | null
           text?: string
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "items_assignee_id_fkey"
+            columns: ["assignee_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "items_author_id_profiles_fkey"
             columns: ["author_id"]
@@ -303,4 +319,3 @@ export const Constants = {
     Enums: {},
   },
 } as const
-

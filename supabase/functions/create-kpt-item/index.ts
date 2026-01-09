@@ -69,15 +69,22 @@ Deno.serve(async (req) => {
 
   const newPosition = (maxPositionData?.position ?? 0) + 1000;
 
+  // Tryカラムの場合はデフォルトでstatusを'pending'にする
+  const insertData: Record<string, unknown> = {
+    board_id: boardId,
+    column_name: column,
+    text: trimmedText,
+    author_id: user.id,
+    position: newPosition,
+  };
+
+  if (column === 'try') {
+    insertData.status = 'pending';
+  }
+
   const { data, error } = await client
     .from('items')
-    .insert({
-      board_id: boardId,
-      column_name: column,
-      text: trimmedText,
-      author_id: user.id,
-      position: newPosition,
-    })
+    .insert(insertData)
     .select(
       `
       id,
@@ -88,7 +95,13 @@ Deno.serve(async (req) => {
       author_id,
       created_at,
       updated_at,
+      status,
+      assignee_id,
+      due_date,
       profiles!items_author_id_profiles_fkey (
+        nickname
+      ),
+      assignee:profiles!items_assignee_id_fkey (
         nickname
       )
     `
@@ -109,5 +122,9 @@ Deno.serve(async (req) => {
     authorNickname: (data.profiles as any)?.nickname ?? null,
     createdAt: data.created_at,
     updatedAt: data.updated_at,
+    status: data.status,
+    assigneeId: data.assignee_id,
+    assigneeNickname: (data.assignee as any)?.nickname ?? null,
+    dueDate: data.due_date,
   });
 });
