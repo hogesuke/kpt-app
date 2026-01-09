@@ -8,7 +8,7 @@ import { supabase } from '@/lib/supabase-client';
 import { useAuthStore } from '@/stores/useAuthStore';
 
 import type { ItemRow } from '@/types/db';
-import type { KptBoard, KptColumnType, KptItem } from '@/types/kpt';
+import type { KptBoard, KptColumnType, KptItem, TryStatus } from '@/types/kpt';
 import type {
   RealtimeChannel,
   RealtimePostgresDeletePayload,
@@ -60,6 +60,10 @@ const mapRowToItem = (row: ItemRow): KptItem => ({
   authorNickname: null, // Realtimeではnicknameは取得できないためnull
   createdAt: row.created_at,
   updatedAt: row.updated_at,
+  status: row.status as TryStatus | null,
+  assigneeId: row.assignee_id,
+  assigneeNickname: null, // Realtimeではnicknameは取得できないためnull
+  dueDate: row.due_date,
 });
 
 /**
@@ -201,6 +205,9 @@ export const useBoardStore = create<BoardState>()(
             column: item.column,
             text: item.text,
             position: item.position,
+            status: item.status,
+            assigneeId: item.assigneeId,
+            dueDate: item.dueDate,
           });
         } catch (error) {
           // エラー時はロールバックする
@@ -363,11 +370,19 @@ export const useBoardStore = create<BoardState>()(
         set((state) => {
           const index = state.items.findIndex((i: KptItem) => i.id === item.id);
           if (index !== -1) {
-            // RealtimeではauthorNicknameを取得できないため、既存のitemから取得する
-            const authorNickname = state.items[index].authorNickname;
+            const existingItem = state.items[index];
+            // Realtimeではnicknameを取得できないため、既存のitemから取得する
+            // ただしassigneeIdが変更された場合は、memberNicknameMapから取得する
+            const authorNickname = existingItem.authorNickname;
+            let assigneeNickname = existingItem.assigneeNickname;
+            if (item.assigneeId !== existingItem.assigneeId) {
+              // assigneeIdが変更された場合、キャッシュから取得する
+              assigneeNickname = item.assigneeId ? (state.memberNicknameMap[item.assigneeId] ?? null) : null;
+            }
             const updatedItem = {
               ...item,
               authorNickname,
+              assigneeNickname,
             };
             state.items[index] = updatedItem;
 

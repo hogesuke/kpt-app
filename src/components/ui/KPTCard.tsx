@@ -1,11 +1,30 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { cva } from 'class-variance-authority';
 import { X } from 'lucide-react';
 import * as React from 'react';
 
 import { cn } from '@/lib/utils';
 
-import type { KptItem } from '@/types/kpt';
+import type { KptItem, TryStatus } from '@/types/kpt';
+
+const statusBadge = cva('rounded-full px-2 py-0.5', {
+  variants: {
+    status: {
+      pending: 'bg-yellow-100 text-yellow-700',
+      in_progress: 'bg-blue-100 text-blue-700',
+      done: 'bg-green-100 text-green-700',
+      wont_fix: 'bg-gray-100 text-gray-600',
+    },
+  },
+});
+
+const STATUS_LABELS: Record<TryStatus, string> = {
+  pending: '未対応',
+  in_progress: '対応中',
+  done: '完了',
+  wont_fix: '対応不要',
+};
 
 const cardStyles =
   'rounded-md border border-gray-200 bg-white shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring';
@@ -151,6 +170,18 @@ export function KPTCard({ item, isSelected = false, className, onDelete, onClick
               <span className="text-muted-foreground">{item.authorNickname}</span>
             )}
           </p>
+        )}
+        {/* Try専用フィールドの表示 */}
+        {item.column === 'try' && (item.status || item.assigneeNickname || item.dueDate) && (
+          <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-gray-200 pt-3 text-xs">
+            {item.status && (
+              <span className={statusBadge({ status: item.status })}>
+                {STATUS_LABELS[item.status]}
+              </span>
+            )}
+            {item.assigneeNickname && <span className="text-muted-foreground">担当: {item.assigneeNickname}</span>}
+            {item.dueDate && <span className="text-muted-foreground">期日: {item.dueDate.replace(/-/g, '/')}</span>}
+          </div>
         )}
       </div>
       {onDelete && (

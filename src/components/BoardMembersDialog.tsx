@@ -55,13 +55,13 @@ export function BoardMembersDialog({ boardId, disabled = false }: BoardMembersDi
       <DialogTrigger asChild>
         <Button variant="ghost" size="sm" disabled={disabled}>
           <Users className="h-4 w-4" />
-          ボードメンバー
+          参加メンバー
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>ボードメンバー</DialogTitle>
-          <DialogDescription>このボードを共有して、メンバーを招待できます。</DialogDescription>
+          <DialogTitle>参加メンバー</DialogTitle>
+          <DialogDescription>このボードを共有して、ボードにメンバーを招待できます。</DialogDescription>
         </DialogHeader>
 
         {/* 共有URL */}

@@ -3,7 +3,7 @@ import { FunctionsHttpError } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase-client';
 
 import type { BoardRow, ItemRow, ProfileRow } from '@/types/db';
-import type { BoardMember, KptBoard, KptColumnType, KptItem, UserProfile } from '@/types/kpt';
+import type { BoardMember, KptBoard, KptColumnType, KptItem, TryStatus, UserProfile } from '@/types/kpt';
 
 /**
  * APIエラークラス
@@ -30,7 +30,12 @@ function convertToAPIError(error: unknown, fallbackMessage: string): APIError {
   return new APIError(message, status);
 }
 
-function mapRowToItem(row: ItemRow & { author_nickname?: string | null }): KptItem {
+type ItemRowWithProfiles = ItemRow & {
+  author_nickname?: string | null;
+  assignee_nickname?: string | null;
+};
+
+function mapRowToItem(row: ItemRowWithProfiles): KptItem {
   return {
     id: row.id,
     boardId: row.board_id,
@@ -41,6 +46,10 @@ function mapRowToItem(row: ItemRow & { author_nickname?: string | null }): KptIt
     authorNickname: row.author_nickname,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
+    status: row.status as TryStatus | null,
+    assigneeId: row.assignee_id,
+    assigneeNickname: row.assignee_nickname,
+    dueDate: row.due_date,
   };
 }
 
@@ -161,9 +170,12 @@ export async function createKptItem(input: { boardId: string; column: KptColumnT
 export async function updateKptItem(input: {
   id: string;
   boardId: string;
-  column: KptColumnType;
-  text: string;
+  column?: KptColumnType;
+  text?: string;
   position?: number;
+  status?: TryStatus | null;
+  assigneeId?: string | null;
+  dueDate?: string | null;
 }): Promise<KptItem> {
   const { data, error } = await supabase.functions.invoke('update-kpt-item', {
     method: 'PATCH',
@@ -173,6 +185,9 @@ export async function updateKptItem(input: {
       column: input.column,
       text: input.text,
       position: input.position,
+      status: input.status,
+      assigneeId: input.assigneeId,
+      dueDate: input.dueDate,
     },
   });
 
@@ -184,7 +199,7 @@ export async function updateKptItem(input: {
     throw new APIError('アイテムの更新に失敗しました');
   }
 
-  return mapRowToItem(data as ItemRow);
+  return mapRowToItem(data as ItemRowWithProfiles);
 }
 
 /**

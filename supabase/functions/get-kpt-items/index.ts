@@ -56,7 +56,13 @@ Deno.serve(async (req) => {
       created_at,
       updated_at,
       author_id,
+      status,
+      assignee_id,
+      due_date,
       profiles!items_author_id_profiles_fkey (
+        nickname
+      ),
+      assignee:profiles!items_assignee_id_fkey (
         nickname
       )
     `
@@ -79,6 +85,10 @@ Deno.serve(async (req) => {
     updated_at: item.updated_at,
     author_id: item.author_id,
     author_nickname: item.profiles?.nickname ?? null,
+    status: item.status,
+    assignee_id: item.assignee_id,
+    assignee_nickname: item.assignee?.nickname ?? null,
+    due_date: item.due_date,
   }));
 
   return generateJsonResponse(items);
