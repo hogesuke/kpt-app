@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ReactElement, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router';
 
 import { CharacterCounter } from '@/components/ui/CharacterCounter';
 import { updateProfile } from '@/lib/kpt-api';

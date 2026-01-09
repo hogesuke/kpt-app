@@ -1,5 +1,5 @@
 import { ReactElement } from 'react';
-import { Outlet, useLocation } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router';
 
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { Header } from '@/components/Header';

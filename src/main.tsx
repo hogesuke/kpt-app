@@ -1,6 +1,6 @@
 import { StrictMode, useEffect } from 'react';
 import * as ReactDOM from 'react-dom/client';
-import { RouterProvider } from 'react-router-dom';
+import { RouterProvider } from 'react-router';
 
 import { Toaster } from '@/components/ui/shadcn/sonner';
 import { router } from '@/router';

@@ -74,9 +74,9 @@ importers:
       react-hook-form:
         specifier: ^7.70.0
         version: 7.70.0(react@18.3.1)
-      react-router-dom:
-        specifier: ^6.30.3
-        version: 6.30.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react-router:
+        specifier: ^7.12.0
+        version: 7.12.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       sonner:
         specifier: ^2.0.7
         version: 2.0.7(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -867,10 +867,6 @@ packages:
   '@radix-ui/rect@1.1.1':
     resolution: {integrity: sha512-HPwpGIzkl28mWyZqG52jiqDJ12waP11Pa1lGoiyUkIEuMLBP0oeK/C89esbXrxsky5we7dfd8U58nm0SgAWpVw==}
 
-  '@remix-run/router@1.23.2':
-    resolution: {integrity: sha512-Ic6m2U/rMjTkhERIa/0ZtXJP17QUi2CbWE7cqx4J58M8aA3QTfW+2UlQ4psvTX9IO1RfNVhK3pcpdjej7L+t2w==}
-    engines: {node: '>=14.0.0'}
-
   '@rolldown/pluginutils@1.0.0-beta.27':
     resolution: {integrity: sha512-+d0F4MKMCbeVUJwG96uQ4SgAznZNSq93I3V+9NHA4OpvqG8mRCpGdKmK8l/dl02h2CCDHwW2FqilnTyDcAnqjA==}
 
@@ -1631,6 +1627,10 @@ packages:
 
   concat-map@0.0.1:
     resolution: {integrity: sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg==}
+
+  cookie@1.1.1:
+    resolution: {integrity: sha512-ei8Aos7ja0weRpFzJnEA9UHJ/7XQmqglbRwnf2ATjcB9Wq874VKH9kfjjirM6UhU2/E5fFYadylyhFldcqSidQ==}
+    engines: {node: '>=18'}
 
   cross-spawn@7.0.6:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
@@ -2590,18 +2590,15 @@ packages:
       '@types/react':
         optional: true
 
-  react-router-dom@6.30.3:
-    resolution: {integrity: sha512-pxPcv1AczD4vso7G4Z3TKcvlxK7g7TNt3/FNGMhfqyntocvYKj+GCatfigGDjbLozC4baguJ0ReCigoDJXb0ag==}
-    engines: {node: '>=14.0.0'}
+  react-router@7.12.0:
+    resolution: {integrity: sha512-kTPDYPFzDVGIIGNLS5VJykK0HfHLY5MF3b+xj0/tTyNYL1gF1qs7u67Z9jEhQk2sQ98SUaHxlG31g1JtF7IfVw==}
+    engines: {node: '>=20.0.0'}
     peerDependencies:
-      react: '>=16.8'
-      react-dom: '>=16.8'
-
-  react-router@6.30.3:
-    resolution: {integrity: sha512-XRnlbKMTmktBkjCLE8/XcZFlnHvr2Ltdr1eJX4idL55/9BbORzyZEaIkBFDhFGCEWBBItsVrDxwx3gnisMitdw==}
-    engines: {node: '>=14.0.0'}
-    peerDependencies:
-      react: '>=16.8'
+      react: '>=18'
+      react-dom: '>=18'
+    peerDependenciesMeta:
+      react-dom:
+        optional: true
 
   react-style-singleton@2.2.3:
     resolution: {integrity: sha512-b6jSvxvVnyptAiLjbkWLE/lOnR4lfTtDAl+eUC7RZy+QQWc6wRzIV2CE6xBuMmDxc2qIihtDCZD5NPOFl7fRBQ==}
@@ -2686,6 +2683,9 @@ packages:
     resolution: {integrity: sha512-SdsKMrI9TdgjdweUSR9MweHA4EJ8YxHn8DFaDisvhVlUOe4BF1tLD7GAj0lIqWVl+dPb/rExr0Btby5loQm20Q==}
     engines: {node: '>=10'}
     hasBin: true
+
+  set-cookie-parser@2.7.2:
+    resolution: {integrity: sha512-oeM1lpU/UvhTxw+g3cIfxXHyJRc/uidd3yK1P242gzHds0udQBYzs3y8j4gCCW+ZJ7ad0yctld8RYO+bdurlvw==}
 
   set-function-length@1.2.2:
     resolution: {integrity: sha512-pgRc4hJ4/sNjWCSS9AmnS40x3bNMDTknHgL5UaMBTMyJnU90EgWh1Rz+MC9eFu4BuN/UwZjKQuY/1v3rM7HMfg==}
@@ -3733,8 +3733,6 @@ snapshots:
 
   '@radix-ui/rect@1.1.1': {}
 
-  '@remix-run/router@1.23.2': {}
-
   '@rolldown/pluginutils@1.0.0-beta.27': {}
 
   '@rollup/rollup-android-arm-eabi@4.54.0':
@@ -4444,6 +4442,8 @@ snapshots:
   comment-parser@1.4.1: {}
 
   concat-map@0.0.1: {}
+
+  cookie@1.1.1: {}
 
   cross-spawn@7.0.6:
     dependencies:
@@ -5472,17 +5472,13 @@ snapshots:
     optionalDependencies:
       '@types/react': 18.3.27
 
-  react-router-dom@6.30.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  react-router@7.12.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
-      '@remix-run/router': 1.23.2
+      cookie: 1.1.1
       react: 18.3.1
+      set-cookie-parser: 2.7.2
+    optionalDependencies:
       react-dom: 18.3.1(react@18.3.1)
-      react-router: 6.30.3(react@18.3.1)
-
-  react-router@6.30.3(react@18.3.1):
-    dependencies:
-      '@remix-run/router': 1.23.2
-      react: 18.3.1
 
   react-style-singleton@2.2.3(@types/react@18.3.27)(react@18.3.1):
     dependencies:
@@ -5602,6 +5598,8 @@ snapshots:
   semver@6.3.1: {}
 
   semver@7.7.3: {}
+
+  set-cookie-parser@2.7.2: {}
 
   set-function-length@1.2.2:
     dependencies:

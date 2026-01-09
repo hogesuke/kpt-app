@@ -1,6 +1,6 @@
 import { Plus } from 'lucide-react';
 import { ReactElement, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 
 import { BoardCreateDialog } from '@/components/BoardCreateDialog';
 import { BoardTableRow } from '@/components/BoardTableRow';
