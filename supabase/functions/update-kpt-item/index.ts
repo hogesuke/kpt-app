@@ -60,6 +60,10 @@ Deno.serve(async (req) => {
     return generateErrorResponse('無効なステータスが指定されました', 400);
   }
 
+  if (assigneeId && !isValidUUID(assigneeId)) {
+    return generateErrorResponse('無効な担当者が指定されました', 400);
+  }
+
   // boardが存在するか確認
   const { data: board, error: boardError } = await client.from('boards').select('id').eq('id', boardId).maybeSingle();
 
