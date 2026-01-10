@@ -1,7 +1,7 @@
 import { DndContext, DragOverlay } from '@dnd-kit/core';
 import { ArrowLeft, Pencil, Settings, Trash2 } from 'lucide-react';
 import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router';
 import { toast } from 'sonner';
 
 import { BoardDeleteDialog } from '@/components/BoardDeleteDialog';
@@ -33,6 +33,7 @@ const columns: KptColumnType[] = ['keep', 'problem', 'try'];
 export function KPTBoard(): ReactElement {
   const navigate = useNavigate();
   const { boardId } = useParams<{ boardId: string }>();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { handleError } = useErrorHandler();
   const user = useAuthStore((state) => state.user);
 
@@ -100,6 +101,20 @@ export function KPTBoard(): ReactElement {
     }
   }, [joinError, navigate]);
 
+  // クエリパラメータのitemIdに該当するアイテムのDetailPanelを開く
+  useEffect(() => {
+    const itemId = searchParams.get('itemId');
+    if (!itemId || isLoading || items.length === 0) return;
+
+    // すでに選択済みの場合はスキップ
+    if (selectedItem?.id === itemId) return;
+
+    const targetItem = items.find((item) => item.id === itemId);
+    if (targetItem) {
+      setSelectedItem(targetItem);
+    }
+  }, [searchParams, isLoading, items, selectedItem, setSelectedItem]);
+
   const handleItemsChange = useCallback((newItems: KptItem[]) => {
     useBoardStore.setState({ items: newItems });
   }, []);
@@ -161,13 +176,17 @@ export function KPTBoard(): ReactElement {
   const handleCardClick = useCallback(
     (item: KptItem) => {
       setSelectedItem(item);
+      searchParams.set('itemId', item.id);
+      setSearchParams(searchParams, { replace: true });
     },
-    [setSelectedItem]
+    [setSelectedItem, searchParams, setSearchParams]
   );
 
   const handleClosePanel = useCallback(() => {
     setSelectedItem(null);
-  }, [setSelectedItem]);
+    searchParams.delete('itemId');
+    setSearchParams(searchParams, { replace: true });
+  }, [setSelectedItem, searchParams, setSearchParams]);
 
   const handleTagClick = useCallback(
     (tag: string) => {
@@ -242,8 +261,11 @@ export function KPTBoard(): ReactElement {
 
       <section className="mx-auto flex h-full w-full max-w-480 flex-col p-8">
         <header className="flex-none">
-          <nav aria-label="パンくずリスト" className="mb-2">
-            <Link to="/" className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-sm transition-colors hover:underline">
+          <nav className="mb-2">
+            <Link
+              to="/"
+              className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-sm transition-colors hover:underline"
+            >
               <ArrowLeft className="h-4 w-4" />
               ボードリストに戻る
             </Link>
