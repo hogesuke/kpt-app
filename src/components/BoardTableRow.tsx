@@ -1,5 +1,6 @@
 import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 import { ReactElement, useState } from 'react';
+import { Link } from 'react-router';
 
 import { BoardDeleteDialog } from '@/components/BoardDeleteDialog';
 import { BoardRenameDialog } from '@/components/BoardRenameDialog';
@@ -16,13 +17,12 @@ interface BoardTableRowProps {
   isRenaming: boolean;
   onDelete: () => void;
   onRename: (newName: string) => void | Promise<void>;
-  onClick: () => void;
 }
 
 /**
  * ボードリストテーブルの行
  */
-export function BoardTableRow({ board, isOwner, isDeleting, isRenaming, onDelete, onRename, onClick }: BoardTableRowProps): ReactElement {
+export function BoardTableRow({ board, isOwner, isDeleting, isRenaming, onDelete, onRename }: BoardTableRowProps): ReactElement {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [renameDialogOpen, setRenameDialogOpen] = useState(false);
 
@@ -39,11 +39,15 @@ export function BoardTableRow({ board, isOwner, isDeleting, isRenaming, onDelete
 
   return (
     <>
-      <TableRow className="cursor-pointer" onClick={onClick}>
-        <TableCell className="font-medium">{board.name}</TableCell>
-        <TableCell className="text-muted-foreground">{isOwner ? 'オーナー' : 'メンバー'}</TableCell>
-        <TableCell className="text-muted-foreground">{formattedDate}</TableCell>
-        <TableCell className="w-12">
+      <TableRow className="h-12">
+        <TableCell className="p-0">
+          <Link to={`/board/${board.id}`} className="flex h-full items-center p-2 font-medium hover:underline">
+            {board.name}
+          </Link>
+        </TableCell>
+        <TableCell className="py-0">{isOwner ? 'オーナー' : 'メンバー'}</TableCell>
+        <TableCell className="py-0">{formattedDate}</TableCell>
+        <TableCell className="w-12 py-0">
           {isOwner && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
