@@ -52,10 +52,14 @@ export function Header(): ReactElement {
                   className="h-9 w-9 rounded-full border border-primary/30 bg-primary/10 hover:bg-primary/20"
                   aria-label="ユーザーメニュー"
                 >
-                  <User className="h-5 w-5 text-primary" />
+                  {profile ? (
+                    <span className="text-sm font-medium text-primary">{profile.nickname.charAt(0).toUpperCase()}</span>
+                  ) : (
+                    <User className="h-5 w-5 text-primary" />
+                  )}
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuContent align="end" className="w-64">
                 {profile && (
                   <>
                     <DropdownMenuLabel className="font-normal">
@@ -64,7 +68,7 @@ export function Header(): ReactElement {
                         <span className="text-sm font-medium">{profile.nickname}</span>
                       </div>
                     </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
+                    <DropdownMenuSeparator className="bg-border/90" />
                   </>
                 )}
                 <DropdownMenuItem onClick={() => navigate('/setup-nickname', { state: { from: location.pathname } })}>
