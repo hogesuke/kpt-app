@@ -6,6 +6,7 @@ import {
   createServiceClient,
   generateErrorResponse,
   generateJsonResponse,
+  isValidUUID,
   parseRequestBody,
   requireMethod,
 } from '../_shared/helpers.ts';
@@ -37,6 +38,10 @@ Deno.serve(async (req) => {
     return generateErrorResponse('id, boardIdは必須です。', 400);
   }
 
+  if (!isValidUUID(boardId) || !isValidUUID(id)) {
+    return generateErrorResponse('ボードが見つかりません', 404);
+  }
+
   const trimmedText = text?.trim();
   if (trimmedText !== undefined) {
     if (trimmedText.length === 0) {
@@ -53,6 +58,10 @@ Deno.serve(async (req) => {
 
   if (status && !VALID_TRY_STATUSES.includes(status as (typeof VALID_TRY_STATUSES)[number])) {
     return generateErrorResponse('無効なステータスが指定されました', 400);
+  }
+
+  if (assigneeId && !isValidUUID(assigneeId)) {
+    return generateErrorResponse('無効な担当者が指定されました', 400);
   }
 
   // boardが存在するか確認
