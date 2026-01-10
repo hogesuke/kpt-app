@@ -243,7 +243,7 @@ export function KPTBoard(): ReactElement {
       <section className="mx-auto flex h-full w-full max-w-480 flex-col p-8">
         <header className="flex-none">
           <nav aria-label="パンくずリスト" className="mb-2">
-            <Link to="/" className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-sm transition-colors">
+            <Link to="/" className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-sm transition-colors hover:underline">
               <ArrowLeft className="h-4 w-4" />
               ボードリストに戻る
             </Link>

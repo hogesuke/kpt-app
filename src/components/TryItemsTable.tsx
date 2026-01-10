@@ -87,22 +87,22 @@ export function TryItemsTable({ items, isLoading }: TryItemsTableProps): ReactEl
       </TableHeader>
       <TableBody>
         {items.map((item) => (
-          <TableRow key={item.id}>
-            <TableCell className="font-medium">
-              <Link to={`/board/${item.boardId}`} className="hover:text-primary hover:underline">
+          <TableRow key={item.id} className="h-12">
+            <TableCell className="p-0">
+              <Link to={`/board/${item.boardId}`} className="flex h-full items-center p-2 font-medium hover:underline">
                 {truncateText(item.text, 50)}
               </Link>
             </TableCell>
-            <TableCell>
-              <Link to={`/board/${item.boardId}`} className="text-muted-foreground hover:text-primary hover:underline">
+            <TableCell className="p-0">
+              <Link to={`/board/${item.boardId}`} className="flex h-full items-center p-2 hover:underline">
                 {item.boardName || '-'}
               </Link>
             </TableCell>
-            <TableCell>
+            <TableCell className="py-0">
               <StatusBadge status={item.status} />
             </TableCell>
-            <TableCell>{formatDueDate(item.dueDate)}</TableCell>
-            <TableCell>{item.assigneeNickname || '-'}</TableCell>
+            <TableCell className="py-0">{formatDueDate(item.dueDate)}</TableCell>
+            <TableCell className="py-0">{item.assigneeNickname || '-'}</TableCell>
           </TableRow>
         ))}
       </TableBody>

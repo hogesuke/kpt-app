@@ -232,7 +232,6 @@ export function Home(): ReactElement {
                       isRenaming={renamingBoardId === board.id}
                       onDelete={() => handleDeleteBoard(board.id)}
                       onRename={(newName) => handleRenameBoard(board.id, newName)}
-                      onClick={() => navigate(`/board/${board.id}`)}
                     />
                   ))}
                 </TableBody>
