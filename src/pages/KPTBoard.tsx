@@ -11,6 +11,7 @@ import { FilterBar } from '@/components/FilterBar';
 import { HeaderActions } from '@/components/HeaderActions';
 import { ItemAddForm } from '@/components/ItemAddForm';
 import { KPTColumnSkeleton } from '@/components/KPTColumnSkeleton';
+import { Timer } from '@/components/Timer';
 import { BoardColumn } from '@/components/ui/BoardColumn';
 import { ErrorAlert, ErrorAlertAction } from '@/components/ui/ErrorAlert';
 import { ItemDetailPanel } from '@/components/ui/ItemDetailPanel';
@@ -50,17 +51,20 @@ export function KPTBoard(): ReactElement {
   const addItem = useBoardStore((state) => state.addItem);
   const deleteItem = useBoardStore((state) => state.deleteItem);
   const updateItem = useBoardStore((state) => state.updateItem);
-  const subscribeToRealtime = useBoardStore((state) => state.subscribeToRealtime);
+  const subscribeToItemEvents = useBoardStore((state) => state.subscribeToItemEvents);
   const setSelectedItem = useBoardStore((state) => state.setSelectedItem);
   const setFilterTag = useBoardStore((state) => state.setFilterTag);
   const setFilterMemberId = useBoardStore((state) => state.setFilterMemberId);
   const memberNicknameMap = useBoardStore((state) => state.memberNicknameMap);
+  const timerState = useBoardStore((state) => state.timerState);
+  const subscribeToTimerEvents = useBoardStore((state) => state.subscribeToTimerEvents);
   const reset = useBoardStore((state) => state.reset);
 
   const [newItemColumn, setNewItemColumn] = useState<KptColumnType>('keep');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [renameDialogOpen, setRenameDialogOpen] = useState(false);
   const [isRenaming, setIsRenaming] = useState(false);
+  const [localHideOthersCards, setLocalHideOthersCards] = useState(false);
 
   const { handleDeleteBoard, deletingBoardId } = useDeleteBoard({
     onSuccess: () => {
@@ -74,7 +78,8 @@ export function KPTBoard(): ReactElement {
     const load = async (id: string) => {
       try {
         await loadBoard(id);
-        subscribeToRealtime(id);
+        subscribeToItemEvents(id);
+        subscribeToTimerEvents(id);
       } catch {
         // loadErrorはuseBoardStore内で設定されるため、ここでは何もしない
       }
@@ -100,6 +105,15 @@ export function KPTBoard(): ReactElement {
       navigate('/', { replace: true });
     }
   }, [joinError, navigate]);
+
+  // タイマー開始時にデフォルトの表示設定を適用
+  useEffect(() => {
+    if (timerState?.startedAt) {
+      setLocalHideOthersCards(timerState.hideOthersCards);
+    } else {
+      setLocalHideOthersCards(false);
+    }
+  }, [timerState?.startedAt, timerState?.hideOthersCards]);
 
   // クエリパラメータのitemIdに該当するアイテムのDetailPanelを開く
   useEffect(() => {
@@ -141,6 +155,11 @@ export function KPTBoard(): ReactElement {
   const filteredItems = useMemo(() => {
     let result = displayItems;
 
+    // タイマー中でカード非表示モードの場合、自分のカードのみ表示
+    if (timerState?.startedAt && localHideOthersCards) {
+      result = result.filter((item) => item.authorId === user?.id);
+    }
+
     if (filter.tag) {
       result = result.filter((item) => item.text.includes(filter.tag!));
     }
@@ -150,7 +169,7 @@ export function KPTBoard(): ReactElement {
     }
 
     return result;
-  }, [displayItems, filter.tag, filter.memberId]);
+  }, [displayItems, filter.tag, filter.memberId, timerState?.startedAt, localHideOthersCards, user?.id]);
 
   const itemsByColumn = useMemo(() => selectItemsByColumn(filteredItems, columns), [filteredItems]);
   const activeItem = useMemo(() => selectActiveItem(displayItems, activeId), [displayItems, activeId]);
@@ -270,7 +289,12 @@ export function KPTBoard(): ReactElement {
               ボードリストに戻る
             </Link>
           </nav>
-          {isLoading ? <Skeleton className="h-8 w-48" /> : <h1 className="text-2xl font-semibold">{board ? board.name : 'KPT Board'}</h1>}
+          <div className="flex items-center justify-between gap-4">
+            {isLoading ? <Skeleton className="h-8 w-48" /> : <h1 className="text-2xl font-semibold">{board ? board.name : 'KPT Board'}</h1>}
+
+            {/* タイマー */}
+            {!isLoading && board && <Timer boardId={boardId} timerState={timerState} disabled={isLoading} />}
+          </div>
         </header>
 
         {loadError && (

@@ -475,3 +475,13 @@ entrypoint = "./functions/get-board-members/index.ts"
 enabled = true
 verify_jwt = true
 entrypoint = "./functions/get-try-items/index.ts"
+
+[functions.start-timer]
+enabled = true
+verify_jwt = true
+entrypoint = "./functions/start-timer/index.ts"
+
+[functions.stop-timer]
+enabled = true
+verify_jwt = true
+entrypoint = "./functions/stop-timer/index.ts"

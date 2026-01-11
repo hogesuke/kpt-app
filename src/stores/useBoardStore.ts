@@ -8,7 +8,7 @@ import { supabase } from '@/lib/supabase-client';
 import { useAuthStore } from '@/stores/useAuthStore';
 
 import type { ItemRow } from '@/types/db';
-import type { KptBoard, KptColumnType, KptItem, TryStatus } from '@/types/kpt';
+import type { KptBoard, KptColumnType, KptItem, TimerState, TryStatus } from '@/types/kpt';
 import type {
   RealtimeChannel,
   RealtimePostgresDeletePayload,
@@ -30,17 +30,21 @@ interface BoardState {
   loadError: string | null;
   joinError: string | null;
   isNotFound: boolean;
-  realtimeChannel: RealtimeChannel | null;
+  itemEventsChannel: RealtimeChannel | null;
+  timerEventsChannel: RealtimeChannel | null;
   memberNicknameMap: Record<string, string>; // userId -> nickname へ変換するマップ
   filter: FilterState;
+  timerState: TimerState | null;
 
   loadBoard: (boardId: string) => Promise<void>;
   joinBoard: (boardId: string) => Promise<void>;
   addItem: (boardId: string, column: KptColumnType, text: string) => Promise<void>;
   updateItem: (item: KptItem) => Promise<void>;
   deleteItem: (id: string, boardId: string) => Promise<void>;
-  subscribeToRealtime: (boardId: string) => void;
-  unsubscribeFromRealtime: () => void;
+  subscribeToItemEvents: (boardId: string) => void;
+  unsubscribeFromItemEvents: () => void;
+  subscribeToTimerEvents: (boardId: string) => void;
+  unsubscribeFromTimerEvents: () => void;
   fetchAndCacheNickname: (boardId: string, userId: string) => Promise<string | null>;
   handleRealtimeInsert: (item: KptItem) => Promise<void>;
   handleRealtimeUpdate: (item: KptItem) => void;
@@ -48,6 +52,9 @@ interface BoardState {
   setSelectedItem: (item: KptItem | null) => void;
   setFilterTag: (tag: string | null) => void;
   setFilterMemberId: (memberId: string | null) => void;
+  startTimer: (boardId: string, durationSeconds: number, hideOthersCards: boolean) => Promise<void>;
+  stopTimer: (boardId: string) => Promise<void>;
+  setTimerState: (state: TimerState | null) => void;
   reset: () => void;
 }
 
@@ -90,9 +97,11 @@ export const useBoardStore = create<BoardState>()(
       loadError: null,
       joinError: null,
       isNotFound: false,
-      realtimeChannel: null,
+      itemEventsChannel: null,
+      timerEventsChannel: null,
       memberNicknameMap: {},
       filter: initialFilterState,
+      timerState: null,
 
       loadBoard: async (boardId: string) => {
         set({ isLoading: true, loadError: null, joinError: null, isNotFound: false });
@@ -123,12 +132,24 @@ export const useBoardStore = create<BoardState>()(
             const items = await api.fetchKptItems(boardId);
             const nicknameMap = await buildNicknameMap();
 
-            set({ currentBoard: updatedBoard, items, memberNicknameMap: nicknameMap, isLoading: false });
+            set({
+              currentBoard: updatedBoard,
+              items,
+              memberNicknameMap: nicknameMap,
+              timerState: updatedBoard?.timer ?? null,
+              isLoading: false,
+            });
           } else {
             const items = await api.fetchKptItems(boardId);
             const nicknameMap = await buildNicknameMap();
 
-            set({ currentBoard: board, items, memberNicknameMap: nicknameMap, isLoading: false });
+            set({
+              currentBoard: board,
+              items,
+              memberNicknameMap: nicknameMap,
+              timerState: board?.timer ?? null,
+              isLoading: false,
+            });
           }
         } catch (error) {
           // joinErrorが設定済みの場合は再設定しない
@@ -249,11 +270,11 @@ export const useBoardStore = create<BoardState>()(
         }
       },
 
-      subscribeToRealtime: (boardId: string) => {
+      subscribeToItemEvents: (boardId: string) => {
         // 既存のチャンネルがすでにある場合はサブスクリプションを解除する
-        const { realtimeChannel } = get();
-        if (realtimeChannel) {
-          supabase.removeChannel(realtimeChannel);
+        const { itemEventsChannel } = get();
+        if (itemEventsChannel) {
+          supabase.removeChannel(itemEventsChannel);
         }
 
         const channel = supabase
@@ -321,14 +342,53 @@ export const useBoardStore = create<BoardState>()(
             }
           });
 
-        set({ realtimeChannel: channel });
+        set({ itemEventsChannel: channel });
       },
 
-      unsubscribeFromRealtime: () => {
-        const { realtimeChannel } = get();
-        if (realtimeChannel) {
-          supabase.removeChannel(realtimeChannel);
-          set({ realtimeChannel: null });
+      unsubscribeFromItemEvents: () => {
+        const { itemEventsChannel } = get();
+        if (itemEventsChannel) {
+          supabase.removeChannel(itemEventsChannel);
+          set({ itemEventsChannel: null });
+        }
+      },
+
+      subscribeToTimerEvents: (boardId: string) => {
+        // 既存のチャンネルがある場合は解除
+        const { timerEventsChannel } = get();
+        if (timerEventsChannel) {
+          supabase.removeChannel(timerEventsChannel);
+        }
+
+        const channel = supabase
+          .channel(`board-timer-${boardId}`)
+          .on('broadcast', { event: 'timer-started' }, (payload) => {
+            const timerPayload = payload.payload as {
+              startedAt: string;
+              durationSeconds: number;
+              hideOthersCards: boolean;
+              startedBy: string;
+            };
+            get().setTimerState({
+              startedAt: timerPayload.startedAt,
+              durationSeconds: timerPayload.durationSeconds,
+              hideOthersCards: timerPayload.hideOthersCards,
+              startedBy: timerPayload.startedBy,
+            });
+          })
+          .on('broadcast', { event: 'timer-stopped' }, () => {
+            get().setTimerState(null);
+          })
+          .subscribe();
+
+        set({ timerEventsChannel: channel });
+      },
+
+      unsubscribeFromTimerEvents: () => {
+        const { timerEventsChannel } = get();
+        if (timerEventsChannel) {
+          supabase.removeChannel(timerEventsChannel);
+          set({ timerEventsChannel: null });
         }
       },
 
@@ -435,9 +495,51 @@ export const useBoardStore = create<BoardState>()(
         });
       },
 
+      startTimer: async (boardId: string, durationSeconds: number, hideOthersCards: boolean) => {
+        const result = await api.startTimer({ boardId, durationSeconds, hideOthersCards });
+
+        const timerState: TimerState = {
+          startedAt: result.timerStartedAt,
+          durationSeconds: result.durationSeconds,
+          hideOthersCards: result.hideOthersCards,
+          startedBy: result.startedBy,
+        };
+
+        set({ timerState });
+
+        const { timerEventsChannel } = get();
+        if (timerEventsChannel) {
+          await timerEventsChannel.send({
+            type: 'broadcast',
+            event: 'timer-started',
+            payload: timerState,
+          });
+        }
+      },
+
+      stopTimer: async (boardId: string) => {
+        await api.stopTimer(boardId);
+
+        set({ timerState: null });
+
+        const { timerEventsChannel } = get();
+        if (timerEventsChannel) {
+          await timerEventsChannel.send({
+            type: 'broadcast',
+            event: 'timer-stopped',
+            payload: {},
+          });
+        }
+      },
+
+      setTimerState: (state: TimerState | null) => {
+        set({ timerState: state });
+      },
+
       reset: () => {
-        const { unsubscribeFromRealtime } = get();
-        unsubscribeFromRealtime();
+        const { unsubscribeFromItemEvents, unsubscribeFromTimerEvents } = get();
+        unsubscribeFromItemEvents();
+        unsubscribeFromTimerEvents();
         set({
           currentBoard: null,
           items: [],
@@ -446,9 +548,11 @@ export const useBoardStore = create<BoardState>()(
           isAdding: false,
           loadError: null,
           isNotFound: false,
-          realtimeChannel: null,
+          itemEventsChannel: null,
+          timerEventsChannel: null,
           memberNicknameMap: {},
           filter: initialFilterState,
+          timerState: null,
         });
       },
     })),
