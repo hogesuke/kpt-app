@@ -11,12 +11,33 @@ export const PROBLEM_STATUS_LABELS: Record<TryStatus, string> = {
   wont_fix: '対応不要',
 };
 
+/**
+ * タイマーステータス
+ */
+export interface TimerState {
+  startedAt: string | null;
+  durationSeconds: number | null;
+  hideOthersCards: boolean;
+  startedBy: string | null;
+}
+
+/**
+ * タイマープリセット
+ */
+export const TIMER_PRESETS = [
+  { label: '1分', seconds: 60 },
+  { label: '3分', seconds: 180 },
+  { label: '5分', seconds: 300 },
+  { label: '10分', seconds: 600 },
+] as const;
+
 export interface KptBoard {
   id: string;
   name: string;
   isMember?: boolean;
   ownerId?: string;
   createdAt: string;
+  timer?: TimerState;
 }
 
 /**

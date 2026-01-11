@@ -3,7 +3,7 @@ import { FunctionsHttpError } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase-client';
 
 import type { BoardRow, ItemRow, ProfileRow } from '@/types/db';
-import type { BoardMember, KptBoard, KptColumnType, KptItem, TryItemWithBoard, TryStatus, UserProfile } from '@/types/kpt';
+import type { BoardMember, KptBoard, KptColumnType, KptItem, TimerState, TryItemWithBoard, TryStatus, UserProfile } from '@/types/kpt';
 
 /**
  * ページネーション付きレスポンスの型（カーソルベース）
@@ -125,6 +125,14 @@ export async function fetchBoards(options?: FetchBoardsOptions): Promise<Paginat
   };
 }
 
+interface BoardResponse extends BoardRow {
+  isMember?: boolean;
+  timer_started_at?: string | null;
+  timer_duration_seconds?: number | null;
+  timer_hide_others_cards?: boolean | null;
+  timer_started_by?: string | null;
+}
+
 /**
  * ボードを取得する。
  */
@@ -139,13 +147,25 @@ export async function fetchBoard(boardId: string): Promise<KptBoard | null> {
 
   if (!data) return null;
 
-  const row = data as BoardRow & { isMember?: boolean };
+  const row = data as BoardResponse;
+
+  const timer: TimerState | undefined =
+    row.timer_started_at != null
+      ? {
+          startedAt: row.timer_started_at,
+          durationSeconds: row.timer_duration_seconds ?? null,
+          hideOthersCards: row.timer_hide_others_cards ?? false,
+          startedBy: row.timer_started_by ?? null,
+        }
+      : undefined;
+
   return {
     id: row.id,
     name: row.name,
     ownerId: row.owner_id ?? undefined,
     isMember: row.isMember,
     createdAt: row.created_at,
+    timer,
   };
 }
 
@@ -458,4 +478,58 @@ export async function fetchTryItems(options?: FetchTryItemsOptions): Promise<Off
     })),
     hasMore: response.hasMore,
   };
+}
+
+export interface StartTimerInput {
+  boardId: string;
+  durationSeconds: number;
+  hideOthersCards: boolean;
+}
+
+export interface StartTimerResponse {
+  success: boolean;
+  timerStartedAt: string;
+  durationSeconds: number;
+  hideOthersCards: boolean;
+  startedBy: string;
+}
+
+/**
+ * タイマーを開始する。
+ */
+export async function startTimer(input: StartTimerInput): Promise<StartTimerResponse> {
+  const { data, error } = await supabase.functions.invoke('start-timer', {
+    method: 'POST',
+    body: input,
+  });
+
+  if (error) {
+    throw await convertToAPIError(error, 'タイマーの開始に失敗しました');
+  }
+
+  if (!data) {
+    throw new APIError('タイマーの開始に失敗しました');
+  }
+
+  return data as StartTimerResponse;
+}
+
+/**
+ * タイマーを停止する。
+ */
+export async function stopTimer(boardId: string): Promise<{ success: boolean }> {
+  const { data, error } = await supabase.functions.invoke('stop-timer', {
+    method: 'POST',
+    body: { boardId },
+  });
+
+  if (error) {
+    throw await convertToAPIError(error, 'タイマーの停止に失敗しました');
+  }
+
+  if (!data) {
+    throw new APIError('タイマーの停止に失敗しました');
+  }
+
+  return data as { success: boolean };
 }

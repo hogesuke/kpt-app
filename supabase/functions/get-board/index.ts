@@ -30,7 +30,11 @@ Deno.serve(async (req) => {
     return generateErrorResponse('ボードが見つかりません', 404);
   }
 
-  const { data: board, error: boardError } = await client.from('boards').select('id, name, owner_id').eq('id', boardId).maybeSingle();
+  const { data: board, error: boardError } = await client
+    .from('boards')
+    .select('id, name, owner_id, timer_started_at, timer_duration_seconds, timer_hide_others_cards, timer_started_by')
+    .eq('id', boardId)
+    .maybeSingle();
 
   if (boardError) {
     return generateErrorResponse('ボード情報の取得に失敗しました', 500);
@@ -50,5 +54,10 @@ Deno.serve(async (req) => {
     name: isMember ? board.name : null,
     owner_id: isMember ? board.owner_id : null,
     isMember,
+    // タイマー状態（メンバーのみ）
+    timer_started_at: isMember ? board.timer_started_at : null,
+    timer_duration_seconds: isMember ? board.timer_duration_seconds : null,
+    timer_hide_others_cards: isMember ? board.timer_hide_others_cards : null,
+    timer_started_by: isMember ? board.timer_started_by : null,
   });
 });
