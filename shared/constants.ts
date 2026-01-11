@@ -20,7 +20,7 @@ export const MAX_BOARDS_PER_USER = 100;
 export const MAX_ITEMS_PER_BOARD = 200;
 
 /** ボードあたりのメンバー上限数 */
-export const MAX_MEMBERS_PER_BOARD = 2;
+export const MAX_MEMBERS_PER_BOARD = 30;
 
 /** 一覧の1ページあたりの表示件数 */
 export const ITEMS_PER_PAGE = 20;
