@@ -3,9 +3,9 @@ import { ja } from 'date-fns/locale';
 import { CalendarIcon, Edit2, X } from 'lucide-react';
 import { ReactElement, useCallback, useEffect, useRef, useState } from 'react';
 
+import { cn } from '@/lib/cn';
 import { columnDot, columnLabels } from '@/lib/column-styles';
 import { fetchBoardMembers } from '@/lib/kpt-api';
-import { cn } from '@/lib/utils';
 import { useBoardStore } from '@/stores/useBoardStore';
 import { ITEM_TEXT_MAX_LENGTH } from '@shared/constants';
 
@@ -175,7 +175,7 @@ export function ItemDetailPanel({ item, onClose }: ItemDetailPanelProps): ReactE
         aria-modal="true"
         className={cn(
           'fixed top-0 right-0 z-40 h-screen w-full border-l bg-white shadow-2xl',
-          'sm:w-[28rem]',
+          'sm:w-md',
           'flex flex-col',
           'animate-in slide-in-from-right duration-300'
         )}
