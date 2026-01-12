@@ -1,5 +1,5 @@
 import { DndContext, DragOverlay } from '@dnd-kit/core';
-import { ArrowLeft, Pencil, Settings, Trash2 } from 'lucide-react';
+import { ArrowLeft, Download, Pencil, Settings, Trash2 } from 'lucide-react';
 import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router';
 import { toast } from 'sonner';
@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { BoardDeleteDialog } from '@/components/BoardDeleteDialog';
 import { BoardMembersDialog } from '@/components/BoardMembersDialog';
 import { BoardRenameDialog } from '@/components/BoardRenameDialog';
+import { ExportDialog } from '@/components/ExportDialog';
 import { FilterBar } from '@/components/FilterBar';
 import { HeaderActions } from '@/components/HeaderActions';
 import { ItemAddForm } from '@/components/ItemAddForm';
@@ -63,6 +64,7 @@ export function KPTBoard(): ReactElement {
   const [newItemColumn, setNewItemColumn] = useState<KptColumnType>('keep');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [renameDialogOpen, setRenameDialogOpen] = useState(false);
+  const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [isRenaming, setIsRenaming] = useState(false);
   const [localHideOthersCards, setLocalHideOthersCards] = useState(false);
 
@@ -254,6 +256,10 @@ export function KPTBoard(): ReactElement {
     >
       <HeaderActions>
         <BoardMembersDialog boardId={boardId} disabled={isLoading} />
+        <Button variant="ghost" size="sm" onClick={() => setExportDialogOpen(true)} disabled={isLoading || !board}>
+          <Download className="h-4 w-4" />
+          エクスポート
+        </Button>
         {user?.id && (!board || user.id === board.ownerId) && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -397,6 +403,9 @@ export function KPTBoard(): ReactElement {
           onOpenChange={setRenameDialogOpen}
         />
       )}
+
+      {/* エクスポートダイアログ */}
+      {board && <ExportDialog boardName={board.name} items={items} open={exportDialogOpen} onOpenChange={setExportDialogOpen} />}
     </DndContext>
   );
 }
