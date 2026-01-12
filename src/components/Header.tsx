@@ -1,4 +1,4 @@
-import { LogOut, Pencil, User } from 'lucide-react';
+import { LogOut, Settings, User } from 'lucide-react';
 import { ReactElement } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 
@@ -71,9 +71,9 @@ export function Header(): ReactElement {
                     <DropdownMenuSeparator className="bg-border/90" />
                   </>
                 )}
-                <DropdownMenuItem onClick={() => navigate('/setup-nickname', { state: { from: location.pathname } })}>
-                  <Pencil className="h-4 w-4" />
-                  ニックネームの変更
+                <DropdownMenuItem onClick={() => navigate('/account', { state: { from: location.pathname } })}>
+                  <Settings className="h-4 w-4" />
+                  アカウント設定
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleSignOut}>
