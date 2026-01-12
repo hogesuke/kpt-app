@@ -409,7 +409,7 @@ INSERT INTO public.items (id, board_id, column_name, text, position, author_id, 
 -- ページネーションテスト用ユーザー（100ボード、100 Tryアイテム）
 -- ============================================================
 
--- ページネーションテストユーザー: pagination@example.com (パスワード: password)
+-- ページネーションテストユーザー1: pagination1@example.com (パスワード: password)
 INSERT INTO auth.users (
   id,
   instance_id,
@@ -429,7 +429,42 @@ INSERT INTO auth.users (
 ) VALUES (
   'ffffffff-ffff-ffff-ffff-ffffffffffff'::uuid,
   '00000000-0000-0000-0000-000000000000'::uuid,
-  'pagination@example.com',
+  'pagination1@example.com',
+  crypt('password', gen_salt('bf')),
+  now(),
+  now(),
+  now(),
+  '{"provider":"email","providers":["email"]}'::jsonb,
+  '{}'::jsonb,
+  'authenticated',
+  'authenticated',
+  '',
+  '',
+  '',
+  ''
+);
+
+-- ページネーションテストユーザー2: pagination2@example.com (パスワード: password)
+INSERT INTO auth.users (
+  id,
+  instance_id,
+  email,
+  encrypted_password,
+  email_confirmed_at,
+  created_at,
+  updated_at,
+  raw_app_meta_data,
+  raw_user_meta_data,
+  aud,
+  role,
+  confirmation_token,
+  recovery_token,
+  email_change_token_new,
+  email_change
+) VALUES (
+  'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee'::uuid,
+  '00000000-0000-0000-0000-000000000000'::uuid,
+  'pagination2@example.com',
   crypt('password', gen_salt('bf')),
   now(),
   now(),
@@ -446,7 +481,8 @@ INSERT INTO auth.users (
 
 -- プロフィール
 INSERT INTO public.profiles (id, nickname, created_at, updated_at) VALUES
-  ('ffffffff-ffff-ffff-ffff-ffffffffffff'::uuid, 'ページネーションテスト', now(), now());
+  ('ffffffff-ffff-ffff-ffff-ffffffffffff'::uuid, 'ページネーションテスト1', now(), now()),
+  ('eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee'::uuid, 'ページネーションテスト2', now(), now());
 
 -- 100件のボードを作成（generate_seriesを使用）
 INSERT INTO public.boards (id, name, owner_id, created_at)
@@ -457,12 +493,21 @@ SELECT
   now() - (n || ' minutes')::interval
 FROM generate_series(1, 100) AS n;
 
--- 100件のボードメンバーシップを作成
+-- 100件のボードメンバーシップを作成（pagination1がオーナー）
 INSERT INTO public.board_members (board_id, user_id, role, created_at)
 SELECT
   ('00000000-0000-0000-0000-' || lpad(n::text, 12, '0'))::uuid,
   'ffffffff-ffff-ffff-ffff-ffffffffffff'::uuid,
   'owner',
+  now()
+FROM generate_series(1, 100) AS n;
+
+-- pagination2を全100ボードのメンバーとして追加
+INSERT INTO public.board_members (board_id, user_id, role, created_at)
+SELECT
+  ('00000000-0000-0000-0000-' || lpad(n::text, 12, '0'))::uuid,
+  'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee'::uuid,
+  'member',
   now()
 FROM generate_series(1, 100) AS n;
 

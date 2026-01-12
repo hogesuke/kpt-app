@@ -533,3 +533,43 @@ export async function stopTimer(boardId: string): Promise<{ success: boolean }> 
 
   return data as { success: boolean };
 }
+
+export interface OwnedBoard {
+  id: string;
+  name: string;
+  members: Array<{ userId: string; nickname: string | null }>;
+  hasOtherMembers: boolean;
+}
+
+/**
+ * 所有ボード一覧を取得する。
+ */
+export async function fetchOwnedBoards(): Promise<OwnedBoard[]> {
+  const { data, error } = await supabase.functions.invoke('get-owned-boards', {
+    method: 'GET',
+  });
+
+  if (error) {
+    throw await convertToAPIError(error, '所有ボードの取得に失敗しました');
+  }
+
+  if (!data) {
+    return [];
+  }
+
+  return (data as { boards: OwnedBoard[] }).boards;
+}
+
+/**
+ * アカウントを削除する。
+ */
+export async function deleteAccount(transfers: Array<{ boardId: string; newOwnerId: string }>): Promise<void> {
+  const { error } = await supabase.functions.invoke('delete-account', {
+    method: 'DELETE',
+    body: { transfers },
+  });
+
+  if (error) {
+    throw await convertToAPIError(error, 'アカウントの削除に失敗しました');
+  }
+}

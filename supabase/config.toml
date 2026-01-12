@@ -485,3 +485,13 @@ entrypoint = "./functions/start-timer/index.ts"
 enabled = true
 verify_jwt = true
 entrypoint = "./functions/stop-timer/index.ts"
+
+[functions.get-owned-boards]
+enabled = true
+verify_jwt = true
+entrypoint = "./functions/get-owned-boards/index.ts"
+
+[functions.delete-account]
+enabled = true
+verify_jwt = true
+entrypoint = "./functions/delete-account/index.ts"

@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { SendHorizonal } from 'lucide-react';
 import * as React from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 
 import { cn } from '@/lib/cn';
 import { itemTextSchema, ItemTextFormData } from '@/lib/schemas';
@@ -20,7 +20,7 @@ export function ItemInput({ onSubmitText, className, disabled, ...props }: ItemI
   const {
     register,
     handleSubmit,
-    watch,
+    control,
     reset,
     formState: { isValid },
   } = useForm<ItemTextFormData>({
@@ -29,7 +29,7 @@ export function ItemInput({ onSubmitText, className, disabled, ...props }: ItemI
     mode: 'onChange',
   });
 
-  const text = watch('text');
+  const text = useWatch({ control, name: 'text', defaultValue: '' });
 
   const onSubmit = (data: ItemTextFormData) => {
     void Promise.resolve(onSubmitText(data.text)).then(() => {

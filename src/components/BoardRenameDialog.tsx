@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2 } from 'lucide-react';
 import { ReactElement, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 
 import { CharacterCounter } from '@/components/ui/CharacterCounter';
 import { Button } from '@/components/ui/shadcn/button';
@@ -40,7 +40,7 @@ export function BoardRenameDialog({ boardName, isUpdating, onRename, isOpen, onO
   const {
     register,
     handleSubmit,
-    watch,
+    control,
     reset,
     formState: { isValid },
   } = useForm<BoardNameFormData>({
@@ -49,7 +49,7 @@ export function BoardRenameDialog({ boardName, isUpdating, onRename, isOpen, onO
     mode: 'onChange',
   });
 
-  const name = watch('name');
+  const name = useWatch({ control, name: 'name', defaultValue: boardName });
 
   // ダイアログが開くときに現在のボード名をセットする
   useEffect(() => {

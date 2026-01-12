@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2, Plus } from 'lucide-react';
 import { ReactElement, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 
 import { CharacterCounter } from '@/components/ui/CharacterCounter';
 import { Button } from '@/components/ui/shadcn/button';
@@ -37,7 +37,7 @@ export function BoardCreateDialog({ onBoardCreated, trigger }: BoardCreateDialog
   const {
     register,
     handleSubmit,
-    watch,
+    control,
     reset,
     formState: { isSubmitting },
   } = useForm<BoardNameFormData>({
@@ -45,7 +45,7 @@ export function BoardCreateDialog({ onBoardCreated, trigger }: BoardCreateDialog
     defaultValues: { name: '' },
   });
 
-  const name = watch('name');
+  const name = useWatch({ control, name: 'name', defaultValue: '' });
 
   const handleOpenChange = (open: boolean) => {
     setIsOpen(open);
