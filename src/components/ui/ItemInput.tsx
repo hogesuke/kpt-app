@@ -3,8 +3,8 @@ import { SendHorizonal } from 'lucide-react';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 
+import { cn } from '@/lib/cn';
 import { itemTextSchema, ItemTextFormData } from '@/lib/schemas';
-import { cn } from '@/lib/utils';
 import { ITEM_TEXT_MAX_LENGTH } from '@shared/constants';
 
 import { CharacterCounter } from './CharacterCounter';
