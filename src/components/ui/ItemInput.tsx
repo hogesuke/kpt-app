@@ -31,11 +31,15 @@ export function ItemInput({ onSubmitText, className, disabled, ...props }: ItemI
 
   const text = useWatch({ control, name: 'text', defaultValue: '' });
 
-  const onSubmit = (data: ItemTextFormData) => {
+  const submitAndFocus = (data: ItemTextFormData) => {
     void Promise.resolve(onSubmitText(data.text)).then(() => {
       inputRef.current?.focus();
     });
     reset();
+  };
+
+  const handleButtonClick = () => {
+    handleSubmit(submitAndFocus)();
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -43,7 +47,7 @@ export function ItemInput({ onSubmitText, className, disabled, ...props }: ItemI
     if (event.key === 'Enter' && !event.nativeEvent.isComposing) {
       event.preventDefault();
       if (isValid) {
-        handleSubmit(onSubmit)();
+        handleButtonClick();
       }
     }
   };
@@ -68,7 +72,7 @@ export function ItemInput({ onSubmitText, className, disabled, ...props }: ItemI
       />
       <button
         type="button"
-        onClick={handleSubmit(onSubmit)}
+        onClick={handleButtonClick}
         onMouseDown={(e) => e.preventDefault()}
         disabled={!canSubmit}
         className="bg-primary text-primary-foreground hover:bg-primary/90 disabled:bg-primary/50 absolute top-1/2 right-2 -translate-y-1/2 rounded-md p-1.5 transition-colors disabled:cursor-not-allowed"
