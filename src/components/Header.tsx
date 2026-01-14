@@ -76,12 +76,10 @@ export function Header(): ReactElement {
                   <>
                     <DropdownMenuLabel className="font-normal">
                       <div className="flex items-center gap-3">
-                        <User className="text-muted-foreground h-4 w-4 self-center" />
+                        <User className="h-4 w-4 self-center" />
                         <div className="flex flex-col gap-0.5">
                           <span className="text-sm font-medium">{profile.nickname}</span>
-                          {user.email && (
-                            <span className="text-muted-foreground/80 text-sm">{user.email}</span>
-                          )}
+                          {user.email && <span className="text-muted-foreground/80 text-sm">{user.email}</span>}
                         </div>
                       </div>
                     </DropdownMenuLabel>
