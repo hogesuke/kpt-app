@@ -48,9 +48,29 @@ export function generateErrorResponse(message: string, status = 500): Response {
 }
 
 /**
+ * CORS preflightリクエストを処理する。OPTIONSリクエストの場合は適切なレスポンスを返す。
+ */
+export function handleCorsPreflightIfNeeded(req: Request): Response | null {
+  if (req.method === 'OPTIONS') {
+    return new Response(null, {
+      status: 204,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, PATCH, DELETE, OPTIONS',
+        'Access-Control-Allow-Headers': 'Authorization, Content-Type, apikey, x-client-info',
+      },
+    });
+  }
+  return null;
+}
+
+/**
  * HTTPメソッドをチェックする。許可されていないメソッドの場合はエラーレスポンスを返す。
  */
 export function requireMethod(req: Request, method: string): Response | null {
+  const corsResponse = handleCorsPreflightIfNeeded(req);
+  if (corsResponse) return corsResponse;
+
   if (req.method !== method) {
     return generateErrorResponse('Method Not Allowed', 405);
   }
