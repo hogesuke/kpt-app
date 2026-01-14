@@ -143,7 +143,7 @@ export function Home(): ReactElement {
 
   const handleBoardCreated = (board: KptBoard) => {
     setBoards((prev) => [board, ...prev]);
-    navigate(`/board/${board.id}`);
+    navigate(`/boards/${board.id}`);
   };
 
   const handleRenameBoard = async (boardId: string, newName: string) => {

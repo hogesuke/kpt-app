@@ -71,7 +71,7 @@ export function KPTBoard(): ReactElement {
 
   const { handleDeleteBoard, deletingBoardId } = useDeleteBoard({
     onSuccess: () => {
-      navigate('/', { replace: true });
+      navigate('/boards', { replace: true });
     },
   });
 
@@ -105,7 +105,7 @@ export function KPTBoard(): ReactElement {
   useEffect(() => {
     if (joinError) {
       toast.error(joinError);
-      navigate('/', { replace: true });
+      navigate('/boards', { replace: true });
     }
   }, [joinError, navigate]);
 
@@ -290,7 +290,7 @@ export function KPTBoard(): ReactElement {
           <header className="flex-none">
             <nav className="mb-2">
               <Link
-                to="/"
+                to="/boards"
                 className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-sm transition-colors hover:underline"
               >
                 <ArrowLeft className="h-4 w-4" />

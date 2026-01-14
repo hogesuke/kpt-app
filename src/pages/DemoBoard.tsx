@@ -1,5 +1,5 @@
 import { DndContext, DragOverlay } from '@dnd-kit/core';
-import { Download, LogIn } from 'lucide-react';
+import { ArrowLeft, Download } from 'lucide-react';
 import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
 
@@ -167,27 +167,20 @@ export function DemoBoard(): ReactElement {
             <Download className="h-4 w-4" />
             エクスポート
           </Button>
-          <Button variant="default" size="sm" asChild>
-            <Link to="/login">
-              <LogIn className="h-4 w-4" />
-              ログイン
-            </Link>
-          </Button>
         </HeaderActions>
 
         <div className="flex h-full flex-col">
-          {/* デモであることの説明 */}
-          <div className="bg-primary/10 flex-none px-4 py-2 text-center text-sm">
-            <span className="text-primary">
-              これはデモボードです。データはブラウザを更新するとリセットされます。
-              <Link to="/login" className="ml-2 font-medium underline">
-                ログインして実際のボードを作成する
-              </Link>
-            </span>
-          </div>
-
           <section className="mx-auto flex min-h-0 w-full max-w-480 flex-1 flex-col p-8">
             <header className="flex-none">
+              <nav className="mb-2">
+                <Link
+                  to="/"
+                  className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-sm transition-colors hover:underline"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  トップページに戻る
+                </Link>
+              </nav>
               <div className="flex items-center justify-between gap-4">
                 <h1 className="text-2xl font-semibold">デモボード</h1>
                 <Timer />
