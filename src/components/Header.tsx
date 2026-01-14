@@ -71,13 +71,18 @@ export function Header(): ReactElement {
                   )}
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-64">
+              <DropdownMenuContent align="end" className="w-72">
                 {profile && (
                   <>
                     <DropdownMenuLabel className="font-normal">
-                      <div className="flex flex-col gap-1">
-                        <span className="text-muted-foreground text-xs">ニックネーム</span>
-                        <span className="text-sm font-medium">{profile.nickname}</span>
+                      <div className="flex items-center gap-3">
+                        <User className="text-muted-foreground h-4 w-4 self-center" />
+                        <div className="flex flex-col gap-0.5">
+                          <span className="text-sm font-medium">{profile.nickname}</span>
+                          {user.email && (
+                            <span className="text-muted-foreground/80 text-sm">{user.email}</span>
+                          )}
+                        </div>
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator className="bg-border/90" />
