@@ -20,7 +20,7 @@ export function BoardMembersDialog({ boardId, disabled = false }: BoardMembersDi
   const [copied, setCopied] = useState(false);
   const { handleError } = useErrorHandler();
 
-  const shareUrl = `${window.location.origin}/board/${boardId}`;
+  const shareUrl = `${window.location.origin}/boards/${boardId}`;
 
   useEffect(() => {
     if (!isOpen) return;

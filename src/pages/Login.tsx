@@ -18,7 +18,7 @@ export function Login(): ReactElement {
   const navigate = useNavigate();
   const location = useLocation();
   const state = location.state as LocationState | null;
-  const returnTo = state?.from || '/';
+  const returnTo = state?.from || '/boards';
   const [authView, setAuthView] = useState<AuthView>('sign_in');
   const containerRef = useRef<HTMLDivElement>(null);
 

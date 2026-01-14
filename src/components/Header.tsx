@@ -1,4 +1,4 @@
-import { LogOut, Settings, User } from 'lucide-react';
+import { LogIn, LogOut, Settings, User } from 'lucide-react';
 import { ReactElement } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 
@@ -33,15 +33,27 @@ export function Header(): ReactElement {
   };
 
   return (
-    <header className="bg-white">
+    <header className="border-b bg-white">
       <div className="mx-auto flex h-16 max-w-480 items-center justify-between px-8">
-        <button type="button" onClick={() => navigate('/')} className="text-xl font-bold tracking-tight hover:opacity-80">
+        <button
+          type="button"
+          onClick={() => navigate(user ? '/boards' : '/')}
+          className="flex items-center gap-2 text-xl font-bold tracking-tight hover:opacity-80"
+        >
+          <img src="/logo.svg" alt="KPT Appロゴ" className="h-5" />
           KPT App
         </button>
 
         <div className="flex items-center gap-4">
           {/* ページ固有のアクションを挿入するPortal */}
           <div id={HEADER_ACTIONS_PORTAL_ID} className="flex items-center gap-2" />
+
+          {!user && (
+            <Button variant="default" size="sm" onClick={() => navigate('/login')}>
+              <LogIn className="h-4 w-4" />
+              ログイン
+            </Button>
+          )}
 
           {user && (
             <DropdownMenu>

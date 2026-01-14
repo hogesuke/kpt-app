@@ -89,12 +89,12 @@ export function TryItemsTable({ items, isLoading }: TryItemsTableProps): ReactEl
         {items.map((item) => (
           <TableRow key={item.id} className="h-12">
             <TableCell className="p-0">
-              <Link to={`/board/${item.boardId}?itemId=${item.id}`} className="flex h-full items-center p-2 font-medium hover:underline">
+              <Link to={`/boards/${item.boardId}?itemId=${item.id}`} className="flex h-full items-center p-2 font-medium hover:underline">
                 {truncateText(item.text, 50)}
               </Link>
             </TableCell>
             <TableCell className="p-0">
-              <Link to={`/board/${item.boardId}`} className="flex h-full items-center p-2 hover:underline">
+              <Link to={`/boards/${item.boardId}`} className="flex h-full items-center p-2 hover:underline">
                 {item.boardName || '-'}
               </Link>
             </TableCell>

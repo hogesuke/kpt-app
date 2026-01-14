@@ -6,14 +6,16 @@ import { AccountSettings } from './pages/AccountSettings';
 import { DemoBoard } from './pages/DemoBoard';
 import { Home } from './pages/Home';
 import { KPTBoard } from './pages/KPTBoard';
+import { Landing } from './pages/Landing';
 import { Login } from './pages/Login';
 import { NotFound } from './pages/NotFound';
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
     <Route element={<Layout />}>
-      <Route path="/login" element={<Login />} />
+      <Route path="/" element={<Landing />} />
       <Route path="/demo" element={<DemoBoard />} />
+      <Route path="/login" element={<Login />} />
       <Route
         path="/account"
         element={
@@ -23,7 +25,7 @@ export const router = createBrowserRouter(
         }
       />
       <Route
-        path="/"
+        path="/boards"
         element={
           <ProtectedRoute>
             <Home />
@@ -31,7 +33,7 @@ export const router = createBrowserRouter(
         }
       />
       <Route
-        path="/board/:boardId"
+        path="/boards/:boardId"
         element={
           <ProtectedRoute>
             <KPTBoard />

@@ -5,7 +5,7 @@ import type { KptColumnType } from '@/types/kpt';
 export const columnDot = cva('h-2 w-2 rounded-full', {
   variants: {
     column: {
-      keep: 'bg-yellow-500',
+      keep: 'bg-lime-500',
       problem: 'bg-red-400',
       try: 'bg-blue-500',
     },
