@@ -1,7 +1,7 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { cva } from 'class-variance-authority';
-import { AlertTriangle, X } from 'lucide-react';
+import { AlertTriangle, ThumbsUp, X } from 'lucide-react';
 import * as React from 'react';
 
 import { cn } from '@/lib/cn';
@@ -117,9 +117,10 @@ export interface KPTCardProps {
   onClick?: (item: KptItem) => void;
   onTagClick?: (tag: string) => void;
   onMemberClick?: (memberId: string, memberName: string) => void;
+  onVote?: (itemId: string) => void | Promise<void>;
 }
 
-export function KPTCard({ item, isSelected = false, className, onDelete, onClick, onTagClick, onMemberClick }: KPTCardProps) {
+export function KPTCard({ item, isSelected = false, className, onDelete, onClick, onTagClick, onMemberClick, onVote }: KPTCardProps) {
   const handleDeleteClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
     void onDelete?.(item.id);
@@ -128,6 +129,14 @@ export function KPTCard({ item, isSelected = false, className, onDelete, onClick
   const handleCardClick = () => {
     onClick?.(item);
   };
+
+  const handleVoteClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
+    void onVote?.(item.id);
+  };
+
+  const voteCount = item.voteCount ?? 0;
+  const hasVoted = item.hasVoted ?? false;
 
   return (
     <article className={cn(cardStyles, 'relative', className)} aria-label={`KPTカード: ${item.text}`}>
@@ -173,6 +182,24 @@ export function KPTCard({ item, isSelected = false, className, onDelete, onClick
           </div>
         )}
       </div>
+      {/* 投票ボタン */}
+      {onVote && (
+        <button
+          type="button"
+          onClick={handleVoteClick}
+          className={cn(
+            'absolute right-2 bottom-3 inline-flex items-center gap-1.5 rounded-full py-1 pl-2 pr-[5px] text-xs transition-colors',
+            hasVoted
+              ? 'bg-primary/10 text-primary hover:bg-primary/20'
+              : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+          )}
+          aria-label={hasVoted ? `「${item.text}」の投票を取り消す` : `「${item.text}」に投票する`}
+          aria-pressed={hasVoted}
+        >
+          {voteCount > 0 && <span>{voteCount}</span>}
+          <ThumbsUp className="h-3.5 w-3.5" aria-hidden="true" />
+        </button>
+      )}
       {onClick && (
         <button
           type="button"
@@ -204,6 +231,7 @@ export interface SortableKPTCardProps extends React.LiHTMLAttributes<HTMLLIEleme
   onCardClick?: (item: KptItem) => void;
   onTagClick?: (tag: string) => void;
   onMemberClick?: (memberId: string, memberName: string) => void;
+  onVote?: (itemId: string) => void | Promise<void>;
 }
 
 export function SortableKPTCard({
@@ -213,6 +241,7 @@ export function SortableKPTCard({
   onCardClick,
   onTagClick,
   onMemberClick,
+  onVote,
   className,
   ...props
 }: SortableKPTCardProps) {
@@ -246,6 +275,7 @@ export function SortableKPTCard({
         onClick={onCardClick}
         onTagClick={onTagClick}
         onMemberClick={onMemberClick}
+        onVote={onVote}
       />
     </li>
   );

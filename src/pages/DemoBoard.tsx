@@ -38,6 +38,7 @@ export function DemoBoard(): ReactElement {
   const setSelectedItem = useDemoStore((state) => state.setSelectedItem);
   const setFilterTag = useDemoStore((state) => state.setFilterTag);
   const setFilterMemberId = useDemoStore((state) => state.setFilterMemberId);
+  const toggleVote = useDemoStore((state) => state.toggleVote);
   const reset = useDemoStore((state) => state.reset);
 
   const [newItemColumn, setNewItemColumn] = useState<KptColumnType>('keep');
@@ -152,6 +153,13 @@ export function DemoBoard(): ReactElement {
     [setFilterMemberId]
   );
 
+  const handleVote = useCallback(
+    (itemId: string) => {
+      toggleVote(itemId);
+    },
+    [toggleVote]
+  );
+
   return (
     <>
       <title>デモボード - Simple KPT</title>
@@ -208,6 +216,7 @@ export function DemoBoard(): ReactElement {
                   onCardClick={handleCardClick}
                   onTagClick={handleTagClick}
                   onMemberClick={handleMemberClick}
+                  onVote={handleVote}
                 />
                 <BoardColumn
                   column="problem"
@@ -217,6 +226,7 @@ export function DemoBoard(): ReactElement {
                   onCardClick={handleCardClick}
                   onTagClick={handleTagClick}
                   onMemberClick={handleMemberClick}
+                  onVote={handleVote}
                 />
                 <BoardColumn
                   column="try"
@@ -226,6 +236,7 @@ export function DemoBoard(): ReactElement {
                   onCardClick={handleCardClick}
                   onTagClick={handleTagClick}
                   onMemberClick={handleMemberClick}
+                  onVote={handleVote}
                 />
               </div>
 

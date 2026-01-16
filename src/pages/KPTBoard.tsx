@@ -69,6 +69,7 @@ export function KPTBoard(): ReactElement {
   const memberNicknameMap = useBoardStore((state) => state.memberNicknameMap);
   const timerState = useBoardStore((state) => state.timerState);
   const subscribeToTimerEvents = useBoardStore((state) => state.subscribeToTimerEvents);
+  const toggleVote = useBoardStore((state) => state.toggleVote);
   const reset = useBoardStore((state) => state.reset);
 
   const [newItemColumn, setNewItemColumn] = useState<KptColumnType>('keep');
@@ -245,6 +246,17 @@ export function KPTBoard(): ReactElement {
     [setFilterMemberId]
   );
 
+  const handleVote = useCallback(
+    async (itemId: string) => {
+      try {
+        await toggleVote(itemId);
+      } catch (error) {
+        handleError(error, '投票に失敗しました');
+      }
+    },
+    [toggleVote, handleError]
+  );
+
   const handleRenameBoard = async (newName: string) => {
     if (!boardId) return;
     try {
@@ -371,6 +383,7 @@ export function KPTBoard(): ReactElement {
                     onCardClick={handleCardClick}
                     onTagClick={handleTagClick}
                     onMemberClick={handleMemberClick}
+                    onVote={handleVote}
                   />
                   <BoardColumn
                     column="problem"
@@ -380,6 +393,7 @@ export function KPTBoard(): ReactElement {
                     onCardClick={handleCardClick}
                     onTagClick={handleTagClick}
                     onMemberClick={handleMemberClick}
+                    onVote={handleVote}
                   />
                   <BoardColumn
                     column="try"
@@ -389,6 +403,7 @@ export function KPTBoard(): ReactElement {
                     onCardClick={handleCardClick}
                     onTagClick={handleTagClick}
                     onMemberClick={handleMemberClick}
+                    onVote={handleVote}
                   />
                 </>
               )}

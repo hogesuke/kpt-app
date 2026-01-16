@@ -503,3 +503,8 @@ entrypoint = "./functions/get-owned-boards/index.ts"
 enabled = true
 verify_jwt = true
 entrypoint = "./functions/delete-account/index.ts"
+
+[functions.toggle-vote]
+enabled = true
+verify_jwt = true
+entrypoint = "./functions/toggle-vote/index.ts"

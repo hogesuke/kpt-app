@@ -25,6 +25,7 @@ export interface RealtimeSlice {
   handleRealtimeInsert: (item: KptItem) => Promise<void>;
   handleRealtimeUpdate: (item: KptItem) => void;
   handleRealtimeDelete: (id: string) => void;
+  handleRealtimeVoteChanged: (itemId: string, voteCount: number) => void;
 }
 
 /**
@@ -121,6 +122,13 @@ export const createRealtimeSlice: StateCreator<BoardState, [['zustand/devtools',
           }
         }
       )
+      .on('broadcast', { event: 'vote-changed' }, (payload) => {
+        const votePayload = payload.payload as {
+          itemId: string;
+          voteCount: number;
+        };
+        get().handleRealtimeVoteChanged(votePayload.itemId, votePayload.voteCount);
+      })
       .subscribe((status, err) => {
         if (err) {
           console.error('[Realtime] サブスクリプションエラー:', err);
@@ -233,7 +241,7 @@ export const createRealtimeSlice: StateCreator<BoardState, [['zustand/devtools',
       const index = state.items.findIndex((i: KptItem) => i.id === item.id);
       if (index !== -1) {
         const existingItem = state.items[index];
-        // Realtimeではnicknameを取得できないため、既存のitemから取得する
+        // Realtimeではnicknameと投票情報を取得できないため、既存のitemから取得する
         // ただしassigneeIdが変更された場合は、memberNicknameMapから取得する
         const authorNickname = existingItem.authorNickname;
         let assigneeNickname = existingItem.assigneeNickname;
@@ -245,6 +253,9 @@ export const createRealtimeSlice: StateCreator<BoardState, [['zustand/devtools',
           ...item,
           authorNickname,
           assigneeNickname,
+          // 投票情報はRealtimeでは取得できないため、既存の値を保持する
+          voteCount: existingItem.voteCount,
+          hasVoted: existingItem.hasVoted,
         };
         state.items[index] = updatedItem;
 
@@ -265,6 +276,18 @@ export const createRealtimeSlice: StateCreator<BoardState, [['zustand/devtools',
       // 削除されたアイテムがselectedItemの場合はクリアする
       if (state.selectedItem?.id === id) {
         state.selectedItem = null;
+      }
+    });
+  },
+
+  handleRealtimeVoteChanged: (itemId: string, voteCount: number) => {
+    set((state) => {
+      const index = state.items.findIndex((i: KptItem) => i.id === itemId);
+      if (index !== -1) {
+        state.items[index].voteCount = voteCount;
+      }
+      if (state.selectedItem?.id === itemId) {
+        state.selectedItem.voteCount = voteCount;
       }
     });
   },

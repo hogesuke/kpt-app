@@ -146,5 +146,7 @@ Deno.serve(async (req) => {
     assigneeId: data.assignee_id,
     assigneeNickname: (data.assignee as any)?.nickname ?? null,
     dueDate: data.due_date,
+    voteCount: 0,
+    hasVoted: false,
   });
 });
