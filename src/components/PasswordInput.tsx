@@ -1,5 +1,5 @@
 import { Eye, EyeOff } from 'lucide-react';
-import { forwardRef, useState } from 'react';
+import { useState } from 'react';
 
 import { Input } from '@/components/shadcn/input';
 
@@ -7,7 +7,7 @@ interface PasswordInputProps extends Omit<React.ComponentProps<'input'>, 'type'>
   error?: string;
 }
 
-export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(({ error, ...props }, ref) => {
+export function PasswordInput({ error, ref, ...props }: PasswordInputProps) {
   const [showPassword, setShowPassword] = useState(false);
 
   return (
@@ -26,6 +26,4 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(({
       {error && <p className="text-sm text-red-600">{error}</p>}
     </>
   );
-});
-
-PasswordInput.displayName = 'PasswordInput';
+}
