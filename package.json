@@ -1,5 +1,5 @@
 {
-  "name": "kpt-app",
+  "name": "simple-kpt",
   "version": "0.0.1",
   "description": "KPTを簡単シンプルにするアプリケーション",
   "main": "index.js",
@@ -76,7 +76,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:hogesuke/kpt-app.git"
+    "url": "git@github.com:hogesuke/simple-kpt.git"
   },
   "author": "hogesuke",
   "license": "ISC"
