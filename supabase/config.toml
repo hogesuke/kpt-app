@@ -189,6 +189,10 @@ otp_expiry = 3600
 subject = "【Simple KPT】新規登録の確認"
 content_path = "./supabase/templates/confirm_signup.html"
 
+[auth.email.template.recovery]
+subject = "【Simple KPT】パスワードリセット"
+content_path = "./supabase/templates/recovery.html"
+
 # Use a production-ready SMTP server
 # [auth.email.smtp]
 # enabled = true
