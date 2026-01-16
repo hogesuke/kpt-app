@@ -115,6 +115,14 @@ export function Landing(): ReactElement {
                 >
                   お問い合わせ
                 </a>
+                <a
+                  href="/licenses.txt"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-muted-foreground hover:text-foreground text-sm transition-colors"
+                >
+                  ライセンス
+                </a>
               </nav>
             </div>
           </div>
