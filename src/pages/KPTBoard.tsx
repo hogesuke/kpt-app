@@ -1,13 +1,14 @@
 import { DndContext, DragOverlay } from '@dnd-kit/core';
 import { ArrowLeft, Download, Pencil, Settings, Trash2 } from 'lucide-react';
 import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
-import { Link, useNavigate, useParams, useSearchParams } from 'react-router';
+import { Link, useLocation, useNavigate, useParams, useSearchParams } from 'react-router';
 import { toast } from 'sonner';
 
 import { BoardColumn } from '@/components/BoardColumn';
 import { BoardDeleteDialog } from '@/components/BoardDeleteDialog';
 import { BoardMembersDialog } from '@/components/BoardMembersDialog';
 import { BoardRenameDialog } from '@/components/BoardRenameDialog';
+import { BoardShareDialog } from '@/components/BoardShareDialog';
 import { ErrorAlert, ErrorAlertAction } from '@/components/ErrorAlert';
 import { ExportDialog } from '@/components/ExportDialog';
 import { FilterBar } from '@/components/FilterBar';
@@ -34,8 +35,13 @@ import type { KptColumnType, KptItem } from '@/types/kpt';
 
 const columns: KptColumnType[] = ['keep', 'problem', 'try'];
 
+interface LocationState {
+  justCreated?: boolean;
+}
+
 export function KPTBoard(): ReactElement {
   const navigate = useNavigate();
+  const location = useLocation();
   const { boardId } = useParams<{ boardId: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
   const { handleError } = useErrorHandler();
@@ -69,8 +75,20 @@ export function KPTBoard(): ReactElement {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [renameDialogOpen, setRenameDialogOpen] = useState(false);
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
   const [isRenaming, setIsRenaming] = useState(false);
   const [localHideOthersCards, setLocalHideOthersCards] = useState(false);
+
+  // 新規作成後の共有ダイアログ表示
+  useEffect(() => {
+    const state = location.state as LocationState | null;
+    if (state?.justCreated && board) {
+      setShareDialogOpen(true);
+
+      // stateをクリアしてリロード時に再表示されないようにする
+      navigate(location.pathname + location.search, { replace: true, state: {} });
+    }
+  }, [board, location, navigate]);
 
   const { handleDeleteBoard, deletingBoardId } = useDeleteBoard({
     onSuccess: () => {
@@ -417,6 +435,9 @@ export function KPTBoard(): ReactElement {
 
           {/* エクスポートダイアログ */}
           {board && <ExportDialog boardName={board.name} items={items} isOpen={exportDialogOpen} onOpenChange={setExportDialogOpen} />}
+
+          {/* 共有ダイアログ */}
+          {board && <BoardShareDialog boardId={board.id} isOpen={shareDialogOpen} onOpenChange={setShareDialogOpen} />}
         </DndContext>
       </BoardProvider>
     </>

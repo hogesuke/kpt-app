@@ -58,10 +58,10 @@ export function BoardMembersDialog({ boardId, disabled = false }: BoardMembersDi
           参加メンバー
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>参加メンバー</DialogTitle>
-          <DialogDescription>このボードを共有して、ボードにメンバーを招待できます。</DialogDescription>
+          <DialogDescription>URLを共有して、ボードにメンバーを招待できます。</DialogDescription>
         </DialogHeader>
 
         {/* 共有URL */}
@@ -78,7 +78,7 @@ export function BoardMembersDialog({ boardId, disabled = false }: BoardMembersDi
               {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
             </Button>
           </div>
-          <p className="text-muted-foreground text-xs">このURLを共有すると、ボードに参加できます。</p>
+          <p className="text-muted-foreground text-xs">このURLを知っている人はボードに参加できます。</p>
         </div>
 
         {/* メンバー一覧 */}
