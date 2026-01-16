@@ -153,101 +153,104 @@ export function DemoBoard(): ReactElement {
   );
 
   return (
-    <DemoBoardProvider>
-      <DndContext
-        sensors={sensors}
-        collisionDetection={collisionDetectionStrategy}
-        onDragStart={handleDragStart}
-        onDragOver={handleDragOver}
-        onDragEnd={handleDragEnd}
-        onDragCancel={handleDragCancel}
-      >
-        <HeaderActions>
-          <Button variant="ghost" size="sm" onClick={() => setExportDialogOpen(true)}>
-            <Download className="h-4 w-4" />
-            エクスポート
-          </Button>
-        </HeaderActions>
+    <>
+      <title>デモボード - Simple KPT</title>
+      <DemoBoardProvider>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={collisionDetectionStrategy}
+          onDragStart={handleDragStart}
+          onDragOver={handleDragOver}
+          onDragEnd={handleDragEnd}
+          onDragCancel={handleDragCancel}
+        >
+          <HeaderActions>
+            <Button variant="ghost" size="sm" onClick={() => setExportDialogOpen(true)}>
+              <Download className="h-4 w-4" />
+              エクスポート
+            </Button>
+          </HeaderActions>
 
-        <div className="flex h-full flex-col">
-          <section className="mx-auto flex min-h-0 w-full max-w-480 flex-1 flex-col p-8">
-            <header className="flex-none">
-              <nav className="mb-2">
-                <Link
-                  to="/"
-                  className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-sm transition-colors hover:underline"
-                >
-                  <ArrowLeft className="h-4 w-4" />
-                  トップページに戻る
-                </Link>
-              </nav>
-              <div className="flex items-center justify-between gap-4">
-                <h1 className="text-2xl font-semibold">デモボード</h1>
-                <Timer />
+          <div className="flex h-full flex-col">
+            <section className="mx-auto flex min-h-0 w-full max-w-480 flex-1 flex-col p-8">
+              <header className="flex-none">
+                <nav className="mb-2">
+                  <Link
+                    to="/"
+                    className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-sm transition-colors hover:underline"
+                  >
+                    <ArrowLeft className="h-4 w-4" />
+                    トップページに戻る
+                  </Link>
+                </nav>
+                <div className="flex items-center justify-between gap-4">
+                  <h1 className="text-2xl font-semibold">デモボード</h1>
+                  <Timer />
+                </div>
+              </header>
+
+              {/* フィルターバー */}
+              <div className="flex-none pt-4">
+                <FilterBar
+                  filterTag={filter.tag}
+                  filterMemberName={filter.memberId ? memberNicknameMap[filter.memberId] || '不明なメンバー' : null}
+                  onRemoveTag={() => setFilterTag(null)}
+                  onRemoveMember={() => setFilterMemberId(null)}
+                />
               </div>
-            </header>
 
-            {/* フィルターバー */}
-            <div className="flex-none pt-4">
-              <FilterBar
-                filterTag={filter.tag}
-                filterMemberName={filter.memberId ? memberNicknameMap[filter.memberId] || '不明なメンバー' : null}
-                onRemoveTag={() => setFilterTag(null)}
-                onRemoveMember={() => setFilterMemberId(null)}
-              />
-            </div>
+              <div className="flex min-h-0 flex-1 flex-col items-stretch gap-x-4 gap-y-4 overflow-y-auto py-4 lg:flex-row">
+                <BoardColumn
+                  column="keep"
+                  items={itemsByColumn.keep}
+                  selectedItemId={selectedItem?.id}
+                  onDeleteItem={handleDeleteItem}
+                  onCardClick={handleCardClick}
+                  onTagClick={handleTagClick}
+                  onMemberClick={handleMemberClick}
+                />
+                <BoardColumn
+                  column="problem"
+                  items={itemsByColumn.problem}
+                  selectedItemId={selectedItem?.id}
+                  onDeleteItem={handleDeleteItem}
+                  onCardClick={handleCardClick}
+                  onTagClick={handleTagClick}
+                  onMemberClick={handleMemberClick}
+                />
+                <BoardColumn
+                  column="try"
+                  items={itemsByColumn.try}
+                  selectedItemId={selectedItem?.id}
+                  onDeleteItem={handleDeleteItem}
+                  onCardClick={handleCardClick}
+                  onTagClick={handleTagClick}
+                  onMemberClick={handleMemberClick}
+                />
+              </div>
 
-            <div className="flex min-h-0 flex-1 flex-col items-stretch gap-x-4 gap-y-4 overflow-y-auto py-4 lg:flex-row">
-              <BoardColumn
-                column="keep"
-                items={itemsByColumn.keep}
-                selectedItemId={selectedItem?.id}
-                onDeleteItem={handleDeleteItem}
-                onCardClick={handleCardClick}
-                onTagClick={handleTagClick}
-                onMemberClick={handleMemberClick}
-              />
-              <BoardColumn
-                column="problem"
-                items={itemsByColumn.problem}
-                selectedItemId={selectedItem?.id}
-                onDeleteItem={handleDeleteItem}
-                onCardClick={handleCardClick}
-                onTagClick={handleTagClick}
-                onMemberClick={handleMemberClick}
-              />
-              <BoardColumn
-                column="try"
-                items={itemsByColumn.try}
-                selectedItemId={selectedItem?.id}
-                onDeleteItem={handleDeleteItem}
-                onCardClick={handleCardClick}
-                onTagClick={handleTagClick}
-                onMemberClick={handleMemberClick}
-              />
-            </div>
+              <div className="flex-none pt-4">
+                <ItemAddForm
+                  columns={columns}
+                  selectedColumn={newItemColumn}
+                  onColumnChange={setNewItemColumn}
+                  onSubmit={handleAddCard}
+                  disabled={false}
+                />
+              </div>
+            </section>
+          </div>
 
-            <div className="flex-none pt-4">
-              <ItemAddForm
-                columns={columns}
-                selectedColumn={newItemColumn}
-                onColumnChange={setNewItemColumn}
-                onSubmit={handleAddCard}
-                disabled={false}
-              />
-            </div>
-          </section>
-        </div>
+          {/* ドラッグ中にポインタに追従するカード */}
+          <DragOverlay>{activeItem ? <KPTCard item={activeItem} /> : null}</DragOverlay>
 
-        {/* ドラッグ中にポインタに追従するカード */}
-        <DragOverlay>{activeItem ? <KPTCard item={activeItem} /> : null}</DragOverlay>
+          {/* カード詳細パネル */}
+          <ItemDetailPanel item={selectedItem} onClose={handleClosePanel} />
 
-        {/* カード詳細パネル */}
-        <ItemDetailPanel item={selectedItem} onClose={handleClosePanel} />
-
-        {/* エクスポートダイアログ */}
-        <ExportDialog boardName="デモボード" items={items} isOpen={exportDialogOpen} onOpenChange={setExportDialogOpen} />
-      </DndContext>
-    </DemoBoardProvider>
+          {/* エクスポートダイアログ */}
+          <ExportDialog boardName="デモボード" items={items} isOpen={exportDialogOpen} onOpenChange={setExportDialogOpen} />
+        </DndContext>
+      </DemoBoardProvider>
+    </>
   );
 }

@@ -167,60 +167,32 @@ export function Home(): ReactElement {
   };
 
   return (
-    <section className="mx-auto max-w-7xl px-4 py-8">
-      <Tabs value={activeTab} onValueChange={handleTabChange}>
-        <div className="mb-6 flex items-center justify-between">
-          <TabsList>
-            <TabsTrigger value="boards">ボードリスト</TabsTrigger>
-            <TabsTrigger value="try">Tryリスト</TabsTrigger>
-          </TabsList>
-          <BoardCreateDialog onBoardCreated={handleBoardCreated} />
-        </div>
+    <>
+      <title>ボード一覧 - Simple KPT</title>
+      <section className="mx-auto max-w-7xl px-4 py-8">
+        <Tabs value={activeTab} onValueChange={handleTabChange}>
+          <div className="mb-6 flex items-center justify-between">
+            <TabsList>
+              <TabsTrigger value="boards">ボードリスト</TabsTrigger>
+              <TabsTrigger value="try">Tryリスト</TabsTrigger>
+            </TabsList>
+            <BoardCreateDialog onBoardCreated={handleBoardCreated} />
+          </div>
 
-        <TabsContent value="boards">
-          {loadError && (
-            <div className="mb-6">
-              <ErrorAlert message={loadError}>
-                <ErrorAlertAction>
-                  <Button size="sm" variant="destructive" onClick={() => window.location.reload()}>
-                    再読み込み
-                  </Button>
-                </ErrorAlertAction>
-              </ErrorAlert>
-            </div>
-          )}
+          <TabsContent value="boards">
+            {loadError && (
+              <div className="mb-6">
+                <ErrorAlert message={loadError}>
+                  <ErrorAlertAction>
+                    <Button size="sm" variant="destructive" onClick={() => window.location.reload()}>
+                      再読み込み
+                    </Button>
+                  </ErrorAlertAction>
+                </ErrorAlert>
+              </div>
+            )}
 
-          {isLoading ? (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>ボード名</TableHead>
-                  <TableHead className="w-24">ロール</TableHead>
-                  <TableHead className="w-28">作成日</TableHead>
-                  <TableHead className="w-12"></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {[...Array(4)].map((_, i) => (
-                  <BoardTableRowSkeleton key={i} />
-                ))}
-              </TableBody>
-            </Table>
-          ) : boards.length === 0 ? (
-            <div className="text-muted-foreground rounded-lg border border-dashed p-12 text-center">
-              <p className="mb-4">まだボードがありません</p>
-              <BoardCreateDialog
-                onBoardCreated={handleBoardCreated}
-                trigger={
-                  <Button type="button">
-                    <Plus className="h-4 w-4" />
-                    最初のボードを作成
-                  </Button>
-                }
-              />
-            </div>
-          ) : (
-            <>
+            {isLoading ? (
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -231,49 +203,80 @@ export function Home(): ReactElement {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {boards.map((board) => (
-                    <BoardTableRow
-                      key={board.id}
-                      board={board}
-                      isOwner={user?.id === board.ownerId}
-                      isDeleting={deletingBoardId === board.id}
-                      isRenaming={renamingBoardId === board.id}
-                      onDelete={() => handleDeleteBoard(board.id)}
-                      onRename={(newName) => handleRenameBoard(board.id, newName)}
-                    />
+                  {[...Array(4)].map((_, i) => (
+                    <BoardTableRowSkeleton key={i} />
                   ))}
                 </TableBody>
               </Table>
-              {boardsHasMore && <LoadMoreButton onClick={loadMoreBoards} isLoading={isLoadingMore} />}
-            </>
-          )}
-        </TabsContent>
+            ) : boards.length === 0 ? (
+              <div className="text-muted-foreground rounded-lg border border-dashed p-12 text-center">
+                <p className="mb-4">まだボードがありません</p>
+                <BoardCreateDialog
+                  onBoardCreated={handleBoardCreated}
+                  trigger={
+                    <Button type="button">
+                      <Plus className="h-4 w-4" />
+                      最初のボードを作成
+                    </Button>
+                  }
+                />
+              </div>
+            ) : (
+              <>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>ボード名</TableHead>
+                      <TableHead className="w-24">ロール</TableHead>
+                      <TableHead className="w-28">作成日</TableHead>
+                      <TableHead className="w-12"></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {boards.map((board) => (
+                      <BoardTableRow
+                        key={board.id}
+                        board={board}
+                        isOwner={user?.id === board.ownerId}
+                        isDeleting={deletingBoardId === board.id}
+                        isRenaming={renamingBoardId === board.id}
+                        onDelete={() => handleDeleteBoard(board.id)}
+                        onRename={(newName) => handleRenameBoard(board.id, newName)}
+                      />
+                    ))}
+                  </TableBody>
+                </Table>
+                {boardsHasMore && <LoadMoreButton onClick={loadMoreBoards} isLoading={isLoadingMore} />}
+              </>
+            )}
+          </TabsContent>
 
-        <TabsContent value="try">
-          <div className="mb-4">
-            <StatusFilter selectedStatuses={selectedStatuses} onStatusChange={handleStatusChange} />
-          </div>
-
-          {tryLoadError && (
-            <div className="mb-6">
-              <ErrorAlert message={tryLoadError}>
-                <ErrorAlertAction>
-                  <Button size="sm" variant="destructive" onClick={() => loadTryItems(selectedStatuses)}>
-                    再読み込み
-                  </Button>
-                </ErrorAlertAction>
-              </ErrorAlert>
+          <TabsContent value="try">
+            <div className="mb-4">
+              <StatusFilter selectedStatuses={selectedStatuses} onStatusChange={handleStatusChange} />
             </div>
-          )}
 
-          {!tryLoadError && (
-            <>
-              <TryItemsTable items={tryItems} isLoading={isTryLoading} />
-              {tryHasMore && !isTryLoading && <LoadMoreButton onClick={loadMoreTryItems} isLoading={isTryLoadingMore} />}
-            </>
-          )}
-        </TabsContent>
-      </Tabs>
-    </section>
+            {tryLoadError && (
+              <div className="mb-6">
+                <ErrorAlert message={tryLoadError}>
+                  <ErrorAlertAction>
+                    <Button size="sm" variant="destructive" onClick={() => loadTryItems(selectedStatuses)}>
+                      再読み込み
+                    </Button>
+                  </ErrorAlertAction>
+                </ErrorAlert>
+              </div>
+            )}
+
+            {!tryLoadError && (
+              <>
+                <TryItemsTable items={tryItems} isLoading={isTryLoading} />
+                {tryHasMore && !isTryLoading && <LoadMoreButton onClick={loadMoreTryItems} isLoading={isTryLoadingMore} />}
+              </>
+            )}
+          </TabsContent>
+        </Tabs>
+      </section>
+    </>
   );
 }

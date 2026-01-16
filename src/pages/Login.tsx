@@ -103,13 +103,16 @@ export function Login(): ReactElement {
   };
 
   return (
-    <div className="flex h-full items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
-      <div className="w-full max-w-md space-y-8">
-        <div>
-          <h2 className="text-center text-2xl font-bold">{getHeadingText()}</h2>
+    <>
+      <title>ログイン - Simple KPT</title>
+      <div className="flex h-full items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
+        <div className="w-full max-w-md space-y-8">
+          <div>
+            <h2 className="text-center text-2xl font-bold">{getHeadingText()}</h2>
+          </div>
+          <div className="rounded-lg bg-white px-8 py-8 shadow">{renderContent()}</div>
         </div>
-        <div className="rounded-lg bg-white px-8 py-8 shadow">{renderContent()}</div>
       </div>
-    </div>
+    </>
   );
 }
