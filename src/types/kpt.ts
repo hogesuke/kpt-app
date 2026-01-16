@@ -63,6 +63,8 @@ export interface KptItem extends Partial<TryItemProperties> {
   authorNickname?: string | null;
   createdAt?: string;
   updatedAt?: string;
+  voteCount?: number;
+  hasVoted?: boolean;
 }
 
 export const isTryItem = (item: KptItem): item is KptItem & TryItemProperties => item.column === 'try';

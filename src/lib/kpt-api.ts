@@ -60,6 +60,8 @@ async function convertToAPIError(error: unknown, fallbackMessage: string): Promi
 type ItemRowWithProfiles = ItemRow & {
   author_nickname?: string | null;
   assignee_nickname?: string | null;
+  vote_count?: number;
+  has_voted?: boolean;
 };
 
 function mapRowToItem(row: ItemRowWithProfiles): KptItem {
@@ -77,6 +79,8 @@ function mapRowToItem(row: ItemRowWithProfiles): KptItem {
     assigneeId: row.assignee_id,
     assigneeNickname: row.assignee_nickname,
     dueDate: row.due_date,
+    voteCount: row.vote_count ?? 0,
+    hasVoted: row.has_voted ?? false,
   };
 }
 
@@ -572,4 +576,30 @@ export async function deleteAccount(transfers: Array<{ boardId: string; newOwner
   if (error) {
     throw await convertToAPIError(error, 'アカウントの削除に失敗しました');
   }
+}
+
+export interface ToggleVoteResponse {
+  itemId: string;
+  voteCount: number;
+  hasVoted: boolean;
+}
+
+/**
+ * アイテムの投票をトグルする。
+ */
+export async function toggleVote(itemId: string): Promise<ToggleVoteResponse> {
+  const { data, error } = await supabase.functions.invoke('toggle-vote', {
+    method: 'POST',
+    body: { itemId },
+  });
+
+  if (error) {
+    throw await convertToAPIError(error, '投票に失敗しました');
+  }
+
+  if (!data) {
+    throw new APIError('投票に失敗しました');
+  }
+
+  return data as ToggleVoteResponse;
 }

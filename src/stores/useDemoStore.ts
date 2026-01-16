@@ -100,6 +100,7 @@ interface DemoState {
   setFilterMemberId: (memberId: string | null) => void;
   startTimer: (durationSeconds: number, hideOthersCards: boolean) => void;
   stopTimer: () => void;
+  toggleVote: (itemId: string) => void;
   reset: () => void;
 }
 
@@ -190,6 +191,27 @@ export const useDemoStore = create<DemoState>()(
 
       stopTimer: () => {
         set({ timerState: null });
+      },
+
+      toggleVote: (itemId: string) => {
+        set((state) => {
+          const index = state.items.findIndex((i) => i.id === itemId);
+          if (index !== -1) {
+            const item = state.items[index];
+            const oldVoteCount = item.voteCount ?? 0;
+            const oldHasVoted = item.hasVoted ?? false;
+            const newHasVoted = !oldHasVoted;
+            const newVoteCount = newHasVoted ? oldVoteCount + 1 : Math.max(0, oldVoteCount - 1);
+
+            state.items[index].voteCount = newVoteCount;
+            state.items[index].hasVoted = newHasVoted;
+
+            if (state.selectedItem?.id === itemId) {
+              state.selectedItem.voteCount = newVoteCount;
+              state.selectedItem.hasVoted = newHasVoted;
+            }
+          }
+        });
       },
 
       reset: () => {

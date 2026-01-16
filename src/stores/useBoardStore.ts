@@ -41,6 +41,7 @@ interface CoreSlice {
   startTimer: (boardId: string, durationSeconds: number, hideOthersCards: boolean) => Promise<void>;
   stopTimer: (boardId: string) => Promise<void>;
   setTimerState: (state: TimerState | null) => void;
+  toggleVote: (itemId: string) => Promise<void>;
   reset: () => void;
 }
 
@@ -290,6 +291,73 @@ const createCoreSlice: StateCreator<BoardState, [['zustand/devtools', never], ['
 
   setTimerState: (state: TimerState | null) => {
     set({ timerState: state });
+  },
+
+  toggleVote: async (itemId: string) => {
+    const item = get().items.find((i) => i.id === itemId);
+    if (!item) return;
+
+    // 楽観的UI更新
+    const oldVoteCount = item.voteCount ?? 0;
+    const oldHasVoted = item.hasVoted ?? false;
+    const newHasVoted = !oldHasVoted;
+    const newVoteCount = newHasVoted ? oldVoteCount + 1 : Math.max(0, oldVoteCount - 1);
+
+    set((state) => {
+      const index = state.items.findIndex((i: KptItem) => i.id === itemId);
+      if (index !== -1) {
+        state.items[index].voteCount = newVoteCount;
+        state.items[index].hasVoted = newHasVoted;
+      }
+      if (state.selectedItem?.id === itemId) {
+        state.selectedItem.voteCount = newVoteCount;
+        state.selectedItem.hasVoted = newHasVoted;
+      }
+    });
+
+    try {
+      const result = await api.toggleVote(itemId);
+
+      // サーバーからの応答で正確な値に更新する
+      set((state) => {
+        const index = state.items.findIndex((i: KptItem) => i.id === itemId);
+        if (index !== -1) {
+          state.items[index].voteCount = result.voteCount;
+          state.items[index].hasVoted = result.hasVoted;
+        }
+        if (state.selectedItem?.id === itemId) {
+          state.selectedItem.voteCount = result.voteCount;
+          state.selectedItem.hasVoted = result.hasVoted;
+        }
+      });
+
+      // 他のクライアントに投票変更を通知する
+      const { itemEventsChannel } = get();
+      if (itemEventsChannel) {
+        await itemEventsChannel.send({
+          type: 'broadcast',
+          event: 'vote-changed',
+          payload: {
+            itemId: result.itemId,
+            voteCount: result.voteCount,
+          },
+        });
+      }
+    } catch (error) {
+      // エラー時はロールバックを行う
+      set((state) => {
+        const index = state.items.findIndex((i: KptItem) => i.id === itemId);
+        if (index !== -1) {
+          state.items[index].voteCount = oldVoteCount;
+          state.items[index].hasVoted = oldHasVoted;
+        }
+        if (state.selectedItem?.id === itemId) {
+          state.selectedItem.voteCount = oldVoteCount;
+          state.selectedItem.hasVoted = oldHasVoted;
+        }
+      });
+      throw error;
+    }
   },
 
   reset: () => {

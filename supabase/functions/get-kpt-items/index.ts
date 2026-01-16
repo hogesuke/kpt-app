@@ -69,6 +69,9 @@ Deno.serve(async (req) => {
       ),
       assignee:profiles!items_assignee_id_fkey (
         nickname
+      ),
+      item_votes (
+        user_id
       )
     `
     )
@@ -79,22 +82,27 @@ Deno.serve(async (req) => {
     return generateErrorResponse('アイテムの取得に失敗しました', 500);
   }
 
-  // ニックネーム情報をフラットな構造に変換
-  const items = (data ?? []).map((item: any) => ({
-    id: item.id,
-    board_id: item.board_id,
-    column_name: item.column_name,
-    text: item.text,
-    position: item.position,
-    created_at: item.created_at,
-    updated_at: item.updated_at,
-    author_id: item.author_id,
-    author_nickname: item.profiles?.nickname ?? null,
-    status: item.status,
-    assignee_id: item.assignee_id,
-    assignee_nickname: item.assignee?.nickname ?? null,
-    due_date: item.due_date,
-  }));
+  // ニックネーム情報をフラットな構造に変換, 投票情報を追加
+  const items = (data ?? []).map((item: any) => {
+    const votes = item.item_votes ?? [];
+    return {
+      id: item.id,
+      board_id: item.board_id,
+      column_name: item.column_name,
+      text: item.text,
+      position: item.position,
+      created_at: item.created_at,
+      updated_at: item.updated_at,
+      author_id: item.author_id,
+      author_nickname: item.profiles?.nickname ?? null,
+      status: item.status,
+      assignee_id: item.assignee_id,
+      assignee_nickname: item.assignee?.nickname ?? null,
+      due_date: item.due_date,
+      vote_count: votes.length,
+      has_voted: votes.some((v: { user_id: string }) => v.user_id === user.id),
+    };
+  });
 
   return generateJsonResponse(items);
 });

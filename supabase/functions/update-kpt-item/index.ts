@@ -119,6 +119,9 @@ Deno.serve(async (req) => {
       due_date,
       assignee:profiles!items_assignee_id_fkey (
         nickname
+      ),
+      item_votes (
+        user_id
       )
     `
     )
@@ -127,6 +130,8 @@ Deno.serve(async (req) => {
   if (error || !data) {
     return generateErrorResponse('アイテムの更新に失敗しました', 500);
   }
+
+  const votes = (data as any).item_votes ?? [];
 
   return generateJsonResponse({
     id: data.id,
@@ -141,5 +146,7 @@ Deno.serve(async (req) => {
     assignee_id: data.assignee_id,
     assignee_nickname: (data.assignee as any)?.nickname ?? null,
     due_date: data.due_date,
+    vote_count: votes.length,
+    has_voted: votes.some((v: { user_id: string }) => v.user_id === user.id),
   });
 });
