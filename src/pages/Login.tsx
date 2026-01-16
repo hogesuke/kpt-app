@@ -19,6 +19,7 @@ export function Login(): ReactElement {
   const initialized = useAuthStore((state) => state.initialized);
   const isPasswordRecovery = useAuthStore((state) => state.isPasswordRecovery);
   const setPasswordRecovery = useAuthStore((state) => state.setPasswordRecovery);
+  const loadProfile = useAuthStore((state) => state.loadProfile);
   const navigate = useNavigate();
   const location = useLocation();
   const state = location.state as LocationState | null;
@@ -89,8 +90,9 @@ export function Login(): ReactElement {
       case 'reset_password':
         return (
           <ResetPasswordForm
-            onSuccess={() => {
+            onSuccess={async () => {
               setPasswordRecovery(false);
+              await loadProfile();
               navigate('/boards', { replace: true });
             }}
           />
