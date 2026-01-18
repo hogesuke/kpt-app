@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Loader2 } from 'lucide-react';
 import { ReactElement, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -95,7 +96,8 @@ export function ChangePasswordForm({ onSuccess }: ChangePasswordFormProps): Reac
 
       <div className="flex justify-end">
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? '変更中...' : '変更'}
+          {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
+          変更
         </Button>
       </div>
     </form>

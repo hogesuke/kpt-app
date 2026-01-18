@@ -35,6 +35,7 @@ export function AccountDeleteDialog({ isOpen, onOpenChange }: AccountDeleteDialo
   const [transfers, setTransfers] = useState<TransferSelection>({});
   const [error, setError] = useState<string | null>(null);
   const [bulkApplyUserId, setBulkApplyUserId] = useState<string>('');
+  const [isProcessing, setIsProcessing] = useState(false);
 
   /** 前回のOpen状態の追跡用（開いたときだけ処理を実行させるため） */
   const prevOpenRef = useRef(isOpen);
@@ -104,6 +105,7 @@ export function AccountDeleteDialog({ isOpen, onOpenChange }: AccountDeleteDialo
         setTransfers({});
         setError(null);
         setBulkApplyUserId('');
+        setIsProcessing(false);
       }
       onOpenChange(newOpen);
     },
@@ -141,6 +143,7 @@ export function AccountDeleteDialog({ isOpen, onOpenChange }: AccountDeleteDialo
   }, []);
 
   const handleDelete = useCallback(async () => {
+    setIsProcessing(true);
     setStep('deleting');
     setError(null);
 
@@ -161,6 +164,7 @@ export function AccountDeleteDialog({ isOpen, onOpenChange }: AccountDeleteDialo
     } catch (err) {
       setError('アカウントの削除に失敗しました');
       setStep('confirm');
+      setIsProcessing(false);
       handleError(err, 'アカウントの削除に失敗しました');
     }
   }, [transfers, onOpenChange, clearSession, navigate, handleError]);
@@ -333,7 +337,8 @@ export function AccountDeleteDialog({ isOpen, onOpenChange }: AccountDeleteDialo
                   戻る
                 </Button>
               )}
-              <Button variant="destructive" onClick={handleDelete}>
+              <Button variant="destructive" onClick={handleDelete} disabled={isProcessing}>
+                {isProcessing && <Loader2 className="h-4 w-4 animate-spin" />}
                 アカウントを削除
               </Button>
             </>

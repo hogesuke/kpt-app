@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Loader2 } from 'lucide-react';
 import { ReactElement, useEffect, useRef, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { useLocation, useNavigate } from 'react-router';
@@ -105,6 +105,7 @@ export function AccountSettings(): ReactElement {
                 </div>
 
                 <Button type="submit" disabled={isSubmitting} className="w-full">
+                  {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
                   設定
                 </Button>
               </form>
@@ -165,6 +166,7 @@ export function AccountSettings(): ReactElement {
 
                 <div className="flex justify-end">
                   <Button type="submit" disabled={isSubmitting}>
+                    {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
                     更新
                   </Button>
                 </div>
