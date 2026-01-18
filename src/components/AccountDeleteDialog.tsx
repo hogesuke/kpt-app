@@ -3,6 +3,7 @@ import { ReactElement, useCallback, useEffect, useMemo, useRef, useState } from 
 import { useNavigate } from 'react-router';
 import { toast } from 'sonner';
 
+import { LoadingButton } from '@/components/LoadingButton';
 import { Button } from '@/components/shadcn/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/shadcn/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/shadcn/select';
@@ -337,10 +338,9 @@ export function AccountDeleteDialog({ isOpen, onOpenChange }: AccountDeleteDialo
                   戻る
                 </Button>
               )}
-              <Button variant="destructive" onClick={handleDelete} disabled={isProcessing}>
-                {isProcessing && <Loader2 className="h-4 w-4 animate-spin" />}
+              <LoadingButton variant="destructive" onClick={handleDelete} loading={isProcessing}>
                 アカウントを削除
-              </Button>
+              </LoadingButton>
             </>
           )}
         </DialogFooter>
