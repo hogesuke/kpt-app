@@ -73,6 +73,7 @@ export function BoardMembersDialog({ boardId, disabled = false }: BoardMembersDi
               value={shareUrl}
               className="bg-muted flex-1 rounded-md border px-3 py-2 text-sm"
               onClick={(e) => e.currentTarget.select()}
+              aria-label="共有URL（クリックで選択）"
             />
             <Button size="sm" variant="outline" onClick={handleCopyUrl} aria-label={copied ? 'コピー済み' : 'URLをコピー'}>
               {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}

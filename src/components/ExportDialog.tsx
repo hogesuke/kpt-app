@@ -84,10 +84,11 @@ export function ExportDialog({ boardName, items, isOpen, onOpenChange }: ExportD
           {/* 形式選択 */}
           <div className="flex flex-col gap-2">
             <span className="text-sm font-medium">形式</span>
-            <div className="flex gap-2">
+            <div className="flex gap-2" role="group" aria-label="エクスポート形式">
               <button
                 type="button"
                 onClick={() => setFormat('markdown')}
+                aria-pressed={format === 'markdown'}
                 className={`flex-1 rounded-md border px-3 py-2 text-sm transition-colors ${
                   format === 'markdown' ? 'border-primary bg-primary/10 text-primary' : 'border-input hover:bg-muted'
                 }`}
@@ -97,6 +98,7 @@ export function ExportDialog({ boardName, items, isOpen, onOpenChange }: ExportD
               <button
                 type="button"
                 onClick={() => setFormat('csv')}
+                aria-pressed={format === 'csv'}
                 className={`flex-1 rounded-md border px-3 py-2 text-sm transition-colors ${
                   format === 'csv' ? 'border-primary bg-primary/10 text-primary' : 'border-input hover:bg-muted'
                 }`}

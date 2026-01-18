@@ -122,13 +122,15 @@ export function Timer({ disabled }: TimerProps) {
             <span className="text-sm font-medium">時間</span>
 
             {/* プリセットボタン */}
-            <div className="flex gap-1">
+            <div className="flex gap-1" role="group" aria-label="プリセット時間">
               {TIMER_PRESETS.map((preset) => (
                 <button
                   key={preset.seconds}
                   type="button"
                   onClick={() => setMinutes(String(preset.seconds / 60))}
                   disabled={isProcessing}
+                  aria-pressed={minutes === String(preset.seconds / 60)}
+                  aria-label={`${preset.seconds / 60}分を選択`}
                   className={`flex-1 rounded-md border px-2 py-1.5 text-sm transition-colors disabled:opacity-50 ${
                     minutes === String(preset.seconds / 60) ? 'border-primary bg-primary/10 text-primary' : 'border-input hover:bg-muted'
                   }`}
@@ -148,8 +150,9 @@ export function Timer({ disabled }: TimerProps) {
                 onChange={(e) => setMinutes(e.target.value)}
                 className="text-center"
                 disabled={isProcessing}
+                aria-label="タイマー時間（分）"
               />
-              <span className="text-sm">分</span>
+              <span className="text-sm" aria-hidden="true">分</span>
             </div>
           </div>
 
