@@ -1,8 +1,10 @@
-import { Check, Copy, Loader2, Users } from 'lucide-react';
+import { Check, Copy, Users } from 'lucide-react';
 import { ReactElement, useEffect, useState } from 'react';
 
 import { Button } from '@/components/shadcn/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/shadcn/dialog';
+import { Skeleton } from '@/components/shadcn/skeleton';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/shadcn/table';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { fetchBoardMembers } from '@/lib/kpt-api';
 
@@ -85,21 +87,42 @@ export function BoardMembersDialog({ boardId, disabled = false }: BoardMembersDi
 
         {/* メンバー一覧 */}
         <div className="space-y-2">
-          <p className="text-sm font-medium">メンバー ({members.length})</p>
-          {isLoading ? (
-            <Loader2 className="text-muted-foreground h-6 w-6 animate-spin" />
-          ) : (
-            <div className="max-h-60 space-y-2 overflow-y-auto">
-              {members.map((member) => (
-                <div key={member.id} className="border-border flex items-center justify-between rounded-md border p-2">
-                  <div className="flex flex-col">
-                    <span className="text-sm font-medium">{member.nickname ?? 'Unknown User'}</span>
-                    <span className="text-muted-foreground text-xs">{member.role === 'owner' ? 'オーナー' : 'メンバー'}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+          <p className="text-sm font-medium">メンバー {!isLoading && `(${members.length})`}</p>
+          <div className="max-h-60 overflow-y-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>ニックネーム</TableHead>
+                  <TableHead className="w-24">ロール</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {isLoading ? (
+                  <>
+                    {[...Array(3)].map((_, i) => (
+                      <TableRow key={i}>
+                        <TableCell>
+                          <Skeleton className="h-4 w-24" />
+                        </TableCell>
+                        <TableCell>
+                          <Skeleton className="h-4 w-16" />
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </>
+                ) : (
+                  members.map((member) => (
+                    <TableRow key={member.id}>
+                      <TableCell>{member.nickname ?? 'Unknown User'}</TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {member.role === 'owner' ? 'オーナー' : 'メンバー'}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
