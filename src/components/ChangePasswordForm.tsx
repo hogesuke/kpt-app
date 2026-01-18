@@ -2,6 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { ReactElement, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
+import { FormErrorAlert } from '@/components/FormErrorAlert';
 import { PasswordInput } from '@/components/PasswordInput';
 import { Button } from '@/components/shadcn/button';
 import { changePasswordSchema, ChangePasswordFormData } from '@/lib/schemas';
@@ -59,11 +60,7 @@ export function ChangePasswordForm({ onSuccess }: ChangePasswordFormProps): Reac
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      {error && (
-        <div role="alert" className="rounded-md bg-red-50 p-3 text-sm text-red-600">
-          {error}
-        </div>
-      )}
+      {error && <FormErrorAlert>{error}</FormErrorAlert>}
 
       <div className="space-y-1">
         <label htmlFor="currentPassword" className="block text-sm font-medium text-gray-700">
