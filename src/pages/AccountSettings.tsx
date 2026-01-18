@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import { AccountDeleteDialog } from '@/components/AccountDeleteDialog';
 import { ChangePasswordForm } from '@/components/ChangePasswordForm';
 import { CharacterCounter } from '@/components/CharacterCounter';
+import { FormErrorAlert } from '@/components/FormErrorAlert';
 import { Button } from '@/components/shadcn/button';
 import { updateProfile } from '@/lib/kpt-api';
 import { nicknameSchema, NicknameFormData } from '@/lib/schemas';
@@ -79,6 +80,8 @@ export function AccountSettings(): ReactElement {
 
             <div className="rounded-lg bg-white px-8 py-8 shadow">
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                {errors.root && <FormErrorAlert>{errors.root.message}</FormErrorAlert>}
+
                 <div>
                   <div className="flex items-center justify-between">
                     <label htmlFor="nickname" className="block text-sm font-medium text-gray-700">
@@ -99,12 +102,6 @@ export function AccountSettings(): ReactElement {
                   </div>
                   {errors.nickname && <p className="mt-1 text-sm text-red-700">{errors.nickname.message}</p>}
                 </div>
-
-                {errors.root && (
-                  <div className="rounded-md bg-red-50 p-4">
-                    <p className="text-sm text-red-700">{errors.root.message}</p>
-                  </div>
-                )}
 
                 <Button type="submit" disabled={isSubmitting} className="w-full">
                   設定
@@ -144,6 +141,8 @@ export function AccountSettings(): ReactElement {
             <h2 className="mb-4 text-lg font-medium text-gray-900">ニックネーム</h2>
             <div className="rounded-lg border border-gray-200 bg-white p-6">
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                {errors.root && <FormErrorAlert>{errors.root.message}</FormErrorAlert>}
+
                 <div>
                   <div className="flex items-center justify-between">
                     <label htmlFor="nickname" className="block text-sm font-medium text-gray-700">
@@ -162,12 +161,6 @@ export function AccountSettings(): ReactElement {
                   />
                   {errors.nickname && <p className="mt-1 text-sm text-red-600">{errors.nickname.message}</p>}
                 </div>
-
-                {errors.root && (
-                  <div className="rounded-md bg-red-50 p-3">
-                    <p className="text-sm text-red-700">{errors.root.message}</p>
-                  </div>
-                )}
 
                 <div className="flex justify-end">
                   <Button type="submit" disabled={isSubmitting}>
