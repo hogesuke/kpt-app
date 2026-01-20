@@ -26,6 +26,8 @@ export function Timer({ disabled }: TimerProps) {
   // - ref: stateの利用により、タイマーのインターバルがリセットされないようにするため
   const [isSoundEnabled, setIsSoundEnabled] = useState(true);
   const isSoundEnabledRef = useRef(true);
+  // タイマー終了通知済みフラグ（stopTimerが非同期のため、インターバルが再発火して2重通知されるのを防ぐ）
+  const hasNotifiedRef = useRef(false);
 
   // refをstateと同期させる
   useEffect(() => {
@@ -79,6 +81,7 @@ export function Timer({ disabled }: TimerProps) {
   useEffect(() => {
     if (!timerState?.startedAt || !timerState.durationSeconds) {
       setRemainingSeconds(null);
+      hasNotifiedRef.current = false;
       return;
     }
 
@@ -91,7 +94,8 @@ export function Timer({ disabled }: TimerProps) {
       setRemainingSeconds(remaining);
 
       // タイマー終了時に自動停止
-      if (remaining <= 0) {
+      if (remaining <= 0 && !hasNotifiedRef.current) {
+        hasNotifiedRef.current = true;
         void stopTimer();
         playNotificationSound();
         toast.success('タイマーが終了しました');
