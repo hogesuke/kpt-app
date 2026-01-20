@@ -51,7 +51,7 @@ export function ChangePasswordForm({ onSuccess }: ChangePasswordFormProps): Reac
     });
 
     if (updateError) {
-      setError(updateError.message);
+      setError('パスワードの変更に失敗しました');
       return;
     }
 

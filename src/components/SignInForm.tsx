@@ -36,11 +36,7 @@ export function SignInForm({ onForgotPassword, onSignUp }: SignInFormProps): Rea
     });
 
     if (error) {
-      if (error.message === 'Invalid login credentials') {
-        setError('メールアドレスまたはパスワードが正しくありません');
-      } else {
-        setError(error.message);
-      }
+      setError('メールアドレスまたはパスワードが正しくありません');
     }
   };
 
