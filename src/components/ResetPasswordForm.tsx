@@ -31,7 +31,7 @@ export function ResetPasswordForm({ onSuccess }: ResetPasswordFormProps): ReactE
     });
 
     if (error) {
-      setError(error.message);
+      setError('パスワードの変更に失敗しました');
     } else {
       onSuccess();
     }

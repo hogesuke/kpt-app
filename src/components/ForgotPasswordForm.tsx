@@ -33,7 +33,7 @@ export function ForgotPasswordForm({ onSignIn, onSuccess }: ForgotPasswordFormPr
     });
 
     if (error) {
-      setError(error.message);
+      setError('パスワードリセットメールの送信に失敗しました');
     } else {
       onSuccess();
     }
