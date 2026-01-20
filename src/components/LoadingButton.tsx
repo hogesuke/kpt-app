@@ -8,7 +8,7 @@ interface LoadingButtonProps extends ButtonProps {
 
 export function LoadingButton({ loading, disabled, children, ...props }: LoadingButtonProps) {
   return (
-    <Button disabled={loading || disabled} {...props}>
+    <Button aria-busy={loading} disabled={loading || disabled} {...props}>
       {loading && <Loader2 className="h-4 w-4 animate-spin" />}
       {children}
     </Button>
