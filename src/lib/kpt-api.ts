@@ -1,5 +1,6 @@
 import { FunctionsHttpError } from '@supabase/supabase-js';
 
+import { mapRowToItem, ItemRowWithProfiles } from '@/lib/item-mapper';
 import { supabase } from '@/lib/supabase-client';
 
 import type { BoardRow, ItemRow, ProfileRow } from '@/types/db';
@@ -55,33 +56,6 @@ async function convertToAPIError(error: unknown, fallbackMessage: string): Promi
   }
   const message = error instanceof Error ? error.message : fallbackMessage;
   return new APIError(message);
-}
-
-type ItemRowWithProfiles = ItemRow & {
-  author_nickname?: string | null;
-  assignee_nickname?: string | null;
-  vote_count?: number;
-  has_voted?: boolean;
-};
-
-function mapRowToItem(row: ItemRowWithProfiles): KptItem {
-  return {
-    id: row.id,
-    boardId: row.board_id,
-    column: row.column_name as KptColumnType,
-    text: row.text,
-    position: row.position,
-    authorId: row.author_id,
-    authorNickname: row.author_nickname,
-    createdAt: row.created_at,
-    updatedAt: row.updated_at,
-    status: row.status as TryStatus | null,
-    assigneeId: row.assignee_id,
-    assigneeNickname: row.assignee_nickname,
-    dueDate: row.due_date,
-    voteCount: row.vote_count ?? 0,
-    hasVoted: row.has_voted ?? false,
-  };
 }
 
 export interface FetchBoardsOptions {
