@@ -1,10 +1,11 @@
+import { mapRowToItem } from '@/lib/item-mapper';
 import * as api from '@/lib/kpt-api';
 import { supabase } from '@/lib/supabase-client';
 import { useAuthStore } from '@/stores/useAuthStore';
 
 import type { BoardState } from './useBoardStore';
 import type { ItemRow } from '@/types/db';
-import type { KptColumnType, KptItem, TryStatus } from '@/types/kpt';
+import type { KptItem } from '@/types/kpt';
 import type {
   RealtimeChannel,
   RealtimePostgresDeletePayload,
@@ -27,25 +28,6 @@ export interface RealtimeSlice {
   handleRealtimeDelete: (id: string) => void;
   handleRealtimeVoteChanged: (itemId: string, voteCount: number) => void;
 }
-
-/**
- * DBのItemRowをKptItemに変換する
- */
-const mapRowToItem = (row: ItemRow): KptItem => ({
-  id: row.id,
-  boardId: row.board_id,
-  column: row.column_name as KptColumnType,
-  text: row.text,
-  position: row.position,
-  authorId: row.author_id,
-  authorNickname: null, // Realtimeではnicknameは取得できないためnull
-  createdAt: row.created_at,
-  updatedAt: row.updated_at,
-  status: row.status as TryStatus | null,
-  assigneeId: row.assignee_id,
-  assigneeNickname: null, // Realtimeではnicknameは取得できないためnull
-  dueDate: row.due_date,
-});
 
 /**
  * アイテムをpositionでソートする
