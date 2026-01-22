@@ -137,6 +137,8 @@ export function ItemDetailPanel({ item, onClose }: ItemDetailPanelProps): ReactE
   };
 
   useEffect(() => {
+    if (!item) return;
+
     const handleEscape = (e: KeyboardEvent) => {
       if (isEditing && e.key === 'Escape') {
         e.preventDefault();
@@ -146,10 +148,10 @@ export function ItemDetailPanel({ item, onClose }: ItemDetailPanelProps): ReactE
       }
     };
 
-    if (item) {
-      document.addEventListener('keydown', handleEscape);
-      return () => document.removeEventListener('keydown', handleEscape);
-    }
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+    };
   }, [item, onClose, isEditing]);
 
   if (!item) {
