@@ -4,6 +4,7 @@ import { cva } from 'class-variance-authority';
 import { AlertTriangle, ThumbsUp, X } from 'lucide-react';
 import * as React from 'react';
 
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/shadcn/tooltip';
 import { cn } from '@/lib/cn';
 import { isOverdue } from '@/lib/date-utils';
 
@@ -136,6 +137,7 @@ export function KPTCard({ item, isSelected = false, className, onDelete, onClick
 
   const voteCount = item.voteCount ?? 0;
   const hasVoted = item.hasVoted ?? false;
+  const voters = item.voters ?? [];
 
   return (
     <article className={cn(cardStyles, 'relative', className)} aria-label={`KPTカード: ${item.text}`}>
@@ -184,19 +186,28 @@ export function KPTCard({ item, isSelected = false, className, onDelete, onClick
       </div>
       {/* 投票ボタン */}
       {onVote && (
-        <button
-          type="button"
-          onClick={handleVoteClick}
-          className={cn(
-            'absolute right-2 bottom-3 inline-flex items-center gap-1.5 rounded-full py-1 pr-1.25 pl-2 text-xs transition-colors',
-            hasVoted ? 'bg-primary/10 text-primary hover:bg-primary/20' : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              type="button"
+              onClick={handleVoteClick}
+              className={cn(
+                'absolute right-2 bottom-3 inline-flex items-center gap-1.5 rounded-full py-1 pr-1.25 pl-2 text-xs transition-colors',
+                hasVoted ? 'bg-primary/10 text-primary hover:bg-primary/20' : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+              )}
+              aria-label={hasVoted ? `「${item.text}」の投票を取り消す` : `「${item.text}」に投票する`}
+              aria-pressed={hasVoted}
+            >
+              <ThumbsUp className="h-3.5 w-3.5" aria-hidden="true" />
+              {voteCount > 0 && <span>{voteCount}</span>}
+            </button>
+          </TooltipTrigger>
+          {voters.length > 0 && (
+            <TooltipContent side="bottom" className="max-w-48">
+              {voters.map((voter) => voter.nickname ?? '名前未設定').join(', ')}
+            </TooltipContent>
           )}
-          aria-label={hasVoted ? `「${item.text}」の投票を取り消す` : `「${item.text}」に投票する`}
-          aria-pressed={hasVoted}
-        >
-          {voteCount > 0 && <span>{voteCount}</span>}
-          <ThumbsUp className="h-3.5 w-3.5" aria-hidden="true" />
-        </button>
+        </Tooltip>
       )}
       {onClick && (
         <button
