@@ -20,7 +20,7 @@ import type { KptColumnType, KptItem } from '@/types/kpt';
  * @param targetList ドラッグ先のカラム内のアイテム一覧（ドラッグ中のアイテムを除く）
  * @param insertIndex 挿入位置
  */
-function calculateNewPosition(targetList: KptItem[], insertIndex: number): number {
+export function calculateNewPosition(targetList: KptItem[], insertIndex: number): number {
   const prevItem = insertIndex > 0 ? targetList[insertIndex - 1] : null;
   const nextItem = insertIndex < targetList.length ? targetList[insertIndex] : null;
 
