@@ -1,10 +1,14 @@
 import { FunctionsHttpError } from '@supabase/supabase-js';
 
+import { APIError } from '@/lib/api-error';
 import { mapRowToItem, ItemRowWithProfiles } from '@/lib/item-mapper';
 import { supabase } from '@/lib/supabase-client';
 
 import type { BoardRow, ItemRow, ProfileRow } from '@/types/db';
 import type { BoardMember, KptBoard, KptColumnType, KptItem, TimerState, TryItemWithBoard, TryStatus, UserProfile } from '@/types/kpt';
+
+// APIErrorを再エクスポート（後方互換性のため）
+export { APIError } from '@/lib/api-error';
 
 /**
  * ページネーション付きレスポンスの型（カーソルベース）
@@ -21,22 +25,6 @@ export interface PaginatedResponse<T> {
 export interface OffsetPaginatedResponse<T> {
   items: T[];
   hasMore: boolean;
-}
-
-/**
- * APIエラークラス
- *
- * Supabaseの`FunctionsHttpError`から詰め替えて変換する。
- * 呼び出し側のSupabaseへの依存を減らし、将来的にバックエンドを変更するような場合に備える。
- */
-export class APIError extends Error {
-  constructor(
-    message: string,
-    public status?: number
-  ) {
-    super(message);
-    this.name = 'APIError';
-  }
 }
 
 /**

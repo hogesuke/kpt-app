@@ -1,7 +1,7 @@
 import { renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { APIError } from '@/lib/kpt-api';
+import { APIError } from '@/lib/api-error';
 
 import { useErrorHandler } from './useErrorHandler';
 
