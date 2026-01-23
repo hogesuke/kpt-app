@@ -68,8 +68,8 @@ export function generateMarkdown(boardName: string, items: KptItem[]): string {
   lines.push('');
 
   // テーブルヘッダー
-  lines.push('| カラム | テキスト | 作成者 | 作成日時 | 更新日時 | ステータス | 担当者 | 期日 |');
-  lines.push('|--------|----------|--------|----------|----------|------------|--------|------|');
+  lines.push('| カラム | テキスト | 作成者 | 作成日時 | 更新日時 | 投票数 | ステータス | 担当者 | 期日 |');
+  lines.push('|--------|----------|--------|----------|----------|--------|------------|--------|------|');
 
   for (const item of sortItems(items)) {
     const row = [
@@ -78,6 +78,7 @@ export function generateMarkdown(boardName: string, items: KptItem[]): string {
       item.authorNickname ?? '',
       formatDateTime(item.createdAt),
       formatDateTime(item.updatedAt),
+      String(item.voteCount ?? 0),
       item.status ? PROBLEM_STATUS_LABELS[item.status] : '',
       item.assigneeNickname ?? '',
       formatDate(item.dueDate),
@@ -102,7 +103,7 @@ function escapeCsvField(value: string): string {
  * CSV形式でエクスポートデータを生成する
  */
 export function generateCSV(items: KptItem[]): string {
-  const headers = ['カラム', 'テキスト', '作成者', '作成日時', '更新日時', 'ステータス', '担当者', '期日'];
+  const headers = ['カラム', 'テキスト', '作成者', '作成日時', '更新日時', '投票数', 'ステータス', '担当者', '期日'];
   const lines: string[] = [];
 
   lines.push(headers.join(','));
@@ -114,6 +115,7 @@ export function generateCSV(items: KptItem[]): string {
       item.authorNickname ?? '',
       formatDateTime(item.createdAt),
       formatDateTime(item.updatedAt),
+      String(item.voteCount ?? 0),
       item.status ? PROBLEM_STATUS_LABELS[item.status] : '',
       item.assigneeNickname ?? '',
       formatDate(item.dueDate),

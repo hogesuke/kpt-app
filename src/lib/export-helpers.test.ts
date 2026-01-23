@@ -27,8 +27,8 @@ describe('generateMarkdown', () => {
   it('テーブルヘッダーが正しく出力されること', () => {
     const result = generateMarkdown('テストボード', []);
 
-    expect(result).toContain('| カラム | テキスト | 作成者 | 作成日時 | 更新日時 | ステータス | 担当者 | 期日 |');
-    expect(result).toContain('|--------|----------|--------|----------|----------|------------|--------|------|');
+    expect(result).toContain('| カラム | テキスト | 作成者 | 作成日時 | 更新日時 | 投票数 | ステータス | 担当者 | 期日 |');
+    expect(result).toContain('|--------|----------|--------|----------|----------|--------|------------|--------|------|');
   });
 
   it('アイテムがテーブル行として出力されること', () => {
@@ -118,7 +118,7 @@ describe('generateCSV', () => {
     const result = generateCSV([]);
     const lines = result.split('\n');
 
-    expect(lines[0]).toBe('カラム,テキスト,作成者,作成日時,更新日時,ステータス,担当者,期日');
+    expect(lines[0]).toBe('カラム,テキスト,作成者,作成日時,更新日時,投票数,ステータス,担当者,期日');
   });
 
   it('アイテムがCSV行として出力されること', () => {
