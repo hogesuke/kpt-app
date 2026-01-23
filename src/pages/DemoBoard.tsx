@@ -15,7 +15,7 @@ import { Timer } from '@/components/Timer';
 import { DemoBoardProvider } from '@/contexts/DemoBoardProvider';
 import { useKPTCardDnD } from '@/hooks/useKPTCardDnD';
 import { selectActiveItem, selectItemsByColumn } from '@/lib/item-selectors';
-import { useDemoStore } from '@/stores/useDemoStore';
+import { DEMO_MEMBERS, useDemoStore } from '@/stores/useDemoStore';
 
 import type { KptColumnType, KptItem } from '@/types/kpt';
 
@@ -219,6 +219,7 @@ export function DemoBoard(): ReactElement {
                   onTagClick={handleTagClick}
                   onMemberClick={handleMemberClick}
                   onVote={handleVote}
+                  totalMemberCount={DEMO_MEMBERS.length}
                 />
                 <BoardColumn
                   column="problem"
@@ -229,6 +230,7 @@ export function DemoBoard(): ReactElement {
                   onTagClick={handleTagClick}
                   onMemberClick={handleMemberClick}
                   onVote={handleVote}
+                  totalMemberCount={DEMO_MEMBERS.length}
                 />
                 <BoardColumn
                   column="try"
@@ -239,6 +241,7 @@ export function DemoBoard(): ReactElement {
                   onTagClick={handleTagClick}
                   onMemberClick={handleMemberClick}
                   onVote={handleVote}
+                  totalMemberCount={DEMO_MEMBERS.length}
                 />
               </div>
 

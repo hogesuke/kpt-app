@@ -282,6 +282,7 @@ export function ItemDetailPanel({ item, onClose }: ItemDetailPanelProps): ReactE
                         voters={item.voters ?? []}
                         onVote={() => toggleVote(item.id)}
                         size="md"
+                        totalMemberCount={members.length}
                       />
                     </div>
                   </div>
