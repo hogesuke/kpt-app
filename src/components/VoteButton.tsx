@@ -1,4 +1,4 @@
-import { ThumbsUp } from 'lucide-react';
+import { Flame, ThumbsUp } from 'lucide-react';
 import * as React from 'react';
 import { ReactElement } from 'react';
 
@@ -16,6 +16,7 @@ interface VoteButtonProps {
   className?: string;
   itemText?: string;
   stopPropagation?: boolean;
+  totalMemberCount?: number;
 }
 
 /**
@@ -30,6 +31,7 @@ export function VoteButton({
   className,
   itemText,
   stopPropagation = false,
+  totalMemberCount,
 }: VoteButtonProps): ReactElement {
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     if (stopPropagation) {
@@ -38,6 +40,9 @@ export function VoteButton({
     onVote();
   };
 
+  // 全員が投票したかどうか
+  const isAllVoted = totalMemberCount !== undefined && totalMemberCount > 0 && voters.length >= totalMemberCount;
+
   const ariaLabel = itemText
     ? hasVoted
       ? `「${itemText}」の投票を取り消す`
@@ -45,6 +50,8 @@ export function VoteButton({
     : hasVoted
       ? '投票を取り消す'
       : '投票する';
+
+  const Icon = isAllVoted ? Flame : ThumbsUp;
 
   return (
     <Tooltip>
@@ -55,13 +62,17 @@ export function VoteButton({
           className={cn(
             'inline-flex items-center gap-1.5 rounded-full transition-colors',
             size === 'sm' ? 'py-1 pr-1.25 pl-2 text-xs' : 'px-2.5 py-1 text-sm',
-            hasVoted ? 'bg-primary/10 text-primary hover:bg-primary/20' : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+            isAllVoted
+              ? 'bg-red-500/10 text-red-600 hover:bg-red-500/20'
+              : hasVoted
+                ? 'bg-primary/10 text-primary hover:bg-primary/20'
+                : 'text-muted-foreground hover:bg-muted hover:text-foreground',
             className
           )}
           aria-label={ariaLabel}
           aria-pressed={hasVoted}
         >
-          <ThumbsUp className="h-3.5 w-3.5" aria-hidden="true" />
+          <Icon className="h-3.5 w-3.5" aria-hidden="true" />
           {voteCount > 0 && <span>{voteCount}</span>}
         </button>
       </TooltipTrigger>

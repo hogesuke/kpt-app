@@ -37,6 +37,9 @@ const createInitialItems = (): KptItem[] => [
     authorId: 'demo-user-3',
     authorNickname: 'デモ太郎',
     createdAt: new Date().toISOString(),
+    voteCount: 1,
+    hasVoted: true,
+    voters: [{ id: 'demo-user-1', nickname: 'デモユーザーくん' }],
   },
   {
     id: 'demo-problem-1',

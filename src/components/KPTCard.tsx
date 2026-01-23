@@ -119,9 +119,20 @@ export interface KPTCardProps {
   onTagClick?: (tag: string) => void;
   onMemberClick?: (memberId: string, memberName: string) => void;
   onVote?: (itemId: string) => void | Promise<void>;
+  totalMemberCount?: number;
 }
 
-export function KPTCard({ item, isSelected = false, className, onDelete, onClick, onTagClick, onMemberClick, onVote }: KPTCardProps) {
+export function KPTCard({
+  item,
+  isSelected = false,
+  className,
+  onDelete,
+  onClick,
+  onTagClick,
+  onMemberClick,
+  onVote,
+  totalMemberCount,
+}: KPTCardProps) {
   const handleDeleteClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
     void onDelete?.(item.id);
@@ -191,6 +202,7 @@ export function KPTCard({ item, isSelected = false, className, onDelete, onClick
           className="absolute right-2 bottom-3"
           itemText={item.text}
           stopPropagation
+          totalMemberCount={totalMemberCount}
         />
       )}
       {onClick && (
@@ -225,6 +237,7 @@ export interface SortableKPTCardProps extends React.LiHTMLAttributes<HTMLLIEleme
   onTagClick?: (tag: string) => void;
   onMemberClick?: (memberId: string, memberName: string) => void;
   onVote?: (itemId: string) => void | Promise<void>;
+  totalMemberCount?: number;
 }
 
 export function SortableKPTCard({
@@ -235,6 +248,7 @@ export function SortableKPTCard({
   onTagClick,
   onMemberClick,
   onVote,
+  totalMemberCount,
   className,
   ...props
 }: SortableKPTCardProps) {
@@ -269,6 +283,7 @@ export function SortableKPTCard({
         onTagClick={onTagClick}
         onMemberClick={onMemberClick}
         onVote={onVote}
+        totalMemberCount={totalMemberCount}
       />
     </li>
   );

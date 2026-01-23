@@ -24,6 +24,8 @@ export function KPTBoardColumns({ itemsByColumn, onCardClick }: KPTBoardColumnsP
 
   const isLoading = useBoardStore((state) => state.isLoading);
   const selectedItemId = useBoardStore((state) => state.selectedItem?.id);
+  const memberNicknameMap = useBoardStore((state) => state.memberNicknameMap);
+  const totalMemberCount = Object.keys(memberNicknameMap).length;
 
   const { handleDeleteItem, handleTagClick, handleMemberClick, handleVote } = useItemActions(boardId);
 
@@ -48,6 +50,7 @@ export function KPTBoardColumns({ itemsByColumn, onCardClick }: KPTBoardColumnsP
         onTagClick={handleTagClick}
         onMemberClick={handleMemberClick}
         onVote={handleVote}
+        totalMemberCount={totalMemberCount}
       />
       <BoardColumn
         column="problem"
@@ -58,6 +61,7 @@ export function KPTBoardColumns({ itemsByColumn, onCardClick }: KPTBoardColumnsP
         onTagClick={handleTagClick}
         onMemberClick={handleMemberClick}
         onVote={handleVote}
+        totalMemberCount={totalMemberCount}
       />
       <BoardColumn
         column="try"
@@ -68,6 +72,7 @@ export function KPTBoardColumns({ itemsByColumn, onCardClick }: KPTBoardColumnsP
         onTagClick={handleTagClick}
         onMemberClick={handleMemberClick}
         onVote={handleVote}
+        totalMemberCount={totalMemberCount}
       />
     </>
   );
