@@ -235,7 +235,7 @@ export function KPTBoard(): ReactElement {
           </section>
 
           {/* ドラッグ中にポインタに追従するカード */}
-          <DragOverlay>{activeItem ? <KPTCard item={activeItem} /> : null}</DragOverlay>
+          <DragOverlay>{activeItem ? <KPTCard item={activeItem} onDelete={() => {}} onVote={() => {}} /> : null}</DragOverlay>
 
           <ItemDetailPanel item={selectedItem} onClose={handleClosePanel} />
         </DndContext>

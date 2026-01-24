@@ -258,7 +258,9 @@ export function DemoBoard(): ReactElement {
           </div>
 
           {/* ドラッグ中にポインタに追従するカード */}
-          <DragOverlay>{activeItem ? <KPTCard item={activeItem} /> : null}</DragOverlay>
+          <DragOverlay>
+            {activeItem ? <KPTCard item={activeItem} onDelete={() => {}} onVote={() => {}} totalMemberCount={DEMO_MEMBERS.length} /> : null}
+          </DragOverlay>
 
           {/* カード詳細パネル */}
           <ItemDetailPanel item={selectedItem} onClose={handleClosePanel} />
