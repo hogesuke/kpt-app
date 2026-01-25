@@ -105,7 +105,7 @@
     "url": "git@github.com:hogesuke/simple-kpt.git"
   },
   "author": "hogesuke",
-  "license": "ISC",
+  "license": "MIT",
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
       "eslint --fix",
