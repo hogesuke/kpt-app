@@ -1,6 +1,6 @@
-import type { Meta, StoryObj } from '@storybook/react-vite';
-
 import { KPTColumnSkeleton } from './KPTColumnSkeleton';
+
+import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const meta: Meta<typeof KPTColumnSkeleton> = {
   title: 'KPT/Board/KPTColumnSkeleton',

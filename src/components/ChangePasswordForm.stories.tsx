@@ -1,8 +1,8 @@
-import type { Meta, StoryObj } from '@storybook/react-vite';
-
 import { MockAuthProvider, mockUser, mockProfile } from '@storybook-mocks/MockAuthProvider';
 
 import { ChangePasswordForm } from './ChangePasswordForm';
+
+import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const meta: Meta<typeof ChangePasswordForm> = {
   title: 'Account/ChangePasswordForm',

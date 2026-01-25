@@ -1,12 +1,13 @@
-import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
 import { MemoryRouter } from 'react-router';
 
 import { MockAuthProvider } from '@storybook-mocks/MockAuthProvider';
 import { mockOwnedBoards } from '@storybook-mocks/MockKptApi';
 
-import { Button } from './shadcn/button';
 import { AccountDeleteDialog } from './AccountDeleteDialog';
+import { Button } from './shadcn/button';
+
+import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const meta: Meta<typeof AccountDeleteDialog> = {
   title: 'Account/AccountDeleteDialog',

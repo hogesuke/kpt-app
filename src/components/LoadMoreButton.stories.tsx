@@ -1,6 +1,6 @@
-import type { Meta, StoryObj } from '@storybook/react-vite';
-
 import { LoadMoreButton } from './LoadMoreButton';
+
+import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const meta: Meta<typeof LoadMoreButton> = {
   title: 'Forms/LoadMoreButton',

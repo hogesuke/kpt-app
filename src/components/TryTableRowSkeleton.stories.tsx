@@ -1,7 +1,7 @@
-import type { Meta, StoryObj } from '@storybook/react-vite';
-
 import { Table, TableBody, TableHead, TableHeader, TableRow } from './shadcn/table';
 import { TryTableRowSkeleton } from './TryTableRowSkeleton';
+
+import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const meta: Meta<typeof TryTableRowSkeleton> = {
   title: 'KPT/TryTableRowSkeleton',

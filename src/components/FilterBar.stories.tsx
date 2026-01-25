@@ -1,6 +1,6 @@
-import type { Meta, StoryObj } from '@storybook/react-vite';
-
 import { FilterBar } from './FilterBar';
+
+import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const meta: Meta<typeof FilterBar> = {
   title: 'KPT/Filter/FilterBar',

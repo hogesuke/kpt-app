@@ -1,7 +1,7 @@
-import type { Meta, StoryObj } from '@storybook/react-vite';
-
-import { Button } from './shadcn/button';
 import { ErrorAlert, ErrorAlertAction } from './ErrorAlert';
+import { Button } from './shadcn/button';
+
+import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const meta: Meta<typeof ErrorAlert> = {
   title: 'Forms/ErrorAlert',

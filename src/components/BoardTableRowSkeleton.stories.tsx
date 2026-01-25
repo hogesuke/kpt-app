@@ -1,7 +1,7 @@
-import type { Meta, StoryObj } from '@storybook/react-vite';
-
-import { Table, TableBody, TableHead, TableHeader, TableRow } from './shadcn/table';
 import { BoardTableRowSkeleton } from './BoardTableRowSkeleton';
+import { Table, TableBody, TableHead, TableHeader, TableRow } from './shadcn/table';
+
+import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const meta: Meta<typeof BoardTableRowSkeleton> = {
   title: 'Layout/BoardTableRowSkeleton',

@@ -1,12 +1,13 @@
 import { DndContext } from '@dnd-kit/core';
-import type { Meta, StoryObj } from '@storybook/react-vite';
 import { MemoryRouter, Routes, Route } from 'react-router';
 
 import { MockBoardStoreProvider, mockBoardItems } from '@storybook-mocks/MockBoardStoreProvider';
-import type { KptItem } from '@/types/kpt';
 
-import { TooltipProvider } from './shadcn/tooltip';
 import { KPTBoardColumns } from './KPTBoardColumns';
+import { TooltipProvider } from './shadcn/tooltip';
+
+import type { KptItem } from '@/types/kpt';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 
 // カラムごとにアイテムをグループ化
 function groupItemsByColumn(items: KptItem[]) {
