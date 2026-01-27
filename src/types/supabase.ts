@@ -72,20 +72,69 @@ export type Database = {
           id: string
           name: string
           owner_id: string | null
+          timer_duration_seconds: number | null
+          timer_hide_others_cards: boolean | null
+          timer_started_at: string | null
+          timer_started_by: string | null
         }
         Insert: {
           created_at?: string
           id?: string
           name: string
           owner_id?: string | null
+          timer_duration_seconds?: number | null
+          timer_hide_others_cards?: boolean | null
+          timer_started_at?: string | null
+          timer_started_by?: string | null
         }
         Update: {
           created_at?: string
           id?: string
           name?: string
           owner_id?: string | null
+          timer_duration_seconds?: number | null
+          timer_hide_others_cards?: boolean | null
+          timer_started_at?: string | null
+          timer_started_by?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "boards_timer_started_by_fkey"
+            columns: ["timer_started_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      item_votes: {
+        Row: {
+          created_at: string | null
+          id: string
+          item_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          item_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          item_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "item_votes_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "items"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       items: {
         Row: {
@@ -319,3 +368,4 @@ export const Constants = {
     Enums: {},
   },
 } as const
+

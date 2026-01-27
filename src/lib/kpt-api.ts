@@ -93,10 +93,6 @@ export async function fetchBoards(options?: FetchBoardsOptions): Promise<Paginat
 
 interface BoardResponse extends BoardRow {
   isMember?: boolean;
-  timer_started_at?: string | null;
-  timer_duration_seconds?: number | null;
-  timer_hide_others_cards?: boolean | null;
-  timer_started_by?: string | null;
 }
 
 /**
@@ -629,4 +625,53 @@ export async function fetchStats(period: StatsPeriod = '3m'): Promise<StatsRespo
   }
 
   return data as StatsResponse;
+}
+
+export interface GenerateSummaryResponse {
+  summary: string;
+  remainingCount: number;
+}
+
+/**
+ * ボードのKPTサマリーを生成する。
+ */
+export async function generateSummary(boardId: string): Promise<GenerateSummaryResponse> {
+  const { data, error } = await supabase.functions.invoke('generate-summary', {
+    method: 'POST',
+    body: { boardId },
+  });
+
+  if (error) {
+    throw await convertToAPIError(error, 'サマリーの生成に失敗しました');
+  }
+
+  if (!data) {
+    throw new APIError('サマリーの生成に失敗しました');
+  }
+
+  return data as GenerateSummaryResponse;
+}
+
+export interface GenerateSummaryDemoResponse {
+  summary: string;
+}
+
+/**
+ * デモボードのKPTサマリーを生成する。
+ */
+export async function generateSummaryDemo(items: Array<{ column: string; text: string }>): Promise<GenerateSummaryDemoResponse> {
+  const { data, error } = await supabase.functions.invoke('generate-summary-demo', {
+    method: 'POST',
+    body: { items },
+  });
+
+  if (error) {
+    throw await convertToAPIError(error, 'サマリーの生成に失敗しました');
+  }
+
+  if (!data) {
+    throw new APIError('サマリーの生成に失敗しました');
+  }
+
+  return data as GenerateSummaryDemoResponse;
 }
