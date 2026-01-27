@@ -513,3 +513,13 @@ entrypoint = "./functions/toggle-vote/index.ts"
 enabled = true
 verify_jwt = true
 entrypoint = "./functions/get-stats/index.ts"
+
+[functions.generate-summary]
+enabled = true
+verify_jwt = true
+entrypoint = "./functions/generate-summary/index.ts"
+
+[functions.generate-summary-demo]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/generate-summary-demo/index.ts"

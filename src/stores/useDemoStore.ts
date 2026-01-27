@@ -16,6 +16,9 @@ export const DEMO_MEMBERS: BoardMember[] = [
   { id: 'member-3', userId: 'demo-user-3', nickname: 'デモ太郎', role: 'member', createdAt: new Date().toISOString() },
 ];
 
+// サマリー生成時に除外するアイテム
+export const DEMO_EXPLANATION_ITEM_IDS = ['demo-keep-1', 'demo-keep-2'];
+
 // デモ用の初期データ
 const createInitialItems = (): KptItem[] => [
   {
@@ -40,6 +43,16 @@ const createInitialItems = (): KptItem[] => [
     voteCount: 1,
     hasVoted: true,
     voters: [{ id: 'demo-user-1', nickname: 'デモユーザーくん' }],
+  },
+  {
+    id: 'demo-keep-3',
+    boardId: 'demo',
+    column: 'keep',
+    text: 'チーム内のコミュニケーションが活発',
+    position: 300,
+    authorId: 'demo-user-2',
+    authorNickname: 'デモ子さん',
+    createdAt: new Date().toISOString(),
   },
   {
     id: 'demo-problem-1',
