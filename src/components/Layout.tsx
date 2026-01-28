@@ -13,7 +13,7 @@ export function Layout(): ReactElement {
       <div className="flex h-screen flex-col">
         <Header />
 
-        <main className="min-h-0 flex-1 dark:bg-neutral-900">
+        <main id="main-content" className="min-h-0 flex-1 dark:bg-neutral-900">
           <ErrorBoundary key={location.pathname}>
             <Outlet />
           </ErrorBoundary>
