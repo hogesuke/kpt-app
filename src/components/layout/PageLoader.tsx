@@ -5,7 +5,7 @@ import { ReactElement } from 'react';
  */
 export function PageLoader(): ReactElement {
   return (
-    <div className="flex items-center justify-center gap-1">
+    <div className="flex h-full items-center justify-center gap-1">
       <span className="animate-wave h-6 w-2 rounded-[3px] bg-[#c2c9d4]" style={{ animationDelay: '0s' }} />
       <span className="animate-wave h-6 w-2 rounded-[3px] bg-[#a5adb9]" style={{ animationDelay: '0.15s' }} />
       <span className="animate-wave h-6 w-2 rounded-[3px] bg-[#8890a0]" style={{ animationDelay: '0.3s' }} />
