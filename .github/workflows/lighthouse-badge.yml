@@ -2,8 +2,8 @@ name: Lighthouse Badge
 
 on:
   schedule:
-    # 6時間ごとに実行
-    - cron: "0 */6 * * *"
+    # 毎日0時（UTC, 日本時間9時）に実行
+    - cron: "0 0 * * *"
   workflow_dispatch:
 
 permissions:
@@ -70,6 +70,10 @@ jobs:
           echo "{\"schemaVersion\":1,\"label\":\"Best Practices\",\"message\":\"$BP\",\"color\":\"$(get_color $BP)\"}" > .github/badges/lighthouse-best-practices.json
           echo "{\"schemaVersion\":1,\"label\":\"SEO\",\"message\":\"$SEO\",\"color\":\"$(get_color $SEO)\"}" > .github/badges/lighthouse-seo.json
 
+      - name: Get current date
+        id: date
+        run: echo "date=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
+
       - name: Create Pull Request
         id: cpr
         uses: peter-evans/create-pull-request@v7
@@ -86,7 +90,7 @@ jobs:
             - SEO: ${{ steps.scores.outputs.seo }}
 
             🤖 このPRは自動生成されました
-          branch: chore/update-lighthouse-scores
+          branch: chore/update-lighthouse-scores-${{ steps.date.outputs.date }}
           delete-branch: true
 
       - name: Auto merge
