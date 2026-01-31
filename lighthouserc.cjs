@@ -9,8 +9,6 @@ module.exports = {
         'http://localhost:4173/',
         'http://localhost:4173/demo',
         'http://localhost:4173/login',
-        'http://localhost:4173/terms',
-        'http://localhost:4173/privacy',
         'http://localhost:4173/not-found',
       ],
       numberOfRuns: 1,
