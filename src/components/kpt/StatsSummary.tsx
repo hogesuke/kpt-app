@@ -1,4 +1,4 @@
-import { ReactElement, useCallback, useEffect, useState } from 'react';
+import { ReactElement, useCallback, useEffect, useRef, useState } from 'react';
 import { Area, AreaChart, XAxis, YAxis } from 'recharts';
 
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from '@/components/shadcn/chart';
@@ -192,6 +192,7 @@ export function StatsSummary(): ReactElement | null {
   const [stats, setStats] = useState<StatsResponse | null>(null);
   const [period, setPeriod] = useState<StatsPeriod>('3m');
   const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const hasLoadedRef = useRef(false);
 
   const loadStats = useCallback(async (selectedPeriod: StatsPeriod, isInitial: boolean) => {
     try {
@@ -208,9 +209,10 @@ export function StatsSummary(): ReactElement | null {
   }, []);
 
   useEffect(() => {
-    void loadStats(period, isInitialLoad);
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- periodの変更時のみ実行
-  }, [period]);
+    const isInitial = !hasLoadedRef.current;
+    hasLoadedRef.current = true;
+    void loadStats(period, isInitial);
+  }, [period, loadStats]);
 
   const handlePeriodChange = (value: StatsPeriod) => {
     setPeriod(value);

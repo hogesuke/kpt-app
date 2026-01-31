@@ -69,7 +69,7 @@ export function KPTBoard(): ReactElement {
   }, [setSelectedItem, searchParams, setSearchParams]);
 
   const [newItemColumn, setNewItemColumn] = useState<KptColumnType>('keep');
-  const [localHideOthersCards, setLocalHideOthersCards] = useState(false);
+  const localHideOthersCards = timerState?.startedAt ? timerState.hideOthersCards : false;
 
   useEffect(() => {
     if (!boardId) return;
@@ -89,8 +89,7 @@ export function KPTBoard(): ReactElement {
     return () => {
       reset();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [boardId]);
+  }, [boardId, loadBoard, subscribeToItemEvents, subscribeToTimerEvents, reset]);
 
   useEffect(() => {
     if (isNotFound) {
@@ -104,15 +103,6 @@ export function KPTBoard(): ReactElement {
       navigate('/boards', { replace: true });
     }
   }, [joinError, navigate]);
-
-  // タイマー開始時にデフォルトの表示設定を適用
-  useEffect(() => {
-    if (timerState?.startedAt) {
-      setLocalHideOthersCards(timerState.hideOthersCards);
-    } else {
-      setLocalHideOthersCards(false);
-    }
-  }, [timerState?.startedAt, timerState?.hideOthersCards]);
 
   // クエリパラメータのitemIdに該当するアイテムのDetailPanelを開く
   useEffect(() => {
@@ -162,14 +152,17 @@ export function KPTBoard(): ReactElement {
   const itemsByColumn = useMemo(() => selectItemsByColumn(filteredItems, columns), [filteredItems]);
   const activeItem = useMemo(() => selectActiveItem(displayItems, activeId), [displayItems, activeId]);
 
-  const handleAddCard = async (text: string) => {
-    if (!boardId) return;
-    try {
-      await addItem(boardId, newItemColumn, text);
-    } catch (error) {
-      handleError(error, 'カードの追加に失敗しました');
-    }
-  };
+  const handleAddCard = useCallback(
+    async (text: string) => {
+      if (!boardId) return;
+      try {
+        await addItem(boardId, newItemColumn, text);
+      } catch (error) {
+        handleError(error, 'カードの追加に失敗しました');
+      }
+    },
+    [boardId, addItem, newItemColumn, handleError]
+  );
 
   if (!boardId) {
     return (
