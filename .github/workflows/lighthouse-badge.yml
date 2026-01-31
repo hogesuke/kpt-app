@@ -74,6 +74,7 @@ jobs:
         id: cpr
         uses: peter-evans/create-pull-request@v7
         with:
+          token: ${{ secrets.LIGHTHOUSE_PAT }}
           commit-message: "chore: update lighthouse scores"
           title: "chore: update lighthouse scores"
           body: |
@@ -92,4 +93,4 @@ jobs:
         if: steps.cpr.outputs.pull-request-number
         run: gh pr merge ${{ steps.cpr.outputs.pull-request-number }} --squash --auto
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.LIGHTHOUSE_PAT }}
