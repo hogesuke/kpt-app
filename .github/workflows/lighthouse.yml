@@ -1,0 +1,102 @@
+name: Lighthouse CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  lighthouse:
+    name: Lighthouse CI
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: 'pnpm'
+
+      - name: Cache Japanese fonts
+        id: cache-fonts
+        uses: actions/cache@v4
+        with:
+          path: /usr/share/fonts/opentype/noto
+          key: fonts-noto-cjk
+
+      - name: Install Japanese fonts
+        if: steps.cache-fonts.outputs.cache-hit != 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y fonts-noto-cjk
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm build
+        env:
+          # Lighthouse CIは認証不要ページのみテストするため、ダミー値で問題なし
+          VITE_SUPABASE_URL: https://dummy.supabase.co
+          VITE_SUPABASE_ANON_KEY: dummy-anon-key
+
+      - name: Run Lighthouse CI
+        id: lighthouse
+        uses: treosh/lighthouse-ci-action@v12
+        with:
+          configPath: ./lighthouserc.cjs
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+
+      - name: Format Lighthouse results
+        id: format
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const manifest = ${{ steps.lighthouse.outputs.manifest }};
+            const links = ${{ steps.lighthouse.outputs.links }};
+
+            const formatScore = (score) => {
+              if (score === null) return 'N/A';
+              const percent = Math.round(score * 100);
+              const emoji = percent >= 90 ? '🟢' : percent >= 50 ? '🟠' : '🔴';
+              return `${emoji} ${percent}`;
+            };
+
+            let comment = '## ⚡ Lighthouse Results\n\n';
+            comment += '| URL | Performance | Accessibility | Best Practices | SEO |\n';
+            comment += '|-----|-------------|---------------|----------------|-----|\n';
+
+            for (const result of manifest) {
+              const url = new URL(result.url).pathname || '/';
+              const perf = formatScore(result.summary.performance);
+              const a11y = formatScore(result.summary.accessibility);
+              const bp = formatScore(result.summary['best-practices']);
+              const seo = formatScore(result.summary.seo);
+              const reportLink = links[result.url];
+              const urlText = reportLink ? `[${url}](${reportLink})` : url;
+              comment += `| ${urlText} | ${perf} | ${a11y} | ${bp} | ${seo} |\n`;
+            }
+
+            core.setOutput('comment', comment);
+
+      - name: Post Lighthouse comment
+        if: github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: lighthouse
+          message: ${{ steps.format.outputs.comment }}
