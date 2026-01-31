@@ -125,19 +125,20 @@ https://hogesuke.github.io/simple-kpt/
 ## ディレクトリ構成
 
 ```
-src/
-├── components/   # UIコンポーネント
-├── contexts/     # React Context
-├── hooks/        # カスタムフック
-├── lib/          # ユーティリティ・API
-├── pages/        # ページコンポーネント
-├── stores/       # Zustandストア
-└── types/        # 型定義
-
-supabase/
-├── functions/    # Edge Functions
-├── migrations/   # マイグレーション
-└── seed.sql      # シードデータ
+.
+├── src/
+│   ├── components/   # UIコンポーネント
+│   ├── contexts/     # React Context
+│   ├── hooks/        # カスタムフック
+│   ├── lib/          # ユーティリティ・API
+│   ├── pages/        # ページコンポーネント
+│   ├── stores/       # Zustandストア
+│   └── types/        # 型定義
+│
+└── supabase/
+    ├── functions/    # Edge Functions
+    ├── migrations/   # マイグレーション
+    └── seed.sql      # シードデータ
 ```
 
 ## ライセンス
