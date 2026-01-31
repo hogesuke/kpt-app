@@ -6,22 +6,12 @@ module.exports = {
     collect: {
       startServerCommand: 'pnpm preview',
       startServerReadyPattern: 'Local:',
-      // 認証不要のページのみ対象
-      url: [...baseUrls, ...baseUrls.map((url) => `${url}#dark`)],
+      // ライトモード + ダークモード（?theme=dark）
+      url: [...baseUrls, ...baseUrls.map((url) => `${url}?theme=dark`)],
       numberOfRuns: 1,
-      settings: [
-        // ライトモード
-        {
-          preset: 'desktop',
-          matchingUrlPattern: '.*(?<!#dark)$',
-        },
-        // ダークモード
-        {
-          preset: 'desktop',
-          matchingUrlPattern: '.*#dark$',
-          emulatedMediaFeatures: [{ name: 'prefers-color-scheme', value: 'dark' }],
-        },
-      ],
+      settings: {
+        preset: 'desktop',
+      },
     },
     assert: {
       assertions: {
