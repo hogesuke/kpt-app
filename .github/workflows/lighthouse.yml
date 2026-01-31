@@ -28,7 +28,15 @@ jobs:
           node-version-file: .node-version
           cache: 'pnpm'
 
+      - name: Cache Japanese fonts
+        id: cache-fonts
+        uses: actions/cache@v4
+        with:
+          path: /usr/share/fonts/opentype/noto
+          key: fonts-noto-cjk
+
       - name: Install Japanese fonts
+        if: steps.cache-fonts.outputs.cache-hit != 'true'
         run: |
           sudo apt-get update
           sudo apt-get install -y fonts-noto-cjk
