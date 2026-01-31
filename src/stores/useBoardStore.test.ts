@@ -123,6 +123,73 @@ describe('useBoardStore', () => {
       // 楽観的更新時のpositionは maxPosition + 1000 = 3000
       expect(api.createKptItem).toHaveBeenCalled();
     });
+
+    it('楽観的更新中に一時IDでアイテムが追加されること', async () => {
+      let resolveAPI: (value: KptItem) => void;
+      const apiPromise = new Promise<KptItem>((resolve) => {
+        resolveAPI = resolve;
+      });
+      vi.mocked(api.createKptItem).mockReturnValue(apiPromise);
+
+      // addItemを開始するが、awaitしない
+      const addPromise = useBoardStore.getState().addItem('board-1', 'keep', '新しいアイテム');
+
+      // APIが完了する前に、一時IDでアイテムが追加されていることを確認
+      await act(async () => {
+        await Promise.resolve();
+      });
+
+      const stateBeforeAPI = useBoardStore.getState();
+      expect(stateBeforeAPI.items).toHaveLength(1);
+      expect(stateBeforeAPI.items[0].id).toMatch(/^temp-/);
+      expect(stateBeforeAPI.items[0].text).toBe('新しいアイテム');
+      expect(stateBeforeAPI.isAdding).toBe(true);
+
+      // APIを完了させる
+      const newItem = createMockItem({ id: 'real-item-1', text: '新しいアイテム' });
+      resolveAPI!(newItem);
+      await act(async () => {
+        await addPromise;
+      });
+
+      // APIレスポンス後、本物のIDで置換されていることを確認
+      const stateAfterAPI = useBoardStore.getState();
+      expect(stateAfterAPI.items).toHaveLength(1);
+      expect(stateAfterAPI.items[0].id).toBe('real-item-1');
+      expect(stateAfterAPI.isAdding).toBe(false);
+    });
+
+    it('items配列の参照が楽観的更新ごとに変わること', async () => {
+      const initialItems = useBoardStore.getState().items;
+
+      let resolveAPI: (value: KptItem) => void;
+      const apiPromise = new Promise<KptItem>((resolve) => {
+        resolveAPI = resolve;
+      });
+      vi.mocked(api.createKptItem).mockReturnValue(apiPromise);
+
+      // addItemを開始
+      const addPromise = useBoardStore.getState().addItem('board-1', 'keep', '新しいアイテム');
+
+      await act(async () => {
+        await Promise.resolve();
+      });
+
+      // 楽観的更新後、配列の参照が変わっていることを確認（Zustandのセレクタが再評価されるため）
+      const itemsAfterOptimistic = useBoardStore.getState().items;
+      expect(itemsAfterOptimistic).not.toBe(initialItems);
+
+      // APIを完了させる
+      const newItem = createMockItem({ id: 'real-item-1', text: '新しいアイテム' });
+      resolveAPI!(newItem);
+      await act(async () => {
+        await addPromise;
+      });
+
+      // APIレスポンス後も配列の参照が変わっていることを確認
+      const itemsAfterAPI = useBoardStore.getState().items;
+      expect(itemsAfterAPI).not.toBe(itemsAfterOptimistic);
+    });
   });
 
   describe('updateItem', () => {

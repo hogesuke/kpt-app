@@ -4,7 +4,6 @@ import js from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import react from 'eslint-plugin-react';
 import reactHooks from 'eslint-plugin-react-hooks';
-import reactCompiler from 'eslint-plugin-react-compiler';
 import jsxA11y from 'eslint-plugin-jsx-a11y';
 import importX from 'eslint-plugin-import-x';
 import { createTypeScriptImportResolver } from 'eslint-import-resolver-typescript';
@@ -23,7 +22,6 @@ export default tseslint.config(
     plugins: {
       react,
       'react-hooks': reactHooks,
-      'react-compiler': reactCompiler,
       'jsx-a11y': jsxA11y,
       'import-x': importX,
     },
@@ -66,7 +64,6 @@ export default tseslint.config(
         },
       ],
       '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
-      'react-compiler/react-compiler': 'error',
     },
   },
   {
