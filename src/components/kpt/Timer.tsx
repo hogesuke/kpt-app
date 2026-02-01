@@ -6,6 +6,8 @@ import { Button } from '@/components/shadcn/button';
 import { Checkbox } from '@/components/shadcn/checkbox';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/shadcn/dialog';
 import { Input } from '@/components/shadcn/input';
+import { Label } from '@/components/shadcn/label';
+import { RadioGroup, RadioGroupItem } from '@/components/shadcn/radio-group';
 import { useBoardContext } from '@/contexts/BoardContext';
 import { TIMER_PRESETS } from '@/types/kpt';
 
@@ -199,25 +201,30 @@ export function Timer({ disabled }: TimerProps) {
             <span className="text-sm font-medium">時間</span>
 
             {/* プリセットボタン */}
-            <div className="flex rounded-lg bg-slate-50 p-0.5 dark:bg-slate-900" role="group" aria-label="プリセット時間">
+            <RadioGroup
+              value={minutes}
+              onValueChange={setMinutes}
+              disabled={isProcessing}
+              className="flex rounded-lg bg-slate-50 p-0.5 dark:bg-slate-900"
+              aria-label="プリセット時間"
+            >
               {TIMER_PRESETS.map((preset) => (
-                <button
+                <Label
                   key={preset.seconds}
-                  type="button"
-                  onClick={() => setMinutes(String(preset.seconds / 60))}
-                  disabled={isProcessing}
-                  aria-pressed={minutes === String(preset.seconds / 60)}
-                  aria-label={`${preset.seconds / 60}分を選択`}
-                  className={`flex-1 rounded-md px-2.5 py-1 text-sm font-medium transition-colors disabled:opacity-50 ${
+                  htmlFor={`preset-${preset.seconds}`}
+                  className={`has-[:focus-visible]:ring-ring flex-1 cursor-pointer rounded-md px-2.5 py-1 text-center text-sm font-medium transition-colors has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-offset-1 ${
+                    isProcessing ? 'opacity-50' : ''
+                  } ${
                     minutes === String(preset.seconds / 60)
                       ? 'bg-white text-blue-600 shadow-sm dark:bg-slate-100 dark:text-blue-600'
                       : 'text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200'
                   }`}
                 >
+                  <RadioGroupItem value={String(preset.seconds / 60)} id={`preset-${preset.seconds}`} className="sr-only" />
                   {preset.label}
-                </button>
+                </Label>
               ))}
-            </div>
+            </RadioGroup>
 
             {/* 自由入力 */}
             <div className="flex items-center gap-2">

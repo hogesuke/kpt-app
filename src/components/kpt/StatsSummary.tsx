@@ -2,6 +2,8 @@ import { ReactElement, useCallback, useEffect, useMemo, useRef, useState } from 
 import { Area, AreaChart, XAxis, YAxis } from 'recharts';
 
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from '@/components/shadcn/chart';
+import { Label } from '@/components/shadcn/label';
+import { RadioGroup, RadioGroupItem } from '@/components/shadcn/radio-group';
 import { Skeleton } from '@/components/shadcn/skeleton';
 import { fetchStats, type StatsResponse, type StatsPeriod } from '@/lib/kpt-api';
 
@@ -269,23 +271,27 @@ export function StatsSummary(): ReactElement | null {
   return (
     <div className="mb-10">
       <div className="mb-2 flex items-center justify-end">
-        <div className="inline-flex rounded-lg bg-slate-50 p-0.5 dark:bg-slate-900" role="group" aria-label="グラフ表示の期間範囲">
+        <RadioGroup
+          value={period}
+          onValueChange={(value) => handlePeriodChange(value as StatsPeriod)}
+          className="inline-flex rounded-lg bg-slate-50 p-0.5 dark:bg-slate-900"
+          aria-label="グラフ表示の期間範囲"
+        >
           {PERIOD_OPTIONS.map((option) => (
-            <button
+            <Label
               key={option.value}
-              onClick={() => handlePeriodChange(option.value)}
-              aria-pressed={period === option.value}
-              aria-label={option.ariaLabel}
-              className={`rounded-md px-2.5 py-1 text-sm font-medium transition-colors ${
+              htmlFor={`period-${option.value}`}
+              className={`has-focus-visible:ring-ring cursor-pointer rounded-md px-2.5 py-1 text-sm font-medium transition-colors has-focus-visible:ring-2 has-focus-visible:ring-offset-1 ${
                 period === option.value
                   ? 'bg-white text-blue-600 shadow-sm dark:bg-slate-100 dark:text-blue-600'
                   : 'text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200'
               }`}
             >
+              <RadioGroupItem value={option.value} id={`period-${option.value}`} className="sr-only" aria-label={option.ariaLabel} />
               {option.label}
-            </button>
+            </Label>
           ))}
-        </div>
+        </RadioGroup>
       </div>
 
       <div className="grid grid-cols-3 gap-4">
