@@ -278,7 +278,7 @@ export function StatsSummary(): ReactElement | null {
               aria-label={option.ariaLabel}
               className={`rounded-md px-2.5 py-1 text-sm font-medium transition-colors ${
                 period === option.value
-                  ? 'bg-white text-blue-600 shadow-sm dark:bg-neutral-700 dark:text-blue-400'
+                  ? 'bg-white text-blue-600 shadow-sm dark:bg-slate-100 dark:text-blue-600'
                   : 'text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200'
               }`}
             >

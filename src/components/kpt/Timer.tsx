@@ -199,7 +199,7 @@ export function Timer({ disabled }: TimerProps) {
             <span className="text-sm font-medium">時間</span>
 
             {/* プリセットボタン */}
-            <div className="flex gap-1" role="group" aria-label="プリセット時間">
+            <div className="flex rounded-lg bg-slate-50 p-0.5 dark:bg-slate-900" role="group" aria-label="プリセット時間">
               {TIMER_PRESETS.map((preset) => (
                 <button
                   key={preset.seconds}
@@ -208,8 +208,10 @@ export function Timer({ disabled }: TimerProps) {
                   disabled={isProcessing}
                   aria-pressed={minutes === String(preset.seconds / 60)}
                   aria-label={`${preset.seconds / 60}分を選択`}
-                  className={`flex-1 rounded-md border px-2 py-1.5 text-sm transition-colors disabled:opacity-50 ${
-                    minutes === String(preset.seconds / 60) ? 'border-primary bg-primary/10 text-primary' : 'border-input hover:bg-muted'
+                  className={`flex-1 rounded-md px-2.5 py-1 text-sm font-medium transition-colors disabled:opacity-50 ${
+                    minutes === String(preset.seconds / 60)
+                      ? 'bg-white text-blue-600 shadow-sm dark:bg-slate-100 dark:text-blue-600'
+                      : 'text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200'
                   }`}
                 >
                   {preset.label}
