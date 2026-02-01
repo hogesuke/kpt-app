@@ -1,5 +1,7 @@
 import { ReactElement } from 'react';
 
+import { Label } from '@/components/shadcn/label';
+import { RadioGroup, RadioGroupItem } from '@/components/shadcn/radio-group';
 import { columnButton, columnDot, columnLabels } from '@/lib/column-styles';
 
 import type { KptColumnType } from '@/types/kpt';
@@ -12,19 +14,23 @@ interface ColumnSelectorProps {
 
 export function ColumnSelector({ columns, selectedColumn, onColumnChange }: ColumnSelectorProps): ReactElement {
   return (
-    <div className="flex gap-2" role="group" aria-label="カラム選択">
+    <RadioGroup
+      value={selectedColumn}
+      onValueChange={(value) => onColumnChange(value as KptColumnType)}
+      className="flex gap-2"
+      aria-label="カラム選択"
+    >
       {columns.map((col) => (
-        <button
+        <Label
           key={col}
-          type="button"
-          onClick={() => onColumnChange(col)}
-          aria-pressed={selectedColumn === col}
-          className={columnButton({ selected: selectedColumn === col, column: col })}
+          htmlFor={`column-${col}`}
+          className={`has-focus-visible:ring-ring cursor-pointer has-focus-visible:ring-2 has-focus-visible:ring-offset-1 ${columnButton({ selected: selectedColumn === col, column: col })}`}
         >
+          <RadioGroupItem value={col} id={`column-${col}`} className="sr-only" />
           <span className={columnDot({ column: col })} aria-hidden="true" />
           {columnLabels[col]}
-        </button>
+        </Label>
       ))}
-    </div>
+    </RadioGroup>
   );
 }

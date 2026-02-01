@@ -89,7 +89,7 @@ export function ExportDialog({ boardName, items, isOpen, onOpenChange }: ExportD
             <RadioGroup value={format} onValueChange={(value) => setFormat(value as ExportFormat)} className="grid grid-cols-2 gap-3">
               <Label
                 htmlFor="format-markdown"
-                className={`cursor-pointer rounded-lg border-2 p-3 transition-colors ${
+                className={`has-focus-visible:ring-ring cursor-pointer rounded-lg border-2 p-3 transition-colors has-focus-visible:ring-2 has-focus-visible:ring-offset-1 ${
                   format === 'markdown' ? 'border-primary bg-primary/5' : 'border-input hover:border-muted-foreground/50 hover:bg-muted/50'
                 }`}
               >
@@ -99,7 +99,7 @@ export function ExportDialog({ boardName, items, isOpen, onOpenChange }: ExportD
               </Label>
               <Label
                 htmlFor="format-csv"
-                className={`cursor-pointer rounded-lg border-2 p-3 transition-colors ${
+                className={`has-focus-visible:ring-ring cursor-pointer rounded-lg border-2 p-3 transition-colors has-focus-visible:ring-2 has-focus-visible:ring-offset-1 ${
                   format === 'csv' ? 'border-primary bg-primary/5' : 'border-input hover:border-muted-foreground/50 hover:bg-muted/50'
                 }`}
               >
