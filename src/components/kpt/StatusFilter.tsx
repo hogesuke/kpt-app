@@ -1,7 +1,6 @@
-import { Check } from 'lucide-react';
 import { ReactElement } from 'react';
 
-import { Button } from '@/components/shadcn/button';
+import { Checkbox } from '@/components/shadcn/checkbox';
 import { PROBLEM_STATUS_LABELS, TryStatus } from '@/types/kpt';
 
 interface StatusFilterProps {
@@ -12,31 +11,33 @@ interface StatusFilterProps {
 const ALL_STATUSES: TryStatus[] = ['pending', 'in_progress', 'done', 'wont_fix'];
 
 export function StatusFilter({ selectedStatuses, onStatusChange }: StatusFilterProps): ReactElement {
-  const toggleStatus = (status: TryStatus) => {
-    if (selectedStatuses.includes(status)) {
-      onStatusChange(selectedStatuses.filter((s) => s !== status));
-    } else {
+  const toggleStatus = (status: TryStatus, checked: boolean) => {
+    if (checked) {
       onStatusChange([...selectedStatuses, status]);
+    } else {
+      onStatusChange(selectedStatuses.filter((s) => s !== status));
     }
   };
 
   return (
-    <div className="flex flex-wrap items-center gap-2" role="group" aria-label="ステータスフィルター">
+    <div className="flex flex-wrap items-center gap-4" role="group" aria-label="ステータスフィルター">
       <span className="text-muted-foreground text-sm">フィルター:</span>
       {ALL_STATUSES.map((status) => {
         const isSelected = selectedStatuses.includes(status);
         return (
-          <Button
+          <label
             key={status}
-            variant={isSelected ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => toggleStatus(status)}
-            aria-pressed={isSelected}
-            className="gap-1"
+            className={`flex cursor-pointer items-center gap-2 rounded-md border px-3 py-1.5 transition-colors ${
+              isSelected ? 'border-primary bg-primary/10' : 'border-border bg-background hover:bg-muted/50'
+            }`}
           >
-            {isSelected && <Check className="h-3 w-3" aria-hidden="true" />}
-            {PROBLEM_STATUS_LABELS[status]}
-          </Button>
+            <Checkbox
+              checked={isSelected}
+              onCheckedChange={(checked) => toggleStatus(status, checked === true)}
+              className="data-[state=unchecked]:border-muted-foreground/50 shadow-none"
+            />
+            <span className="text-sm font-medium select-none">{PROBLEM_STATUS_LABELS[status]}</span>
+          </label>
         );
       })}
     </div>
