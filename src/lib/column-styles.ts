@@ -5,19 +5,28 @@ import type { KptColumnType } from '@/types/kpt';
 export const columnDot = cva('h-2 w-2 rounded-full', {
   variants: {
     column: {
-      keep: 'bg-lime-500',
-      problem: 'bg-red-400',
-      try: 'bg-blue-500',
+      keep: '',
+      problem: '',
+      try: '',
+    },
+    selected: {
+      true: '',
+      false: 'bg-gray-400',
     },
   },
+  compoundVariants: [
+    { column: 'keep', selected: true, class: 'bg-lime-500' },
+    { column: 'problem', selected: true, class: 'bg-red-400' },
+    { column: 'try', selected: true, class: 'bg-blue-500' },
+  ],
 });
 
-export const columnButton = cva('inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm transition-colors border', {
+export const columnButton = cva('inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm transition-colors', {
   variants: {
     selected: {
-      true: 'border-primary bg-primary/10 text-primary-dark dark:bg-white/10',
+      true: 'border-2 border-primary bg-primary/10 text-primary-dark',
       false:
-        'border-gray-300 text-gray-500 hover:border-gray-400 hover:text-gray-600 dark:border-gray-600 dark:text-gray-400 dark:hover:border-gray-500 dark:hover:text-gray-300',
+        'border-2 border-gray-300 text-gray-500 hover:border-gray-400 hover:text-gray-600 dark:border-gray-600 dark:text-gray-400 dark:hover:border-gray-500 dark:hover:text-gray-300',
     },
     column: {
       keep: '',
@@ -25,11 +34,6 @@ export const columnButton = cva('inline-flex items-center gap-1.5 rounded-full p
       try: '',
     },
   },
-  compoundVariants: [
-    { selected: true, column: 'keep', class: 'dark:border-lime-500' },
-    { selected: true, column: 'problem', class: 'dark:border-red-400' },
-    { selected: true, column: 'try', class: 'dark:border-blue-500' },
-  ],
   defaultVariants: {
     selected: false,
   },
