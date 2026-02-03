@@ -252,7 +252,7 @@ export function StatsSummary(): ReactElement | null {
     return (
       <div className="mb-10">
         <div className="mb-2 flex items-center justify-end">
-          <Skeleton className="h-7 w-20" />
+          <Skeleton className="h-8 w-20" />
         </div>
         <div className="grid grid-cols-3 gap-4">
           <Skeleton className="h-32 rounded-xl" />
