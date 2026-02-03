@@ -191,7 +191,7 @@ export function ItemDetailPanel({ item, onClose }: ItemDetailPanelProps): ReactE
           {/* ヘッダー */}
           <div className="flex items-center justify-between px-6 py-4">
             <span className="inline-flex items-center gap-2 text-lg font-semibold">
-              <span className={columnDot({ column: item.column })} aria-hidden="true" />
+              <span className={columnDot({ column: item.column, selected: true })} aria-hidden="true" />
               {columnLabels[item.column]}
             </span>
             <button
