@@ -1,4 +1,4 @@
-import { LogIn, LogOut, Settings, User, UserPlus } from 'lucide-react';
+import { LogIn, LogOut, Menu, Settings, User, UserPlus } from 'lucide-react';
 import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router';
@@ -54,15 +54,25 @@ export function Header(): ReactElement {
           <SkipLink />
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           {/* ページ固有のアクションを挿入するPortal */}
           <div ref={setPortalRef} className="flex items-center gap-2" />
 
-          <LanguageSelector />
-          <ThemeToggle />
+          {/* 区切り線 */}
+          <div className="mx-2 h-6 w-px bg-slate-300 dark:bg-slate-600" aria-hidden="true" />
 
+          {/* 設定グループ */}
+          <div className="flex items-center gap-3">
+            <LanguageSelector />
+            <ThemeToggle />
+          </div>
+
+          {/* 区切り線 */}
+          <div className="ml-2 h-6 w-px bg-slate-300 dark:bg-slate-600" aria-hidden="true" />
+
+          {/* 認証グループ */}
           {!user && (
-            <>
+            <div className="flex items-center gap-2">
               <Button variant="ghost" size="sm" onClick={() => navigate('/login')}>
                 <LogIn className="h-4 w-4" />
                 {t('auth:ログイン')}
@@ -71,23 +81,14 @@ export function Header(): ReactElement {
                 <UserPlus className="h-4 w-4" />
                 {t('auth:新規登録')}
               </Button>
-            </>
+            </div>
           )}
 
           {user && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="border-primary/30 bg-primary/10 hover:bg-primary/20 h-9 w-9 rounded-full border"
-                  aria-label={t('ユーザーメニュー')}
-                >
-                  {profile ? (
-                    <span className="text-primary text-sm font-medium">{profile.nickname.charAt(0).toUpperCase()}</span>
-                  ) : (
-                    <User className="text-primary h-5 w-5" />
-                  )}
+                <Button variant="ghost" size="icon" className="h-9 w-9" aria-label={t('ユーザーメニュー')}>
+                  <Menu className="h-5! w-5!" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-72">
@@ -98,7 +99,7 @@ export function Header(): ReactElement {
                         <User className="h-4 w-4 self-center" />
                         <div className="flex flex-col gap-0.5">
                           <span className="text-sm font-medium">{profile.nickname}</span>
-                          {user.email && <span className="text-muted-foreground/80 text-sm">{user.email}</span>}
+                          {user.email && <span className="text-muted-foreground text-sm">{user.email}</span>}
                         </div>
                       </div>
                     </DropdownMenuLabel>
