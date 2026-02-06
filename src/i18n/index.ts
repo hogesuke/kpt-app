@@ -26,8 +26,8 @@ const resources = {
     board: jaBoard,
     account: jaAccount,
     landing: jaLanding,
-    validation: jaValidation,
     error: jaError,
+    validation: jaValidation,
   },
   en: {
     ui: enUi,
@@ -35,8 +35,8 @@ const resources = {
     board: enBoard,
     account: enAccount,
     landing: enLanding,
-    validation: enValidation,
     error: enError,
+    validation: enValidation,
   },
 };
 
@@ -45,7 +45,7 @@ void i18n.use(LanguageDetector).init({
   fallbackLng: 'ja',
   supportedLngs: supportedLanguages,
 
-  ns: ['ui', 'auth', 'board', 'account', 'landing', 'validation', 'error'],
+  ns: ['ui', 'auth', 'board', 'account', 'landing', 'error', 'validation'],
   defaultNS: 'ui',
 
   detection: {

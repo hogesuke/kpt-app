@@ -1,4 +1,3 @@
-import { TFunction } from 'i18next';
 import { z } from 'zod';
 
 import {
@@ -10,126 +9,100 @@ import {
   PASSWORD_MIN_LENGTH,
 } from '@shared/constants';
 
-// ファクトリパターン: 翻訳関数を受け取ってスキーマを生成
-
-export const createNicknameSchema = (t: TFunction) =>
-  z.object({
-    nickname: z
-      .string()
-      .min(1, t('validation:ニックネームを入力してください'))
-      .max(NICKNAME_MAX_LENGTH, t('validation:ニックネームは{{max}}文字以内で入力してください', { max: NICKNAME_MAX_LENGTH }))
-      .transform((v) => v.trim()),
-  });
-
-export const createBoardNameSchema = (t: TFunction) =>
-  z.object({
-    name: z
-      .string()
-      .min(1, t('validation:ボード名を入力してください'))
-      .max(BOARD_NAME_MAX_LENGTH, t('validation:ボード名は{{max}}文字以内で入力してください', { max: BOARD_NAME_MAX_LENGTH }))
-      .transform((v) => v.trim()),
-  });
-
-export const createItemTextSchema = (t: TFunction) =>
-  z.object({
-    text: z
-      .string()
-      .min(1, t('validation:テキストを入力してください'))
-      .max(ITEM_TEXT_MAX_LENGTH, t('validation:テキストは{{max}}文字以内で入力してください', { max: ITEM_TEXT_MAX_LENGTH }))
-      .transform((v) => v.trim()),
-  });
-
-// 認証用スキーマファクトリ
-const createEmailSchema = (t: TFunction) =>
-  z
+export const nicknameSchema = z.object({
+  nickname: z
     .string()
-    .min(1, t('validation:メールアドレスを入力してください'))
-    .email(t('validation:有効なメールアドレスを入力してください'))
-    .max(EMAIL_MAX_LENGTH, t('validation:メールアドレスは{{max}}文字以内で入力してください', { max: EMAIL_MAX_LENGTH }));
+    .min(1, { message: 'validation:ニックネームを入力してください' })
+    .max(NICKNAME_MAX_LENGTH, { message: 'validation:{{max}}文字以内で入力してください' })
+    .transform((v) => v.trim()),
+});
 
-export const createSignInSchema = (t: TFunction) =>
-  z.object({
-    email: createEmailSchema(t),
+export const boardNameSchema = z.object({
+  name: z
+    .string()
+    .min(1, { message: 'validation:ボード名を入力してください' })
+    .max(BOARD_NAME_MAX_LENGTH, { message: 'validation:{{max}}文字以内で入力してください' })
+    .transform((v) => v.trim()),
+});
+
+export const itemTextSchema = z.object({
+  text: z
+    .string()
+    .min(1, { message: 'validation:テキストを入力してください' })
+    .max(ITEM_TEXT_MAX_LENGTH, { message: 'validation:{{max}}文字以内で入力してください' })
+    .transform((v) => v.trim()),
+});
+
+export type NicknameFormData = z.infer<typeof nicknameSchema>;
+export type BoardNameFormData = z.infer<typeof boardNameSchema>;
+export type ItemTextFormData = z.infer<typeof itemTextSchema>;
+
+// 認証用スキーマ
+const emailSchema = z
+  .string()
+  .min(1, { message: 'validation:メールアドレスを入力してください' })
+  .email({ message: 'validation:有効なメールアドレスを入力してください' })
+  .max(EMAIL_MAX_LENGTH, { message: 'validation:メールアドレスは{{max}}文字以内で入力してください' });
+
+export const signInSchema = z.object({
+  email: emailSchema,
+  password: z
+    .string()
+    .min(1, { message: 'validation:パスワードを入力してください' })
+    .max(PASSWORD_MAX_LENGTH, { message: 'validation:パスワードは{{max}}文字以内で入力してください' }),
+});
+
+export const signUpSchema = z.object({
+  email: emailSchema,
+  password: z
+    .string()
+    .min(PASSWORD_MIN_LENGTH, { message: 'validation:パスワードは{{min}}文字以上で入力してください' })
+    .max(PASSWORD_MAX_LENGTH, { message: 'validation:パスワードは{{max}}文字以内で入力してください' }),
+});
+
+export const forgotPasswordSchema = z.object({
+  email: emailSchema,
+});
+
+// カスタムエラーメッセージのキー（多言語対応のため識別子として使用）
+export const CUSTOM_ERROR_KEYS = {
+  PASSWORDS_DONT_MATCH: 'validation:パスワードが一致しません',
+  SAME_AS_CURRENT_PASSWORD: 'validation:現在のパスワードと同じパスワードは設定できません',
+} as const;
+
+export const resetPasswordSchema = z
+  .object({
     password: z
       .string()
-      .min(1, t('validation:パスワードを入力してください'))
-      .max(PASSWORD_MAX_LENGTH, t('validation:パスワードは{{max}}文字以内で入力してください', { max: PASSWORD_MAX_LENGTH })),
+      .min(PASSWORD_MIN_LENGTH, { message: 'validation:パスワードは{{min}}文字以上で入力してください' })
+      .max(PASSWORD_MAX_LENGTH, { message: 'validation:パスワードは{{max}}文字以内で入力してください' }),
+    confirmPassword: z.string().min(1, { message: 'validation:確認用パスワードを入力してください' }),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: CUSTOM_ERROR_KEYS.PASSWORDS_DONT_MATCH,
+    path: ['confirmPassword'],
   });
 
-export const createSignUpSchema = (t: TFunction) =>
-  z.object({
-    email: createEmailSchema(t),
-    password: z
+export const changePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1, { message: 'validation:現在のパスワードを入力してください' }),
+    newPassword: z
       .string()
-      .min(PASSWORD_MIN_LENGTH, t('validation:パスワードは{{min}}文字以上で入力してください', { min: PASSWORD_MIN_LENGTH }))
-      .max(PASSWORD_MAX_LENGTH, t('validation:パスワードは{{max}}文字以内で入力してください', { max: PASSWORD_MAX_LENGTH })),
+      .min(PASSWORD_MIN_LENGTH, { message: 'validation:新しいパスワードは{{min}}文字以上で入力してください' })
+      .max(PASSWORD_MAX_LENGTH, { message: 'validation:新しいパスワードは{{max}}文字以内で入力してください' }),
+    confirmPassword: z.string().min(1, { message: 'validation:確認用パスワードを入力してください' }),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: CUSTOM_ERROR_KEYS.PASSWORDS_DONT_MATCH,
+    path: ['confirmPassword'],
+  })
+  .refine((data) => data.currentPassword !== data.newPassword, {
+    message: CUSTOM_ERROR_KEYS.SAME_AS_CURRENT_PASSWORD,
+    path: ['newPassword'],
   });
 
-export const createForgotPasswordSchema = (t: TFunction) =>
-  z.object({
-    email: createEmailSchema(t),
-  });
-
-export const createResetPasswordSchema = (t: TFunction) =>
-  z
-    .object({
-      password: z
-        .string()
-        .min(PASSWORD_MIN_LENGTH, t('validation:パスワードは{{min}}文字以上で入力してください', { min: PASSWORD_MIN_LENGTH }))
-        .max(PASSWORD_MAX_LENGTH, t('validation:パスワードは{{max}}文字以内で入力してください', { max: PASSWORD_MAX_LENGTH })),
-      confirmPassword: z.string().min(1, t('validation:確認用パスワードを入力してください')),
-    })
-    .refine((data) => data.password === data.confirmPassword, {
-      message: t('validation:パスワードが一致しません'),
-      path: ['confirmPassword'],
-    });
-
-export const createChangePasswordSchema = (t: TFunction) =>
-  z
-    .object({
-      currentPassword: z.string().min(1, t('validation:現在のパスワードを入力してください')),
-      newPassword: z
-        .string()
-        .min(PASSWORD_MIN_LENGTH, t('validation:パスワードは{{min}}文字以上で入力してください', { min: PASSWORD_MIN_LENGTH }))
-        .max(PASSWORD_MAX_LENGTH, t('validation:パスワードは{{max}}文字以内で入力してください', { max: PASSWORD_MAX_LENGTH })),
-      confirmPassword: z.string().min(1, t('validation:確認用パスワードを入力してください')),
-    })
-    .refine((data) => data.newPassword === data.confirmPassword, {
-      message: t('validation:パスワードが一致しません'),
-      path: ['confirmPassword'],
-    })
-    .refine((data) => data.currentPassword !== data.newPassword, {
-      message: t('validation:現在のパスワードと同じパスワードは設定できません'),
-      path: ['newPassword'],
-    });
-
-// 型定義（静的に取得するためにダミースキーマを使用）
-// 名前空間プレフィックスを除去し、補間を処理して返す
-const dummyT = ((key: string, params?: Record<string, unknown>) => {
-  const colonIndex = key.indexOf(':');
-  let result = colonIndex !== -1 ? key.slice(colonIndex + 1) : key;
-  if (params) {
-    Object.entries(params).forEach(([paramKey, value]) => {
-      result = result.replace(`{{${paramKey}}}`, String(value));
-    });
-  }
-  return result;
-}) as TFunction;
-export type NicknameFormData = z.infer<ReturnType<typeof createNicknameSchema>>;
-export type BoardNameFormData = z.infer<ReturnType<typeof createBoardNameSchema>>;
-export type ItemTextFormData = z.infer<ReturnType<typeof createItemTextSchema>>;
-export type SignInFormData = z.infer<ReturnType<typeof createSignInSchema>>;
-export type SignUpFormData = z.infer<ReturnType<typeof createSignUpSchema>>;
-export type ForgotPasswordFormData = z.infer<ReturnType<typeof createForgotPasswordSchema>>;
-export type ResetPasswordFormData = z.infer<ReturnType<typeof createResetPasswordSchema>>;
-export type ChangePasswordFormData = z.infer<ReturnType<typeof createChangePasswordSchema>>;
-
-// 後方互換性のための静的スキーマ（移行期間中に使用）
-export const nicknameSchema = createNicknameSchema(dummyT);
-export const boardNameSchema = createBoardNameSchema(dummyT);
-export const itemTextSchema = createItemTextSchema(dummyT);
-export const signInSchema = createSignInSchema(dummyT);
-export const signUpSchema = createSignUpSchema(dummyT);
-export const forgotPasswordSchema = createForgotPasswordSchema(dummyT);
-export const resetPasswordSchema = createResetPasswordSchema(dummyT);
-export const changePasswordSchema = createChangePasswordSchema(dummyT);
+export type SignInFormData = z.infer<typeof signInSchema>;
+export type SignUpFormData = z.infer<typeof signUpSchema>;
+export type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
+export type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
+export type ChangePasswordFormData = z.infer<typeof changePasswordSchema>;

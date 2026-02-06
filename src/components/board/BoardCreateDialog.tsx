@@ -1,4 +1,3 @@
-import { zodResolver } from '@hookform/resolvers/zod';
 import { Plus } from 'lucide-react';
 import { ReactElement, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
@@ -20,6 +19,7 @@ import { Input } from '@/components/shadcn/input';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { createBoard } from '@/lib/kpt-api';
 import { boardNameSchema, BoardNameFormData } from '@/lib/schemas';
+import { zodResolverWithI18n } from '@/lib/zodResolverWithI18n';
 import { BOARD_NAME_MAX_LENGTH } from '@shared/constants';
 
 import type { KptBoard } from '@/types/kpt';
@@ -44,7 +44,7 @@ export function BoardCreateDialog({ onBoardCreated, trigger }: BoardCreateDialog
     reset,
     formState: { isSubmitting },
   } = useForm<BoardNameFormData>({
-    resolver: zodResolver(boardNameSchema),
+    resolver: zodResolverWithI18n(boardNameSchema),
     defaultValues: { name: '' },
   });
 

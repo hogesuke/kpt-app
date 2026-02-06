@@ -1,13 +1,13 @@
-import { zodResolver } from '@hookform/resolvers/zod';
-import { ReactElement, useMemo, useState } from 'react';
+import { ReactElement, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
 import { FormErrorAlert } from '@/components/forms/FormErrorAlert';
 import { LoadingButton } from '@/components/forms/LoadingButton';
 import { PasswordInput } from '@/components/forms/PasswordInput';
-import { createResetPasswordSchema, ResetPasswordFormData } from '@/lib/schemas';
+import { resetPasswordSchema, ResetPasswordFormData } from '@/lib/schemas';
 import { supabase } from '@/lib/supabase-client';
+import { zodResolverWithI18n } from '@/lib/zodResolverWithI18n';
 
 interface ResetPasswordFormProps {
   onSuccess: () => void;
@@ -16,14 +16,13 @@ interface ResetPasswordFormProps {
 export function ResetPasswordForm({ onSuccess }: ResetPasswordFormProps): ReactElement {
   const { t } = useTranslation('auth');
   const [error, setError] = useState<string | null>(null);
-  const resetPasswordSchema = useMemo(() => createResetPasswordSchema(t), [t]);
 
   const {
     register,
     handleSubmit,
     formState: { isSubmitting, errors },
   } = useForm<ResetPasswordFormData>({
-    resolver: zodResolver(resetPasswordSchema),
+    resolver: zodResolverWithI18n(resetPasswordSchema),
     defaultValues: { password: '', confirmPassword: '' },
   });
 

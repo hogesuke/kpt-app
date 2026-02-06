@@ -1,5 +1,4 @@
-import { zodResolver } from '@hookform/resolvers/zod';
-import { ReactElement, useMemo, useState } from 'react';
+import { ReactElement, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
@@ -9,8 +8,9 @@ import { LoadingButton } from '@/components/forms/LoadingButton';
 import { PasswordInput } from '@/components/forms/PasswordInput';
 import { Button } from '@/components/shadcn/button';
 import { Input } from '@/components/shadcn/input';
-import { createSignInSchema, SignInFormData } from '@/lib/schemas';
+import { signInSchema, SignInFormData } from '@/lib/schemas';
 import { supabase } from '@/lib/supabase-client';
+import { zodResolverWithI18n } from '@/lib/zodResolverWithI18n';
 
 interface SignInFormProps {
   onForgotPassword: () => void;
@@ -20,14 +20,13 @@ interface SignInFormProps {
 export function SignInForm({ onForgotPassword, onSignUp }: SignInFormProps): ReactElement {
   const { t } = useTranslation('auth');
   const [error, setError] = useState<string | null>(null);
-  const signInSchema = useMemo(() => createSignInSchema(t), [t]);
 
   const {
     register,
     handleSubmit,
     formState: { isSubmitting, errors },
   } = useForm<SignInFormData>({
-    resolver: zodResolver(signInSchema),
+    resolver: zodResolverWithI18n(signInSchema),
     defaultValues: { email: '', password: '' },
   });
 

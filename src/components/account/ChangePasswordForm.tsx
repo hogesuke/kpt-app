@@ -1,4 +1,3 @@
-import { zodResolver } from '@hookform/resolvers/zod';
 import { ReactElement, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -8,6 +7,7 @@ import { LoadingButton } from '@/components/forms/LoadingButton';
 import { PasswordInput } from '@/components/forms/PasswordInput';
 import { changePasswordSchema, ChangePasswordFormData } from '@/lib/schemas';
 import { supabase } from '@/lib/supabase-client';
+import { zodResolverWithI18n } from '@/lib/zodResolverWithI18n';
 import { useAuthStore } from '@/stores/useAuthStore';
 
 interface ChangePasswordFormProps {
@@ -24,7 +24,7 @@ export function ChangePasswordForm({ onSuccess }: ChangePasswordFormProps): Reac
     handleSubmit,
     formState: { isSubmitting, errors },
   } = useForm<ChangePasswordFormData>({
-    resolver: zodResolver(changePasswordSchema),
+    resolver: zodResolverWithI18n(changePasswordSchema),
     defaultValues: { currentPassword: '', newPassword: '', confirmPassword: '' },
   });
 

@@ -1,4 +1,3 @@
-import { zodResolver } from '@hookform/resolvers/zod';
 import { ReactElement, useEffect } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -9,6 +8,7 @@ import { Button } from '@/components/shadcn/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/shadcn/dialog';
 import { Input } from '@/components/shadcn/input';
 import { boardNameSchema, BoardNameFormData } from '@/lib/schemas';
+import { zodResolverWithI18n } from '@/lib/zodResolverWithI18n';
 import { BOARD_NAME_MAX_LENGTH } from '@shared/constants';
 
 interface BoardRenameDialogProps {
@@ -46,7 +46,7 @@ export function BoardRenameDialog({ boardName, isUpdating, onRename, isOpen, onO
     reset,
     formState: { isValid },
   } = useForm<BoardNameFormData>({
-    resolver: zodResolver(boardNameSchema),
+    resolver: zodResolverWithI18n(boardNameSchema),
     defaultValues: { name: boardName },
     mode: 'onChange',
   });

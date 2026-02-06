@@ -1,4 +1,3 @@
-import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowLeft } from 'lucide-react';
 import { ReactElement, useEffect, useRef, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
@@ -15,6 +14,7 @@ import { LoadingButton } from '@/components/forms/LoadingButton';
 import { Button } from '@/components/shadcn/button';
 import { updateProfile } from '@/lib/kpt-api';
 import { nicknameSchema, NicknameFormData } from '@/lib/schemas';
+import { zodResolverWithI18n } from '@/lib/zodResolverWithI18n';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { NICKNAME_MAX_LENGTH } from '@shared/constants';
 
@@ -41,7 +41,7 @@ export function AccountSettings(): ReactElement {
     setError,
     formState: { errors, isSubmitting },
   } = useForm<NicknameFormData>({
-    resolver: zodResolver(nicknameSchema),
+    resolver: zodResolverWithI18n(nicknameSchema),
     defaultValues: { nickname: '' },
   });
 

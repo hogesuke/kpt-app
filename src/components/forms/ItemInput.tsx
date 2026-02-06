@@ -1,4 +1,3 @@
-import { zodResolver } from '@hookform/resolvers/zod';
 import { SendHorizonal } from 'lucide-react';
 import * as React from 'react';
 import { useForm, useWatch } from 'react-hook-form';
@@ -7,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { Input } from '@/components/shadcn/input';
 import { cn } from '@/lib/cn';
 import { itemTextSchema, ItemTextFormData } from '@/lib/schemas';
+import { zodResolverWithI18n } from '@/lib/zodResolverWithI18n';
 import { ITEM_TEXT_MAX_LENGTH } from '@shared/constants';
 
 import { CharacterCounter } from './CharacterCounter';
@@ -26,7 +26,7 @@ export function ItemInput({ onSubmitText, className, disabled, ...props }: ItemI
     reset,
     formState: { isValid },
   } = useForm<ItemTextFormData>({
-    resolver: zodResolver(itemTextSchema),
+    resolver: zodResolverWithI18n(itemTextSchema),
     defaultValues: { text: '' },
     mode: 'onChange',
   });

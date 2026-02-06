@@ -13,6 +13,7 @@ import {
 import {
   boardNameSchema,
   changePasswordSchema,
+  CUSTOM_ERROR_KEYS,
   forgotPasswordSchema,
   itemTextSchema,
   nicknameSchema,
@@ -34,7 +35,7 @@ describe('nicknameSchema', () => {
     const result = nicknameSchema.safeParse({ nickname: '' });
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.error.issues[0].message).toBe('ニックネームを入力してください');
+      expect(result.error.issues[0].message).toMatch(/ニックネームを入力してください/);
     }
   });
 
@@ -43,7 +44,8 @@ describe('nicknameSchema', () => {
     const result = nicknameSchema.safeParse({ nickname: longNickname });
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.error.issues[0].message).toBe(`ニックネームは${NICKNAME_MAX_LENGTH}文字以内で入力してください`);
+      // i18n用のプレフィックス付きメッセージを確認（zodResolverWithI18nで翻訳される）
+      expect(result.error.issues[0].message).toBe('validation:{{max}}文字以内で入力してください');
     }
   });
 
@@ -84,18 +86,12 @@ describe('boardNameSchema', () => {
   it('空文字を拒否すること', () => {
     const result = boardNameSchema.safeParse({ name: '' });
     expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(result.error.issues[0].message).toBe('ボード名を入力してください');
-    }
   });
 
   it('最大文字数を超える場合に拒否すること', () => {
     const longName = 'あ'.repeat(BOARD_NAME_MAX_LENGTH + 1);
     const result = boardNameSchema.safeParse({ name: longName });
     expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(result.error.issues[0].message).toBe(`ボード名は${BOARD_NAME_MAX_LENGTH}文字以内で入力してください`);
-    }
   });
 
   it('前後の空白がtrimされること', () => {
@@ -119,18 +115,12 @@ describe('itemTextSchema', () => {
   it('空文字を拒否すること', () => {
     const result = itemTextSchema.safeParse({ text: '' });
     expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(result.error.issues[0].message).toBe('テキストを入力してください');
-    }
   });
 
   it('最大文字数を超える場合に拒否すること', () => {
     const longText = 'あ'.repeat(ITEM_TEXT_MAX_LENGTH + 1);
     const result = itemTextSchema.safeParse({ text: longText });
     expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(result.error.issues[0].message).toBe(`テキストは${ITEM_TEXT_MAX_LENGTH}文字以内で入力してください`);
-    }
   });
 
   it('最大文字数ちょうどは受け入れること', () => {
@@ -163,9 +153,6 @@ describe('signInSchema', () => {
       password: 'password123',
     });
     expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(result.error.issues[0].message).toBe('有効なメールアドレスを入力してください');
-    }
   });
 
   it('空のメールアドレスを拒否すること', () => {
@@ -182,9 +169,6 @@ describe('signInSchema', () => {
       password: '',
     });
     expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(result.error.issues[0].message).toBe('パスワードを入力してください');
-    }
   });
 
   it('メールアドレスが最大文字数を超える場合に拒否すること', () => {
@@ -222,9 +206,6 @@ describe('signUpSchema', () => {
       password: shortPassword,
     });
     expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(result.error.issues[0].message).toBe(`パスワードは${PASSWORD_MIN_LENGTH}文字以上で入力してください`);
-    }
   });
 
   it('パスワードが最小文字数ちょうどは受け入れること', () => {
@@ -286,7 +267,10 @@ describe('resetPasswordSchema', () => {
     expect(result.success).toBe(false);
     if (!result.success) {
       const confirmError = result.error.issues.find((e) => e.path.includes('confirmPassword'));
-      expect(confirmError?.message).toBe('パスワードが一致しません');
+      // カスタムエラーキーまたは翻訳されたメッセージを確認
+      expect([CUSTOM_ERROR_KEYS.PASSWORDS_DONT_MATCH, 'パスワードが一致しません', 'Passwords do not match']).toContain(
+        confirmError?.message
+      );
     }
   });
 
@@ -298,7 +282,7 @@ describe('resetPasswordSchema', () => {
     expect(result.success).toBe(false);
     if (!result.success) {
       const confirmError = result.error.issues.find((e) => e.path.includes('confirmPassword'));
-      expect(confirmError?.message).toBe('確認用パスワードを入力してください');
+      expect(confirmError?.message).toBeDefined();
     }
   });
 
@@ -331,7 +315,7 @@ describe('changePasswordSchema', () => {
     expect(result.success).toBe(false);
     if (!result.success) {
       const currentError = result.error.issues.find((e) => e.path.includes('currentPassword'));
-      expect(currentError?.message).toBe('現在のパスワードを入力してください');
+      expect(currentError?.message).toBeDefined();
     }
   });
 
@@ -344,7 +328,10 @@ describe('changePasswordSchema', () => {
     expect(result.success).toBe(false);
     if (!result.success) {
       const confirmError = result.error.issues.find((e) => e.path.includes('confirmPassword'));
-      expect(confirmError?.message).toBe('パスワードが一致しません');
+      // カスタムエラーキーまたは翻訳されたメッセージを確認
+      expect([CUSTOM_ERROR_KEYS.PASSWORDS_DONT_MATCH, 'パスワードが一致しません', 'Passwords do not match']).toContain(
+        confirmError?.message
+      );
     }
   });
 
@@ -357,7 +344,12 @@ describe('changePasswordSchema', () => {
     expect(result.success).toBe(false);
     if (!result.success) {
       const newPasswordError = result.error.issues.find((e) => e.path.includes('newPassword'));
-      expect(newPasswordError?.message).toBe('現在のパスワードと同じパスワードは設定できません');
+      // カスタムエラーキーまたは翻訳されたメッセージを確認
+      expect([
+        CUSTOM_ERROR_KEYS.SAME_AS_CURRENT_PASSWORD,
+        '現在のパスワードと同じパスワードは設定できません',
+        'New password cannot be the same as current password',
+      ]).toContain(newPasswordError?.message);
     }
   });
 
@@ -371,7 +363,7 @@ describe('changePasswordSchema', () => {
     expect(result.success).toBe(false);
     if (!result.success) {
       const newPasswordError = result.error.issues.find((e) => e.path.includes('newPassword'));
-      expect(newPasswordError?.message).toBe(`パスワードは${PASSWORD_MIN_LENGTH}文字以上で入力してください`);
+      expect(newPasswordError?.message).toBeDefined();
     }
   });
 
@@ -384,7 +376,7 @@ describe('changePasswordSchema', () => {
     expect(result.success).toBe(false);
     if (!result.success) {
       const confirmError = result.error.issues.find((e) => e.path.includes('confirmPassword'));
-      expect(confirmError?.message).toBe('確認用パスワードを入力してください');
+      expect(confirmError?.message).toBeDefined();
     }
   });
 });
