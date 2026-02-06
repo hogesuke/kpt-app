@@ -64,12 +64,6 @@ export const forgotPasswordSchema = z.object({
   email: emailSchema,
 });
 
-// カスタムエラーメッセージのキー（多言語対応のため識別子として使用）
-export const CUSTOM_ERROR_KEYS = {
-  PASSWORDS_DONT_MATCH: 'validation:パスワードが一致しません',
-  SAME_AS_CURRENT_PASSWORD: 'validation:現在のパスワードと同じパスワードは設定できません',
-} as const;
-
 export const resetPasswordSchema = z
   .object({
     password: z
@@ -79,7 +73,7 @@ export const resetPasswordSchema = z
     confirmPassword: z.string().min(1, { message: 'validation:確認用パスワードを入力してください' }),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: CUSTOM_ERROR_KEYS.PASSWORDS_DONT_MATCH,
+    message: 'validation:パスワードが一致しません',
     path: ['confirmPassword'],
   });
 
@@ -93,11 +87,11 @@ export const changePasswordSchema = z
     confirmPassword: z.string().min(1, { message: 'validation:確認用パスワードを入力してください' }),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
-    message: CUSTOM_ERROR_KEYS.PASSWORDS_DONT_MATCH,
+    message: 'validation:パスワードが一致しません',
     path: ['confirmPassword'],
   })
   .refine((data) => data.currentPassword !== data.newPassword, {
-    message: CUSTOM_ERROR_KEYS.SAME_AS_CURRENT_PASSWORD,
+    message: 'validation:現在のパスワードと同じパスワードは設定できません',
     path: ['newPassword'],
   });
 

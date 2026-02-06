@@ -13,7 +13,6 @@ import {
 import {
   boardNameSchema,
   changePasswordSchema,
-  CUSTOM_ERROR_KEYS,
   forgotPasswordSchema,
   itemTextSchema,
   nicknameSchema,
@@ -267,10 +266,7 @@ describe('resetPasswordSchema', () => {
     expect(result.success).toBe(false);
     if (!result.success) {
       const confirmError = result.error.issues.find((e) => e.path.includes('confirmPassword'));
-      // カスタムエラーキーまたは翻訳されたメッセージを確認
-      expect([CUSTOM_ERROR_KEYS.PASSWORDS_DONT_MATCH, 'パスワードが一致しません', 'Passwords do not match']).toContain(
-        confirmError?.message
-      );
+      expect(confirmError?.message).toBe('validation:パスワードが一致しません');
     }
   });
 
@@ -328,10 +324,7 @@ describe('changePasswordSchema', () => {
     expect(result.success).toBe(false);
     if (!result.success) {
       const confirmError = result.error.issues.find((e) => e.path.includes('confirmPassword'));
-      // カスタムエラーキーまたは翻訳されたメッセージを確認
-      expect([CUSTOM_ERROR_KEYS.PASSWORDS_DONT_MATCH, 'パスワードが一致しません', 'Passwords do not match']).toContain(
-        confirmError?.message
-      );
+      expect(confirmError?.message).toBe('validation:パスワードが一致しません');
     }
   });
 
@@ -344,12 +337,7 @@ describe('changePasswordSchema', () => {
     expect(result.success).toBe(false);
     if (!result.success) {
       const newPasswordError = result.error.issues.find((e) => e.path.includes('newPassword'));
-      // カスタムエラーキーまたは翻訳されたメッセージを確認
-      expect([
-        CUSTOM_ERROR_KEYS.SAME_AS_CURRENT_PASSWORD,
-        '現在のパスワードと同じパスワードは設定できません',
-        'New password cannot be the same as current password',
-      ]).toContain(newPasswordError?.message);
+      expect(newPasswordError?.message).toBe('validation:現在のパスワードと同じパスワードは設定できません');
     }
   });
 
