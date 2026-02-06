@@ -2,7 +2,8 @@ import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Checkbox } from '@/components/shadcn/checkbox';
-import { getStatusLabels, TryStatus } from '@/types/kpt';
+import { getStatusLabels } from '@/lib/kpt-helpers';
+import { TryStatus } from '@/types/kpt';
 
 interface StatusFilterProps {
   selectedStatuses: TryStatus[];

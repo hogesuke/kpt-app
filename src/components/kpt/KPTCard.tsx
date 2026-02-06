@@ -8,11 +8,11 @@ import { useTranslation } from 'react-i18next';
 
 import { cn } from '@/lib/cn';
 import { isOverdue } from '@/lib/date-utils';
-import { getStatusLabels } from '@/types/kpt';
+import { getStatusLabels } from '@/lib/kpt-helpers';
 
 import { VoteButton } from './VoteButton';
 
-import type { KptItem, TryStatus } from '@/types/kpt';
+import type { KptItem } from '@/types/kpt';
 
 const statusBadge = cva('rounded-full px-2 py-0.5', {
   variants: {

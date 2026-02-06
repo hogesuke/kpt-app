@@ -1,6 +1,6 @@
 import { TFunction } from 'i18next';
 
-import { getStatusLabels } from '@/types/kpt';
+import { getStatusLabels } from '@/lib/kpt-helpers';
 
 import type { KptColumnType, KptItem } from '@/types/kpt';
 

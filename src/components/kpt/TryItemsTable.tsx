@@ -6,7 +6,8 @@ import { Link } from 'react-router';
 import { TryTableRowSkeleton } from '@/components/kpt/TryTableRowSkeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/shadcn/table';
 import { isOverdue } from '@/lib/date-utils';
-import { getStatusLabels, TryItemWithBoard, TryStatus } from '@/types/kpt';
+import { getStatusLabels } from '@/lib/kpt-helpers';
+import { TryItemWithBoard, TryStatus } from '@/types/kpt';
 
 interface TryItemsTableProps {
   items: TryItemWithBoard[];

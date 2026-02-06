@@ -10,7 +10,7 @@ import { Input } from '@/components/shadcn/input';
 import { Label } from '@/components/shadcn/label';
 import { RadioGroup, RadioGroupItem } from '@/components/shadcn/radio-group';
 import { useBoardContext } from '@/contexts/BoardContext';
-import { getTimerPresets } from '@/types/kpt';
+import { getTimerPresets } from '@/lib/kpt-helpers';
 
 interface TimerProps {
   disabled?: boolean;

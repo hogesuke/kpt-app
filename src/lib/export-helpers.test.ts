@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 
 import '@/i18n';
 
-import { getStatusLabels } from '@/types/kpt';
+import { getStatusLabels } from '@/lib/kpt-helpers';
 
 import { generateCSV, generateMarkdown } from './export-helpers';
 
