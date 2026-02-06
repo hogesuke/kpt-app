@@ -1,6 +1,6 @@
-import { zodResolver } from '@hookform/resolvers/zod';
 import { ReactElement, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 import { FieldError } from '@/components/forms/FieldError';
 import { FormErrorAlert } from '@/components/forms/FormErrorAlert';
@@ -10,6 +10,7 @@ import { Button } from '@/components/shadcn/button';
 import { Input } from '@/components/shadcn/input';
 import { signInSchema, SignInFormData } from '@/lib/schemas';
 import { supabase } from '@/lib/supabase-client';
+import { zodResolverWithI18n } from '@/lib/zodResolverWithI18n';
 
 interface SignInFormProps {
   onForgotPassword: () => void;
@@ -17,6 +18,7 @@ interface SignInFormProps {
 }
 
 export function SignInForm({ onForgotPassword, onSignUp }: SignInFormProps): ReactElement {
+  const { t } = useTranslation('auth');
   const [error, setError] = useState<string | null>(null);
 
   const {
@@ -24,7 +26,7 @@ export function SignInForm({ onForgotPassword, onSignUp }: SignInFormProps): Rea
     handleSubmit,
     formState: { isSubmitting, errors },
   } = useForm<SignInFormData>({
-    resolver: zodResolver(signInSchema),
+    resolver: zodResolverWithI18n(signInSchema),
     defaultValues: { email: '', password: '' },
   });
 
@@ -36,7 +38,7 @@ export function SignInForm({ onForgotPassword, onSignUp }: SignInFormProps): Rea
     });
 
     if (error) {
-      setError('メールアドレスまたはパスワードが正しくありません');
+      setError(t('メールアドレスまたはパスワードが正しくありません'));
     }
   };
 
@@ -46,7 +48,7 @@ export function SignInForm({ onForgotPassword, onSignUp }: SignInFormProps): Rea
 
       <div className="space-y-1">
         <label htmlFor="email" className="block text-sm font-medium">
-          メールアドレス
+          {t('メールアドレス')}
         </label>
         <Input
           id="email"
@@ -61,24 +63,24 @@ export function SignInForm({ onForgotPassword, onSignUp }: SignInFormProps): Rea
 
       <div className="space-y-1">
         <label htmlFor="password" className="block text-sm font-medium">
-          パスワード
+          {t('パスワード')}
         </label>
-        <PasswordInput id="password" placeholder="パスワードを入力" error={errors.password?.message} {...register('password')} />
+        <PasswordInput id="password" placeholder={t('パスワードを入力')} error={errors.password?.message} {...register('password')} />
       </div>
 
       <LoadingButton type="submit" className="h-10 w-full" loading={isSubmitting}>
-        ログイン
+        {t('ログイン')}
       </LoadingButton>
 
       <div className="-mt-2 text-center text-sm">
         <button type="button" onClick={onForgotPassword} className="text-muted-foreground hover:text-foreground rounded underline">
-          パスワードをお忘れですか？
+          {t('パスワードをお忘れですか？')}
         </button>
       </div>
 
       <div className="pt-2">
         <Button type="button" variant="outline" className="h-10 w-full" onClick={onSignUp}>
-          新規登録
+          {t('新規登録')}
         </Button>
       </div>
     </form>

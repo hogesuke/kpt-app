@@ -1,18 +1,20 @@
-import { zodResolver } from '@hookform/resolvers/zod';
 import { ReactElement, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 import { FormErrorAlert } from '@/components/forms/FormErrorAlert';
 import { LoadingButton } from '@/components/forms/LoadingButton';
 import { PasswordInput } from '@/components/forms/PasswordInput';
 import { resetPasswordSchema, ResetPasswordFormData } from '@/lib/schemas';
 import { supabase } from '@/lib/supabase-client';
+import { zodResolverWithI18n } from '@/lib/zodResolverWithI18n';
 
 interface ResetPasswordFormProps {
   onSuccess: () => void;
 }
 
 export function ResetPasswordForm({ onSuccess }: ResetPasswordFormProps): ReactElement {
+  const { t } = useTranslation('auth');
   const [error, setError] = useState<string | null>(null);
 
   const {
@@ -20,7 +22,7 @@ export function ResetPasswordForm({ onSuccess }: ResetPasswordFormProps): ReactE
     handleSubmit,
     formState: { isSubmitting, errors },
   } = useForm<ResetPasswordFormData>({
-    resolver: zodResolver(resetPasswordSchema),
+    resolver: zodResolverWithI18n(resetPasswordSchema),
     defaultValues: { password: '', confirmPassword: '' },
   });
 
@@ -31,7 +33,7 @@ export function ResetPasswordForm({ onSuccess }: ResetPasswordFormProps): ReactE
     });
 
     if (error) {
-      setError('パスワードの変更に失敗しました');
+      setError(t('パスワードの変更に失敗しました'));
     } else {
       onSuccess();
     }
@@ -43,25 +45,25 @@ export function ResetPasswordForm({ onSuccess }: ResetPasswordFormProps): ReactE
 
       <div className="space-y-1">
         <label htmlFor="password" className="block text-sm font-medium">
-          新しいパスワード
+          {t('新しいパスワード')}
         </label>
-        <PasswordInput id="password" placeholder="8文字以上で入力" error={errors.password?.message} {...register('password')} />
+        <PasswordInput id="password" placeholder={t('8文字以上で入力')} error={errors.password?.message} {...register('password')} />
       </div>
 
       <div className="space-y-1">
         <label htmlFor="confirmPassword" className="block text-sm font-medium">
-          新しいパスワード（確認）
+          {t('新しいパスワード（確認）')}
         </label>
         <PasswordInput
           id="confirmPassword"
-          placeholder="もう一度入力"
+          placeholder={t('もう一度入力')}
           error={errors.confirmPassword?.message}
           {...register('confirmPassword')}
         />
       </div>
 
       <LoadingButton type="submit" className="h-10 w-full" loading={isSubmitting}>
-        パスワードを変更
+        {t('パスワードを変更')}
       </LoadingButton>
     </form>
   );

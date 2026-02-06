@@ -12,24 +12,24 @@ import {
 export const nicknameSchema = z.object({
   nickname: z
     .string()
-    .min(1, 'ニックネームを入力してください')
-    .max(NICKNAME_MAX_LENGTH, `${NICKNAME_MAX_LENGTH}文字以内で入力してください`)
+    .min(1, { message: 'validation:ニックネームを入力してください' })
+    .max(NICKNAME_MAX_LENGTH, { message: 'validation:{{max}}文字以内で入力してください' })
     .transform((v) => v.trim()),
 });
 
 export const boardNameSchema = z.object({
   name: z
     .string()
-    .min(1, 'ボード名を入力してください')
-    .max(BOARD_NAME_MAX_LENGTH, `${BOARD_NAME_MAX_LENGTH}文字以内で入力してください`)
+    .min(1, { message: 'validation:ボード名を入力してください' })
+    .max(BOARD_NAME_MAX_LENGTH, { message: 'validation:{{max}}文字以内で入力してください' })
     .transform((v) => v.trim()),
 });
 
 export const itemTextSchema = z.object({
   text: z
     .string()
-    .min(1, 'テキストを入力してください')
-    .max(ITEM_TEXT_MAX_LENGTH, `${ITEM_TEXT_MAX_LENGTH}文字以内で入力してください`)
+    .min(1, { message: 'validation:テキストを入力してください' })
+    .max(ITEM_TEXT_MAX_LENGTH, { message: 'validation:{{max}}文字以内で入力してください' })
     .transform((v) => v.trim()),
 });
 
@@ -39,24 +39,25 @@ export type ItemTextFormData = z.infer<typeof itemTextSchema>;
 
 // 認証用スキーマ
 const emailSchema = z
-  .email('有効なメールアドレスを入力してください')
-  .min(1, 'メールアドレスを入力してください')
-  .max(EMAIL_MAX_LENGTH, `メールアドレスは${EMAIL_MAX_LENGTH}文字以内で入力してください`);
+  .string()
+  .min(1, { message: 'validation:メールアドレスを入力してください' })
+  .email({ message: 'validation:有効なメールアドレスを入力してください' })
+  .max(EMAIL_MAX_LENGTH, { message: 'validation:メールアドレスは{{max}}文字以内で入力してください' });
 
 export const signInSchema = z.object({
   email: emailSchema,
   password: z
     .string()
-    .min(1, 'パスワードを入力してください')
-    .max(PASSWORD_MAX_LENGTH, `パスワードは${PASSWORD_MAX_LENGTH}文字以内で入力してください`),
+    .min(1, { message: 'validation:パスワードを入力してください' })
+    .max(PASSWORD_MAX_LENGTH, { message: 'validation:パスワードは{{max}}文字以内で入力してください' }),
 });
 
 export const signUpSchema = z.object({
   email: emailSchema,
   password: z
     .string()
-    .min(PASSWORD_MIN_LENGTH, `パスワードは${PASSWORD_MIN_LENGTH}文字以上で入力してください`)
-    .max(PASSWORD_MAX_LENGTH, `パスワードは${PASSWORD_MAX_LENGTH}文字以内で入力してください`),
+    .min(PASSWORD_MIN_LENGTH, { message: 'validation:パスワードは{{min}}文字以上で入力してください' })
+    .max(PASSWORD_MAX_LENGTH, { message: 'validation:パスワードは{{max}}文字以内で入力してください' }),
 });
 
 export const forgotPasswordSchema = z.object({
@@ -67,30 +68,30 @@ export const resetPasswordSchema = z
   .object({
     password: z
       .string()
-      .min(PASSWORD_MIN_LENGTH, `パスワードは${PASSWORD_MIN_LENGTH}文字以上で入力してください`)
-      .max(PASSWORD_MAX_LENGTH, `パスワードは${PASSWORD_MAX_LENGTH}文字以内で入力してください`),
-    confirmPassword: z.string().min(1, '確認用パスワードを入力してください'),
+      .min(PASSWORD_MIN_LENGTH, { message: 'validation:パスワードは{{min}}文字以上で入力してください' })
+      .max(PASSWORD_MAX_LENGTH, { message: 'validation:パスワードは{{max}}文字以内で入力してください' }),
+    confirmPassword: z.string().min(1, { message: 'validation:確認用パスワードを入力してください' }),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: 'パスワードが一致しません',
+    message: 'validation:パスワードが一致しません',
     path: ['confirmPassword'],
   });
 
 export const changePasswordSchema = z
   .object({
-    currentPassword: z.string().min(1, '現在のパスワードを入力してください'),
+    currentPassword: z.string().min(1, { message: 'validation:現在のパスワードを入力してください' }),
     newPassword: z
       .string()
-      .min(PASSWORD_MIN_LENGTH, `新しいパスワードは${PASSWORD_MIN_LENGTH}文字以上で入力してください`)
-      .max(PASSWORD_MAX_LENGTH, `新しいパスワードは${PASSWORD_MAX_LENGTH}文字以内で入力してください`),
-    confirmPassword: z.string().min(1, '確認用パスワードを入力してください'),
+      .min(PASSWORD_MIN_LENGTH, { message: 'validation:新しいパスワードは{{min}}文字以上で入力してください' })
+      .max(PASSWORD_MAX_LENGTH, { message: 'validation:新しいパスワードは{{max}}文字以内で入力してください' }),
+    confirmPassword: z.string().min(1, { message: 'validation:確認用パスワードを入力してください' }),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
-    message: 'パスワードが一致しません',
+    message: 'validation:パスワードが一致しません',
     path: ['confirmPassword'],
   })
   .refine((data) => data.currentPassword !== data.newPassword, {
-    message: '現在のパスワードと同じパスワードは設定できません',
+    message: 'validation:現在のパスワードと同じパスワードは設定できません',
     path: ['newPassword'],
   });
 

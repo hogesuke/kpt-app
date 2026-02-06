@@ -1,7 +1,9 @@
 import { ReactElement } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { Checkbox } from '@/components/shadcn/checkbox';
-import { PROBLEM_STATUS_LABELS, TryStatus } from '@/types/kpt';
+import { getStatusLabels } from '@/lib/kpt-helpers';
+import { TryStatus } from '@/types/kpt';
 
 interface StatusFilterProps {
   selectedStatuses: TryStatus[];
@@ -11,6 +13,8 @@ interface StatusFilterProps {
 const ALL_STATUSES: TryStatus[] = ['pending', 'in_progress', 'done', 'wont_fix'];
 
 export function StatusFilter({ selectedStatuses, onStatusChange }: StatusFilterProps): ReactElement {
+  const { t } = useTranslation('board');
+
   const toggleStatus = (status: TryStatus, checked: boolean) => {
     if (checked) {
       onStatusChange([...selectedStatuses, status]);
@@ -20,8 +24,8 @@ export function StatusFilter({ selectedStatuses, onStatusChange }: StatusFilterP
   };
 
   return (
-    <div className="flex flex-wrap items-center gap-2" role="group" aria-label="ステータスフィルター">
-      <span className="text-muted-foreground text-sm">フィルター:</span>
+    <div className="flex flex-wrap items-center gap-2" role="group" aria-label={t('ステータスフィルター')}>
+      <span className="text-muted-foreground text-sm">{t('フィルター:')}</span>
       {ALL_STATUSES.map((status) => {
         const isSelected = selectedStatuses.includes(status);
         return (
@@ -36,7 +40,7 @@ export function StatusFilter({ selectedStatuses, onStatusChange }: StatusFilterP
               onCheckedChange={(checked) => toggleStatus(status, checked === true)}
               className="data-[state=unchecked]:border-muted-foreground/50 h-4 w-4 rounded-sm shadow-none"
             />
-            <span className="select-none">{PROBLEM_STATUS_LABELS[status]}</span>
+            <span className="select-none">{getStatusLabels()[status]}</span>
           </label>
         );
       })}

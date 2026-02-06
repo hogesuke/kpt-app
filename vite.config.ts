@@ -16,7 +16,7 @@ export default defineConfig({
           supabase: ['@supabase/supabase-js'],
           ui: ['lucide-react', 'sonner', 'class-variance-authority', 'clsx', 'tailwind-merge'],
           charts: ['recharts'],
-          forms: ['react-hook-form', '@hookform/resolvers', 'zod'],
+          forms: ['react-hook-form', 'zod'],
           dnd: ['@dnd-kit/core', '@dnd-kit/sortable', '@dnd-kit/utilities'],
         },
       },
@@ -37,8 +37,12 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
       '@shared': fileURLToPath(new URL('./shared', import.meta.url)),
     },
+    dedupe: ['react', 'react-dom', 'react-i18next'],
   },
   server: {
     port: 5173,
+  },
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'i18next', 'i18next-browser-languagedetector', 'react-i18next'],
   },
 });

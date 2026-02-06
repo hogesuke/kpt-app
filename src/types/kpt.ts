@@ -4,13 +4,6 @@ export type KptColumnType = (typeof VALID_COLUMNS)[number];
 
 export type TryStatus = (typeof VALID_TRY_STATUSES)[number];
 
-export const PROBLEM_STATUS_LABELS: Record<TryStatus, string> = {
-  pending: '未対応',
-  in_progress: '対応中',
-  done: '完了',
-  wont_fix: '対応不要',
-};
-
 /**
  * タイマーステータス
  */
@@ -20,16 +13,6 @@ export interface TimerState {
   hideOthersCards: boolean;
   startedBy: string | null;
 }
-
-/**
- * タイマープリセット
- */
-export const TIMER_PRESETS = [
-  { label: '1分', seconds: 60 },
-  { label: '3分', seconds: 180 },
-  { label: '5分', seconds: 300 },
-  { label: '10分', seconds: 600 },
-] as const;
 
 export interface KptBoard {
   id: string;

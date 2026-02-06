@@ -1,6 +1,6 @@
-import { zodResolver } from '@hookform/resolvers/zod';
 import { ReactElement, useEffect } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 import { CharacterCounter } from '@/components/forms/CharacterCounter';
 import { LoadingButton } from '@/components/forms/LoadingButton';
@@ -8,6 +8,7 @@ import { Button } from '@/components/shadcn/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/shadcn/dialog';
 import { Input } from '@/components/shadcn/input';
 import { boardNameSchema, BoardNameFormData } from '@/lib/schemas';
+import { zodResolverWithI18n } from '@/lib/zodResolverWithI18n';
 import { BOARD_NAME_MAX_LENGTH } from '@shared/constants';
 
 interface BoardRenameDialogProps {
@@ -37,6 +38,7 @@ interface BoardRenameDialogProps {
  * ボード名変更ダイアログ
  */
 export function BoardRenameDialog({ boardName, isUpdating, onRename, isOpen, onOpenChange }: BoardRenameDialogProps): ReactElement {
+  const { t } = useTranslation('board');
   const {
     register,
     handleSubmit,
@@ -44,7 +46,7 @@ export function BoardRenameDialog({ boardName, isUpdating, onRename, isOpen, onO
     reset,
     formState: { isValid },
   } = useForm<BoardNameFormData>({
-    resolver: zodResolver(boardNameSchema),
+    resolver: zodResolverWithI18n(boardNameSchema),
     defaultValues: { name: boardName },
     mode: 'onChange',
   });
@@ -69,21 +71,20 @@ export function BoardRenameDialog({ boardName, isUpdating, onRename, isOpen, onO
   };
 
   const isUnchanged = name.trim() === boardName;
-  const canSubmit = isValid && !isUnchanged && !isUpdating;
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>ボード名を変更</DialogTitle>
-          <DialogDescription>新しいボード名を入力してください。</DialogDescription>
+          <DialogTitle>{t('ボード名を変更')}</DialogTitle>
+          <DialogDescription>{t('新しいボード名を入力してください。')}</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-1">
             <div className="flex items-center justify-between">
               <label htmlFor="newBoardName" className="block text-sm font-medium">
-                ボード名
+                {t('ボード名')}
                 <span className="text-red-500"> *</span>
               </label>
               <CharacterCounter current={name.length} max={BOARD_NAME_MAX_LENGTH} />
@@ -100,10 +101,10 @@ export function BoardRenameDialog({ boardName, isUpdating, onRename, isOpen, onO
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => handleOpenChange(false)} disabled={isUpdating}>
-              キャンセル
+              {t('ui:キャンセル')}
             </Button>
             <LoadingButton type="submit" disabled={!isValid || isUnchanged} loading={isUpdating}>
-              変更
+              {t('ui:変更')}
             </LoadingButton>
           </DialogFooter>
         </form>
