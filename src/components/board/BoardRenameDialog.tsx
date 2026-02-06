@@ -85,7 +85,6 @@ export function BoardRenameDialog({ boardName, isUpdating, onRename, isOpen, onO
             <div className="flex items-center justify-between">
               <label htmlFor="newBoardName" className="block text-sm font-medium">
                 {t('ボード名')}
-                <span className="text-red-500"> *</span>
               </label>
               <CharacterCounter current={name.length} max={BOARD_NAME_MAX_LENGTH} />
             </div>
