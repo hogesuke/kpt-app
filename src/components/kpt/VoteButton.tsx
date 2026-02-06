@@ -1,6 +1,6 @@
 import { Flame, ThumbsUp } from 'lucide-react';
 import * as React from 'react';
-import { ReactElement } from 'react';
+import { ReactElement, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/shadcn/tooltip';
@@ -35,11 +35,15 @@ export function VoteButton({
   totalMemberCount,
 }: VoteButtonProps): ReactElement {
   const { t } = useTranslation('board');
+  const [isAnimating, setIsAnimating] = useState(false);
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     if (stopPropagation) {
       event.stopPropagation();
     }
+
+    setIsAnimating(true);
+    setTimeout(() => setIsAnimating(false), 300);
     onVote();
   };
 
@@ -63,19 +67,20 @@ export function VoteButton({
           type="button"
           onClick={handleClick}
           className={cn(
-            'inline-flex items-center gap-1.5 rounded-full transition-colors',
+            'inline-flex items-center gap-1.5 rounded-full transition-all duration-200',
             size === 'sm' ? 'py-1 pr-1.25 pl-2 text-xs' : 'min-h-[30px] px-2.5 py-1 text-sm',
             isAllVoted
               ? 'border border-red-500/30 bg-red-500/10 text-red-600 hover:bg-red-500/20'
               : hasVoted
                 ? 'border-primary/40 bg-primary/10 text-primary hover:bg-primary/20 dark:bg-primary/30 dark:hover:bg-primary/40 border'
                 : 'text-muted-foreground hover:bg-muted hover:text-foreground border border-transparent',
+            isAnimating && 'scale-110',
             className
           )}
           aria-label={ariaLabel}
           aria-pressed={hasVoted}
         >
-          <Icon className="h-3.5 w-3.5" aria-hidden="true" />
+          <Icon className={cn('h-3.5 w-3.5 transition-transform duration-200', isAnimating && 'scale-125')} aria-hidden="true" />
           {voteCount > 0 && <span>{voteCount}</span>}
         </button>
       </TooltipTrigger>
