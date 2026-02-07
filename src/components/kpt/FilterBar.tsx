@@ -29,7 +29,7 @@ export const FilterBar = memo(function FilterBar({
 
   return (
     <div className="flex items-center gap-2">
-      <span className="text-muted-foreground text-sm">{t('フィルター:')}</span>
+      <span className="text-muted-foreground text-sm">{t('フィルター')}:</span>
       <div className="flex flex-wrap items-center gap-2">
         {filterTag && <FilterChip label={filterTag} onRemove={onRemoveTag} />}
         {filterMemberName && <FilterChip icon={<User className="h-3 w-3" />} label={filterMemberName} onRemove={onRemoveMember} />}
