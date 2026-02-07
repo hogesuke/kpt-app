@@ -65,7 +65,7 @@
   "「{{text}}」に投票する": "Vote for \"{{text}}\"",
   "「{{text}}」の投票を取り消す": "Remove vote for \"{{text}}\"",
   "名前未設定": "Unnamed",
-  "フィルター:": "Filter:",
+  "フィルター": "Filter",
   "フィルターを解除": "Clear filter",
   "ステータスフィルター": "Status filter",
   "{{name}}でフィルター": "Filter by {{name}}",
